@@ -6,12 +6,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>APIs • wildrtrax</title>
-<!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
-<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
-<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png">
-<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png">
-<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" sizes="any" href="../favicon.ico">
+<link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
@@ -26,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">wildrtrax</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.3.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -53,6 +52,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-news" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">News</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-news">
 <li><h6 class="dropdown-header" data-toc-skip>Releases</h6></li>
+    <li><h6 class="dropdown-header" data-toc-skip>wildrtrax 1.4.0</h6></li>
     <li><h6 class="dropdown-header" data-toc-skip>wildrtrax 1.3.3</h6></li>
     <li><h6 class="dropdown-header" data-toc-skip>wildrtrax 1.3.2</h6></li>
     <li><h6 class="dropdown-header" data-toc-skip>wildrtrax 1.3.1</h6></li>
@@ -118,7 +118,7 @@ you will need to re-authenticate.</p>
 <h2 id="making-api-calls">Making API calls<a class="anchor" aria-label="anchor" href="#making-api-calls"></a>
 </h2>
 <p>Once authenticated, you can now use various functions that call upon
-the WildTrax API. For instance, you can use
+the WildTrax APIs. For instance, you can use
 <code><a href="../reference/wt_get_download_summary.html">wt_get_download_summary()</a></code> to see basic metadata about
 projects that you can download data for.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
@@ -126,20 +126,15 @@ projects that you can download data for.</p>
 <span><span class="va">my_projects</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/wt_get_download_summary.html">wt_get_download_summary</a></span><span class="op">(</span>sensor_id <span class="op">=</span> <span class="st">'ARU'</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">my_projects</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   organization_id organization                                 project</span></span>
-<span><span class="co">#&gt; 1               5         ABMI    ABMI Adopt-a-Camera ARU Surveys 2017</span></span>
-<span><span class="co">#&gt; 2               5         ABMI          ABMI Amphibian Monitoring 2020</span></span>
-<span><span class="co">#&gt; 3               5         ABMI Before-After Dose Response Project 2021</span></span>
-<span><span class="co">#&gt; 4               5         ABMI Before-After Dose Response Project 2022</span></span>
-<span><span class="co">#&gt; 5               5         ABMI Before-After Dose Response Project 2023</span></span>
-<span><span class="co">#&gt; 6               5         ABMI                               Big Grids</span></span>
-<span><span class="co">#&gt;   project_id sensor tasks                      status</span></span>
-<span><span class="co">#&gt; 1         42    ARU   309 Published - Map+Report Only</span></span>
-<span><span class="co">#&gt; 2        382    ARU  1528 Published - Map+Report Only</span></span>
-<span><span class="co">#&gt; 3        686    ARU  1873 Published - Map+Report Only</span></span>
-<span><span class="co">#&gt; 4       1174    ARU  1014 Published - Map+Report Only</span></span>
-<span><span class="co">#&gt; 5       2088    ARU  1212 Published - Map+Report Only</span></span>
-<span><span class="co">#&gt; 6        381    ARU  2226 Published - Map+Report Only</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 7</span></span></span>
+<span><span class="co">#&gt;   organization_id organization project            project_id sensor tasks status</span></span>
+<span><span class="co">#&gt;             <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>               5 ABMI         ABMI Adopt-a-Came…         42 ARU      309 Publi…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>               5 ABMI         ABMI Amphibian Mo…        382 ARU     <span style="text-decoration: underline;">1</span>528 Publi…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>               5 ABMI         Before-After Dose…        686 ARU     <span style="text-decoration: underline;">1</span>873 Publi…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>               5 ABMI         Before-After Dose…       <span style="text-decoration: underline;">1</span>174 ARU     <span style="text-decoration: underline;">1</span>014 Publi…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>               5 ABMI         Before-After Dose…       <span style="text-decoration: underline;">2</span>088 ARU     <span style="text-decoration: underline;">1</span>212 Publi…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span>               5 ABMI         Big Grids                 381 ARU     <span style="text-decoration: underline;">2</span>226 Publi…</span></span></code></pre></div>
 <p>Using the project_id number in the download summary you can then use
 <code><a href="../reference/wt_download_report.html">wt_download_report()</a></code> to access the species data. You can
 also find the project_id number in the url of a WildTrax project,
@@ -175,35 +170,11 @@ order to get the project ids to download the data.</p>
 <span>  <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html" class="external-link">as_tibble</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">'^Ecosystem Health'</span>,<span class="va">project</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span>.x <span class="op">=</span> <span class="va">project_id</span>, .f <span class="op">=</span> <span class="op">~</span><span class="fu"><a href="../reference/wt_download_report.html">wt_download_report</a></span><span class="op">(</span>project_id <span class="op">=</span> <span class="va">.x</span>, sensor_id <span class="op">=</span> <span class="st">"ARU"</span>, weather_cols <span class="op">=</span> <span class="cn">F</span>, reports <span class="op">=</span> <span class="st">"main"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>Downloading the WildTrax species table with
-<code><a href="../reference/wt_get_species.html">wt_get_species()</a></code> also grants you access to other valuable
-columns or provides a complete list of the species currently supported
-by WildTrax.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Download the WildTrax species table</span></span>
-<span><span class="va">spp_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/wt_get_species.html">wt_get_species</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">spp_table</span> <span class="op">|&gt;</span> <span class="fu">arrange</span><span class="op">(</span><span class="va">species_code</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5,141 × 6</span></span></span>
-<span><span class="co">#&gt;    species_id species_code species_common_name       species_class species_order</span></span>
-<span><span class="co">#&gt;         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>       <span style="text-decoration: underline;">2</span>780 10           Wolves, Coyotes and Alli… MAMMALIA      Carnivora    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>       <span style="text-decoration: underline;">2</span>705 100          Barren-ground Caribou     MAMMALIA      Artiodactyla </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>       <span style="text-decoration: underline;">2</span>738 105          Porcupine Caribou         MAMMALIA      Artiodactyla </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>       <span style="text-decoration: underline;">2</span>735 106          Peary Caribou             MAMMALIA      Artiodactyla </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>       <span style="text-decoration: underline;">2</span>750 107          Varying Lemming           MAMMALIA      Rodentia     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>       <span style="text-decoration: underline;">2</span>618 108          Bird                      AVES          <span style="color: #BB0000;">NA</span>           </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>       <span style="text-decoration: underline;">2</span>616 109          Bear                      MAMMALIA      Carnivora    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>       <span style="text-decoration: underline;">2</span>694 110          Train                     NONE          <span style="color: #BB0000;">NA</span>           </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>       <span style="text-decoration: underline;">2</span>728 114          Kermode Bear              MAMMALIA      Carnivora    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>       <span style="text-decoration: underline;">2</span>819 129          Opossum                   MAMMALIA      Didelphimorp…</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 5,131 more rows</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 1 more variable: species_scientific_name &lt;chr&gt;</span></span></span></code></pre></div>
 <p>WildTrax also pre-formats ARU to point count (PC) data depending on
 the type of analysis you wish to perform. See the <a href="https://borealbirds.ca/" class="external-link">Boreal Avian Modelling project</a>
 website and GitHub <a href="https://github.com/borealbirds" class="external-link">repositories</a> to find out more
 on integration of avian point count and ARU data.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># As ARU format</span></span>
 <span><span class="va">my_report</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 388 × 31</span></span></span>
@@ -226,7 +197,7 @@ on integration of avian point count and ARU data.</p>
 <span><span class="co">#&gt; <span style="color: #949494;">#   task_method &lt;chr&gt;, species_code &lt;chr&gt;, species_common_name &lt;chr&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   species_scientific_name &lt;chr&gt;, individual_order &lt;int&gt;, tag_id &lt;int&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   individual_count &lt;chr&gt;, vocalization &lt;chr&gt;, detection_time &lt;dbl&gt;, …</span></span></span></code></pre></div>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># As point count format</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">aru_as_pc</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 23</span></span></span>
@@ -247,50 +218,85 @@ on integration of avian point count and ARU data.</p>
 <span><span class="co">#&gt; <span style="color: #949494;">#   detection_comments &lt;chr&gt;</span></span></span></code></pre></div>
 </div>
 <div class="section level2">
+<h2 id="species">Species<a class="anchor" aria-label="anchor" href="#species"></a>
+</h2>
+<p>Downloading the WildTrax species table with
+<code><a href="../reference/wt_get_species.html">wt_get_species()</a></code> also grants you access to other valuable
+columns or provides a complete list of the species currently supported
+by WildTrax.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Download the WildTrax species table</span></span>
+<span><span class="va">spp_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/wt_get_species.html">wt_get_species</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">spp_table</span> <span class="op">|&gt;</span> <span class="fu">arrange</span><span class="op">(</span><span class="va">species_code</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5,335 × 6</span></span></span>
+<span><span class="co">#&gt;    species_id species_code species_common_name       species_class species_order</span></span>
+<span><span class="co">#&gt;         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>       <span style="text-decoration: underline;">2</span>780 10           Wolves, Coyotes and Alli… MAMMALIA      Carnivora    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>       <span style="text-decoration: underline;">2</span>705 100          Barren-ground Caribou     MAMMALIA      Artiodactyla </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>       <span style="text-decoration: underline;">2</span>738 105          Porcupine Caribou         MAMMALIA      Artiodactyla </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>       <span style="text-decoration: underline;">2</span>735 106          Peary Caribou             MAMMALIA      Artiodactyla </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>       <span style="text-decoration: underline;">2</span>750 107          Varying Lemming           MAMMALIA      Rodentia     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>       <span style="text-decoration: underline;">2</span>618 108          Bird                      AVES          <span style="color: #BB0000;">NA</span>           </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>       <span style="text-decoration: underline;">2</span>616 109          Bear                      MAMMALIA      Carnivora    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>       <span style="text-decoration: underline;">2</span>694 110          Train                     NONE          <span style="color: #BB0000;">NA</span>           </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>       <span style="text-decoration: underline;">2</span>728 114          Kermode Bear              MAMMALIA      Carnivora    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>       <span style="text-decoration: underline;">2</span>819 129          Opossum                   MAMMALIA      Didelphimorp…</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 5,325 more rows</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 1 more variable: species_scientific_name &lt;chr&gt;</span></span></span></code></pre></div>
+<p>You can also determine which species are allowed in and out of
+projects via the <code>wt_get_project_species()</code> function.</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">my_project_species</span> <span class="op">&lt;-</span> <span class="fu">wt_get_project_species</span><span class="op">(</span><span class="fl">620</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">my_project_species</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">species_allowed_in_project</span> <span class="op">==</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
 <h2 id="data-discover">Data Discover<a class="anchor" aria-label="anchor" href="#data-discover"></a>
 </h2>
 <p>Explore species and data within WildTrax’s <a href="https://discover.wildtrax.ca/" class="external-link">Data Discover</a> by employing the
 <code><a href="../reference/wt_dd_summary.html">wt_dd_summary()</a></code> function. Access a portion of data, even
 without user privileges. Utilize <code><a href="../reference/wt_auth.html">wt_auth()</a></code> to uncover data
 pertinent to your account or those publicly available on WildTrax.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">discover</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/wt_dd_summary.html">wt_dd_summary</a></span><span class="op">(</span>sensor <span class="op">=</span> <span class="st">"ARU"</span>, species <span class="op">=</span> <span class="st">"White-throated Sparrow"</span>, boundary <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">discover</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/wt_dd_summary.html">wt_dd_summary</a></span><span class="op">(</span>sensor <span class="op">=</span> <span class="st">"ARU"</span>, species <span class="op">=</span> <span class="st">"White-throated Sparrow"</span>, boundary <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">discover</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [[1]]</span></span>
+<span><span class="co">#&gt; $`lat-long-summary`</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 11 × 5</span></span></span>
 <span><span class="co">#&gt;    projectId project_name       count species_common_name species_scientific_n…¹</span></span>
 <span><span class="co">#&gt;        <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>       686 <span style="color: #949494;">"</span>ABMI-Before-Afte…   152 White-throated Spa… ZONOTRICHIA ALBICOLLIS</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>        41 <span style="color: #949494;">"</span>BU-Boreal Wetlan…   297 White-throated Spa… ZONOTRICHIA ALBICOLLIS</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>        32 <span style="color: #949494;">"</span>BU-Big Grid Pilo…    90 White-throated Spa… ZONOTRICHIA ALBICOLLIS</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>        31 <span style="color: #949494;">"</span>BU-Big Grids<span style="color: #949494;">"</span>       794 White-throated Spa… ZONOTRICHIA ALBICOLLIS</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>       334 <span style="color: #949494;">"</span>BU-General-Commu…    57 White-throated Spa… ZONOTRICHIA ALBICOLLIS</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>        99 <span style="color: #949494;">"</span>BU-Old Growth Fo…   222 White-throated Spa… ZONOTRICHIA ALBICOLLIS</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>        84 <span style="color: #949494;">"</span>BU-Community tag…    50 White-throated Spa… ZONOTRICHIA ALBICOLLIS</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>        19 <span style="color: #949494;">"</span>ABMI-Ecosystem H…    63 White-throated Spa… ZONOTRICHIA ALBICOLLIS</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>        34 <span style="color: #949494;">"</span>ABMI-Ecosystem H…    80 White-throated Spa… ZONOTRICHIA ALBICOLLIS</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>         1 <span style="color: #949494;">"</span>ABMI-Ecosystem H…    51 White-throated Spa… ZONOTRICHIA ALBICOLLIS</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span>        <span style="color: #BB0000;">NA</span> <span style="color: #949494;">""</span>                   158 White-throated Spa… ZONOTRICHIA ALBICOLLIS</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>      <span style="text-decoration: underline;">2</span>821 <span style="color: #949494;">"</span>CWS-ONT-Ontario …   469 White-throated Spa… ZONOTRICHIA ALBICOLLIS</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>       142 <span style="color: #949494;">"</span>ABMI-Ecosystem H…   280 White-throated Spa… ZONOTRICHIA ALBICOLLIS</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>        31 <span style="color: #949494;">"</span>BU-Community - C…  <span style="text-decoration: underline;">1</span>232 White-throated Spa… ZONOTRICHIA ALBICOLLIS</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>      <span style="text-decoration: underline;">1</span>070 <span style="color: #949494;">"</span>CWS-ONT-Ontario …   805 White-throated Spa… ZONOTRICHIA ALBICOLLIS</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>        19 <span style="color: #949494;">"</span>ABMI-Ecosystem H…   291 White-throated Spa… ZONOTRICHIA ALBICOLLIS</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>        34 <span style="color: #949494;">"</span>ABMI-Ecosystem H…   239 White-throated Spa… ZONOTRICHIA ALBICOLLIS</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>      <span style="text-decoration: underline;">1</span>855 <span style="color: #949494;">"</span>CWS-ONT-Ontario …  <span style="text-decoration: underline;">1</span>126 White-throated Spa… ZONOTRICHIA ALBICOLLIS</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>        33 <span style="color: #949494;">"</span>ABMI-Ecosystem H…   261 White-throated Spa… ZONOTRICHIA ALBICOLLIS</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>         1 <span style="color: #949494;">"</span>ABMI-Ecosystem H…   343 White-throated Spa… ZONOTRICHIA ALBICOLLIS</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>       659 <span style="color: #949494;">"</span>CWS-ONT-Ontario …   528 White-throated Spa… ZONOTRICHIA ALBICOLLIS</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span>        <span style="color: #BB0000;">NA</span> <span style="color: #949494;">""</span>                  <span style="text-decoration: underline;">5</span>311 White-throated Spa… ZONOTRICHIA ALBICOLLIS</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ abbreviated name: ¹​species_scientific_name</span></span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [[2]]</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1,812 × 4</span></span></span>
+<span><span class="co">#&gt; $`map-projects`</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 8,906 × 4</span></span></span>
 <span><span class="co">#&gt;    species_common_name    count longitude latitude</span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> White-throated Sparrow     1     -<span style="color: #BB0000;">113.</span>     53.8</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> White-throated Sparrow     1     -<span style="color: #BB0000;">113.</span>     54.8</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> White-throated Sparrow     1     -<span style="color: #BB0000;">113.</span>     54.2</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> White-throated Sparrow     4     -<span style="color: #BB0000;">113.</span>     54.7</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> White-throated Sparrow     4     -<span style="color: #BB0000;">113.</span>     54.7</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> White-throated Sparrow     1     -<span style="color: #BB0000;">113.</span>     54.8</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> White-throated Sparrow     4     -<span style="color: #BB0000;">113.</span>     55.0</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> White-throated Sparrow     1     -<span style="color: #BB0000;">113.</span>     55.1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> White-throated Sparrow     1     -<span style="color: #BB0000;">113.</span>     55.1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> White-throated Sparrow     1     -<span style="color: #BB0000;">113.</span>     55.1</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 1,802 more rows</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> White-throated Sparrow     1     -<span style="color: #BB0000;">135.</span>     63.9</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> White-throated Sparrow     1     -<span style="color: #BB0000;">114.</span>     49.0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> White-throated Sparrow     1     -<span style="color: #BB0000;">114.</span>     49.1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> White-throated Sparrow     1     -<span style="color: #BB0000;">114.</span>     49.1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> White-throated Sparrow     1     -<span style="color: #BB0000;">114.</span>     49.1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> White-throated Sparrow     1     -<span style="color: #BB0000;">114.</span>     49.1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> White-throated Sparrow     1     -<span style="color: #BB0000;">114.</span>     49.1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> White-throated Sparrow     1     -<span style="color: #BB0000;">114.</span>     49.1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> White-throated Sparrow     1     -<span style="color: #BB0000;">114.</span>     49.1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> White-throated Sparrow     1     -<span style="color: #BB0000;">114.</span>     49.1</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 8,896 more rows</span></span></span></code></pre></div>
 <p>Use custom bounding areas:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Define a polygon</span></span>
 <span><span class="va">my_aoi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">113.96068</span>, <span class="fl">56.23817</span><span class="op">)</span>,</span>
@@ -302,7 +308,7 @@ pertinent to your account or those publicly available on WildTrax.</p>
 <span><span class="va">discover</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/wt_dd_summary.html">wt_dd_summary</a></span><span class="op">(</span>sensor <span class="op">=</span> <span class="st">"ARU"</span>, species <span class="op">=</span> <span class="st">"White-throated Sparrow"</span>, boundary <span class="op">=</span> <span class="va">my_aoi</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">discover</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-spatial.github.io/sf/" class="external-link">sf</a></span><span class="op">)</span></span>
 <span><span class="co"># Alberta bounding box</span></span>
 <span><span class="va">abbox</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_read.html" class="external-link">read_sf</a></span><span class="op">(</span><span class="st">"...shp"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="co"># Shapefile of Alberta</span></span>
@@ -313,6 +319,21 @@ pertinent to your account or those publicly available on WildTrax.</p>
 <span><span class="va">discover</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/wt_dd_summary.html">wt_dd_summary</a></span><span class="op">(</span>sensor <span class="op">=</span> <span class="st">"ARU"</span>, species <span class="op">=</span> <span class="st">"White-throated Sparrow"</span>, boundary <span class="op">=</span> <span class="va">abbox</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">discover</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="sync-columns">Sync columns<a class="anchor" aria-label="anchor" href="#sync-columns"></a>
+</h2>
+<p><code><a href="../reference/wt_get_sync.html">wt_get_sync()</a></code> is the primary function used to access
+WildTrax <strong>sync</strong> APIs, such as getting locations, visits,
+equipment, project tasks and tags and more.</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">my_project_tasks</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/wt_get_download_summary.html">wt_get_download_summary</a></span><span class="op">(</span><span class="st">'ARU'</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">'Cypress'</span>, <span class="va">project</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">select</span><span class="op">(</span><span class="va">project_id</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">pull</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="op">(</span>\<span class="op">(</span><span class="va">proj_id</span><span class="op">)</span> <span class="fu"><a href="../reference/wt_get_sync.html">wt_get_sync</a></span><span class="op">(</span><span class="st">"download-tasks-by-project-id"</span>, option <span class="op">=</span> <span class="st">"data"</span>, project <span class="op">=</span> <span class="va">proj_id</span><span class="op">)</span><span class="op">)</span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">my_project_tasks</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
@@ -325,7 +346,7 @@ pertinent to your account or those publicly available on WildTrax.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer>

@@ -30,7 +30,7 @@
 <url><loc>https://abbiodiversity.github.io/wildrtrax/reference/dot-wt_calculate_prf.html</loc></url>
 <url><loc>https://abbiodiversity.github.io/wildrtrax/reference/dot-wt_col_types.html</loc></url>
 <url><loc>https://abbiodiversity.github.io/wildrtrax/reference/index.html</loc></url>
-<url><loc>https://abbiodiversity.github.io/wildrtrax/reference/wildRtrax.html</loc></url>
+<url><loc>https://abbiodiversity.github.io/wildrtrax/reference/wildrtrax.html</loc></url>
 <url><loc>https://abbiodiversity.github.io/wildrtrax/reference/wt_add_grts.html</loc></url>
 <url><loc>https://abbiodiversity.github.io/wildrtrax/reference/wt_additional_species.html</loc></url>
 <url><loc>https://abbiodiversity.github.io/wildrtrax/reference/wt_audio_scanner.html</loc></url>
@@ -45,12 +45,8 @@
 <url><loc>https://abbiodiversity.github.io/wildrtrax/reference/wt_format_data.html</loc></url>
 <url><loc>https://abbiodiversity.github.io/wildrtrax/reference/wt_format_occupancy.html</loc></url>
 <url><loc>https://abbiodiversity.github.io/wildrtrax/reference/wt_get_download_summary.html</loc></url>
-<url><loc>https://abbiodiversity.github.io/wildrtrax/reference/wt_get_image_sets.html</loc></url>
-<url><loc>https://abbiodiversity.github.io/wildrtrax/reference/wt_get_locations.html</loc></url>
-<url><loc>https://abbiodiversity.github.io/wildrtrax/reference/wt_get_project_species.html</loc></url>
-<url><loc>https://abbiodiversity.github.io/wildrtrax/reference/wt_get_recordings.html</loc></url>
 <url><loc>https://abbiodiversity.github.io/wildrtrax/reference/wt_get_species.html</loc></url>
-<url><loc>https://abbiodiversity.github.io/wildrtrax/reference/wt_get_visits.html</loc></url>
+<url><loc>https://abbiodiversity.github.io/wildrtrax/reference/wt_get_sync.html</loc></url>
 <url><loc>https://abbiodiversity.github.io/wildrtrax/reference/wt_glean_ap.html</loc></url>
 <url><loc>https://abbiodiversity.github.io/wildrtrax/reference/wt_ind_detect.html</loc></url>
 <url><loc>https://abbiodiversity.github.io/wildrtrax/reference/wt_kaleidoscope_tags.html</loc></url>

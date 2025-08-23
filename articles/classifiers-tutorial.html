@@ -6,12 +6,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Acoustic classifiers • wildrtrax</title>
-<!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
-<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
-<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png">
-<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png">
-<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" sizes="any" href="../favicon.ico">
+<link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
@@ -26,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">wildrtrax</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.3.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -53,6 +52,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-news" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">News</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-news">
 <li><h6 class="dropdown-header" data-toc-skip>Releases</h6></li>
+    <li><h6 class="dropdown-header" data-toc-skip>wildrtrax 1.4.0</h6></li>
     <li><h6 class="dropdown-header" data-toc-skip>wildrtrax 1.3.3</h6></li>
     <li><h6 class="dropdown-header" data-toc-skip>wildrtrax 1.3.2</h6></li>
     <li><h6 class="dropdown-header" data-toc-skip>wildrtrax 1.3.1</h6></li>
@@ -108,11 +108,11 @@ WildTrax.</p>
 <h3 id="birdnet">BirdNET<a class="anchor" aria-label="anchor" href="#birdnet"></a>
 </h3>
 <p><a href="https://birdnet.cornell.edu/" class="external-link">BirdNET</a> is a deep learning
-classifier developed by the Cornell Lab of Ornithology that is trained
-to classify more than 6,000 of the world’s most common bird species,
-including most North American bird species <span class="citation">@kahl_2022</span>. The model converts audio recordings
-into windows of spectrograms and outputs a probability score for each
-species in each one.</p>
+classifier that is trained to classify more than 6,000 of the world’s
+most common bird species, including most North American bird species
+<span class="citation">@kahl_2022</span>. The model converts audio
+recordings into windows of spectrograms and outputs a probability score
+for each species in each one.</p>
 </div>
 <div class="section level3">
 <h3 id="classifier-performance">Classifier performance<a class="anchor" aria-label="anchor" href="#classifier-performance"></a>
@@ -304,7 +304,7 @@ look at what our precision is:</p>
 <pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 1 × 4</span></span></span>
 <span><span class="co">##   precision recall fscore threshold</span></span>
 <span><span class="co">##       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">1</span>     0.700  0.196  0.306        26</span></span></code></pre>
+<span><span class="co">## <span style="color: #BCBCBC;">1</span>     0.699  0.196  0.306        26</span></span></code></pre>
 <p>A precision at our chosen score threshold of approximately
 <code>round(eval[eval$threshold==threshold_use,]$precision,3)</code>
 means that ~1/3 of detections are likely still false positives, we
@@ -427,9 +427,9 @@ expect:</p>
 <div class="section level3">
 <h3 id="other-applications">Other applications<a class="anchor" aria-label="anchor" href="#other-applications"></a>
 </h3>
-<p>Visit the <a href="https://github.com/kahst/BirdNET-Analyzer" class="external-link">BirdNET
-Github repository</a> to run BirdNET on your own computer. The decision
-to pursue other applications should be made with the effect of BirdNET’s
+<p>Visit the <a href="https://github.com/birdnet-team/BirdNET-Analyzer" class="external-link">BirdNET Github
+repository</a> to run BirdNET on your own computer. The decision to
+pursue other applications should be made with the effect of BirdNET’s
 low recall rate in mind:</p>
 <ol style="list-style-type: decimal">
 <li><p>With presence / absence data, BirdNET is unlikely to be reliably
@@ -456,7 +456,7 @@ review of BirdNET applications and performance.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer>

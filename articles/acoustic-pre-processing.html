@@ -6,12 +6,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Acoustic pre-processing • wildrtrax</title>
-<!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
-<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
-<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png">
-<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png">
-<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" sizes="any" href="../favicon.ico">
+<link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
@@ -26,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">wildrtrax</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.3.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -53,6 +52,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-news" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">News</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-news">
 <li><h6 class="dropdown-header" data-toc-skip>Releases</h6></li>
+    <li><h6 class="dropdown-header" data-toc-skip>wildrtrax 1.4.0</h6></li>
     <li><h6 class="dropdown-header" data-toc-skip>wildrtrax 1.3.3</h6></li>
     <li><h6 class="dropdown-header" data-toc-skip>wildrtrax 1.3.2</h6></li>
     <li><h6 class="dropdown-header" data-toc-skip>wildrtrax 1.3.1</h6></li>
@@ -131,20 +131,20 @@ year, or filter recordings based on some criteria.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">files</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">-</span><span class="va">file_path</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1,041 × 10</span></span></span>
-<span><span class="co">#&gt;    size_Mb unsafe file_name  location recording_date_time file_type julian  year</span></span>
-<span><span class="co">#&gt;      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>    3.51 Safe   228-NE_20… 228-NE   2021-11-21 <span style="color: #949494;">12:35:49</span> wav          325  <span style="text-decoration: underline;">2</span>021</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>  106.   Safe   228-NE_20… 228-NE   2022-03-01 <span style="color: #949494;">00:00:00</span> wav           60  <span style="text-decoration: underline;">2</span>022</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>   31.8  Safe   228-NE_20… 228-NE   2022-03-01 <span style="color: #949494;">02:00:00</span> wav           60  <span style="text-decoration: underline;">2</span>022</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>  106.   Safe   228-NE_20… 228-NE   2022-03-01 <span style="color: #949494;">08:59:00</span> wav           60  <span style="text-decoration: underline;">2</span>022</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>   31.8  Safe   228-NE_20… 228-NE   2022-03-01 <span style="color: #949494;">10:29:00</span> wav           60  <span style="text-decoration: underline;">2</span>022</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>   31.8  Safe   228-NE_20… 228-NE   2022-03-01 <span style="color: #949494;">12:00:00</span> wav           60  <span style="text-decoration: underline;">2</span>022</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>   31.8  Safe   228-NE_20… 228-NE   2022-03-01 <span style="color: #949494;">15:00:00</span> wav           60  <span style="text-decoration: underline;">2</span>022</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>   31.8  Safe   228-NE_20… 228-NE   2022-03-01 <span style="color: #949494;">18:17:00</span> wav           60  <span style="text-decoration: underline;">2</span>022</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>   31.8  Safe   228-NE_20… 228-NE   2022-03-01 <span style="color: #949494;">20:17:00</span> wav           60  <span style="text-decoration: underline;">2</span>022</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>  106.   Safe   228-NE_20… 228-NE   2022-03-02 <span style="color: #949494;">00:00:00</span> wav           61  <span style="text-decoration: underline;">2</span>022</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 1,031 more rows</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 987 × 9</span></span></span>
+<span><span class="co">#&gt;    size_Mb file_name         location recording_date_time file_type julian  year</span></span>
+<span><span class="co">#&gt;      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>    4.25 ABMI-1046-SE_202… ABMI-10… 2024-03-13 <span style="color: #949494;">14:53:11</span> wav           73  <span style="text-decoration: underline;">2</span>024</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>   31.8  ABMI-1046-SE_202… ABMI-10… 2024-03-13 <span style="color: #949494;">15:59:00</span> wav           73  <span style="text-decoration: underline;">2</span>024</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>   31.8  ABMI-1046-SE_202… ABMI-10… 2024-03-13 <span style="color: #949494;">18:00:00</span> wav           73  <span style="text-decoration: underline;">2</span>024</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>   31.8  ABMI-1046-SE_202… ABMI-10… 2024-03-13 <span style="color: #949494;">21:00:00</span> wav           73  <span style="text-decoration: underline;">2</span>024</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>   31.8  ABMI-1046-SE_202… ABMI-10… 2024-03-14 <span style="color: #949494;">00:41:00</span> wav           73  <span style="text-decoration: underline;">2</span>024</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>   31.8  ABMI-1046-SE_202… ABMI-10… 2024-03-14 <span style="color: #949494;">02:41:00</span> wav           73  <span style="text-decoration: underline;">2</span>024</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>  106.   ABMI-1046-SE_202… ABMI-10… 2024-03-14 <span style="color: #949494;">06:00:00</span> wav           74  <span style="text-decoration: underline;">2</span>024</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>   31.8  ABMI-1046-SE_202… ABMI-10… 2024-03-14 <span style="color: #949494;">08:00:00</span> wav           74  <span style="text-decoration: underline;">2</span>024</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>  106.   ABMI-1046-SE_202… ABMI-10… 2024-03-14 <span style="color: #949494;">14:26:00</span> wav           74  <span style="text-decoration: underline;">2</span>024</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>   31.8  ABMI-1046-SE_202… ABMI-10… 2024-03-14 <span style="color: #949494;">15:56:00</span> wav           74  <span style="text-decoration: underline;">2</span>024</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 977 more rows</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 2 more variables: gps_enabled &lt;lgl&gt;, time_index &lt;int&gt;</span></span></span></code></pre></div>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
@@ -152,13 +152,14 @@ year, or filter recordings based on some criteria.</p>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>hour <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/format.html" class="external-link">format</a></span><span class="op">(</span><span class="va">recording_date_time</span>, <span class="st">"%H"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">julian</span> <span class="op">==</span> <span class="fl">176</span>, </span>
 <span>         <span class="va">hour</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span><span class="op">:</span><span class="fl">8</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 12</span></span></span>
-<span><span class="co">#&gt;   file_path      size_Mb unsafe file_name location recording_date_time file_type</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> /volumes/buda…   106.  Safe   228-NE_2… 228-NE   2022-06-25 <span style="color: #949494;">05:35:00</span> wav      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> /volumes/buda…    31.8 Safe   228-NE_2… 228-NE   2022-06-25 <span style="color: #949494;">07:05:00</span> wav      </span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 5 more variables: julian &lt;dbl&gt;, year &lt;dbl&gt;, gps_enabled &lt;lgl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   time_index &lt;int&gt;, hour &lt;dbl&gt;</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 11</span></span></span>
+<span><span class="co">#&gt;   file_path      size_Mb file_name location recording_date_time file_type julian</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> /Volumes/BUpu…   106.  ABMI-104… ABMI-10… 2024-06-24 <span style="color: #949494;">06:00:00</span> wav          176</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> /Volumes/BUpu…    31.8 ABMI-104… ABMI-10… 2024-06-24 <span style="color: #949494;">08:00:00</span> wav          176</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> /Volumes/BUpu…    31.8 ABMI-104… ABMI-10… 2024-06-25 <span style="color: #949494;">05:20:00</span> wav          176</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 4 more variables: year &lt;dbl&gt;, gps_enabled &lt;lgl&gt;, time_index &lt;int&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   hour &lt;dbl&gt;</span></span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="running-the-qut-ecoacoustics-analysisprograms-software-on-a-wt_-standard-data-set">Running the QUT Ecoacoustics AnalysisPrograms software on a wt_*
@@ -168,8 +169,8 @@ standard data set<a class="anchor" aria-label="anchor" href="#running-the-qut-ec
 Analysis Programs <a href="https://ap.qut.ecoacoustics.info/" class="external-link">(AP.exe)</a> on your audio
 data. AP generates acoustic index values and false-colour spectrograms
 for each audio minute of data. Note that you must have the AP program
-installed on your computer. See more here <a href="https://researchoutput.csu.edu.au/ws/portalfiles/portal/28556441/28544328_Published_article.pdf" class="external-link">(Towsey
-et al., 2018)</a>.</p>
+installed on your computer. See more here <a href="https://jea.jams.pub/article/2/1/48" class="external-link">(Towsey et al.,
+2018)</a>.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Use the wt_* tibble to execute the AP on the files</span></span>
 <span></span>
@@ -283,7 +284,7 @@ yet.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer>
