@@ -830,7 +830,7 @@ wt_kaleidoscope_tags <- function (input, output, freq_bump = T) {
 
   #Check to see if the input exists and reading it in
   if (file.exists(input)) {
-    in_tbl <- readr::read_csv(input, col_names = TRUE, na = c("", "NA"), col_types = cols())
+    in_tbl <- readr::read_csv(input, col_names = TRUE, na = c("", "NA"), col_types = readr::cols())
   } else {
     stop ("File cannot be found")
   }
