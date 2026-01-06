@@ -1,0 +1,62 @@
+# Get QPAD offsets
+
+This function calculates statistical offsets that account for
+survey-specific and species-specific variation in availability for
+detection and perceptibility of birds. This function requires download
+of the `QPAD` R package and should be used on the output of the
+[`wt_make_wide()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_make_wide.md)
+function
+
+## Usage
+
+``` r
+wt_qpad_offsets(data, species = c("all"), version = 3, together = FALSE)
+```
+
+## Arguments
+
+- data:
+
+  Dataframe output from the
+  [`wt_make_wide()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_make_wide.md)
+  function.
+
+- species:
+
+  Character; species for offset calculation. Can be a list of 4-letter
+  AOU codes (e.g., c("TEWA", "OSFL", "OVEN")) or "all" to calculate
+  offsets for every species in the input dataframe for which offsets are
+  available. Defaults to "all".
+
+- version:
+
+  Numeric; version of QPAD offsets to use (2, or 3). Defaults to 3.
+
+- together:
+
+  Logical; whether or not offsets should be bound to the input dataframe
+  or returned as a separate object.
+
+## Value
+
+A dataframe containing the QPAD values either by themselves or with the
+original wide data if `together = TRUE`
+
+## References
+
+Solymos et al. 2013. Calibrating indices of avian density from
+non-standardized survey data: making the most of a messy situation.
+Methods in Ecology and Evolution, 4, 1047-1058.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+remotes::install_github("borealbirds/QPAD")
+
+dat.clean <- wt_tidy_species(dat)
+dat.tmtt <- wt_replace_tmtt(dat.clean)
+dat.wide <- wt_make_wide(dat.tmtt, sound="all")
+dat.qpad <- wt_qpad_offsets(dat.wide, species="all", version=3, together = TRUE)
+} # }
+```
