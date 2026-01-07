@@ -14,29 +14,37 @@ WildTrax.
 
 ## Classifiers
 
-Classifier scores can be converted to species detections by setting a
-threshold (e.g., 0.8) above which to consider a species present within a
-given spectrogram Wood and Kahl (2024). False positives can still occur
-at high score thresholds, so often verification by a human observer is
-still necessary.
+The WildTrax 2.0 release (2025) runs inference with two classifiers on
+recordings that are uploaded to the system.
 
 [BirdNET](https://birdnet.cornell.edu/) is a deep learning classifier
 developed by the Cornell Lab of Ornithology that is trained to classify
 more than 6,000 of the world’s most common bird species, including most
-North American bird species Kahl et al. (2021). The model converts audio
-recordings into windows of spectrograms and outputs a probability score
-for each species in each one. The WildTrax 2.0 release (2025) is
-accompanied by the introduction of a new deep learning model, HawkEars
-(Huus et al. (2025)), that can classify many of Canada’s most common
-bird species. HawkEars is implemented in the same fashion as BirdNET so
-that users will also be able to download a report and use the same set
-of `wildrtrax` functions demonstrated above on it. HawkEars is also
-freely available from [Github](https://github.com/jhuus/HawkEars).
-Initial tests of HawkEars on the same expert dataset as above suggest it
-performs much better than BirdNET for Canadian species, with more than
-double the recall and higher precision at score thresholds above 50.
+North American bird species Kahl et al. (2021).
+
+[HawkEars](https://github.com/jhuus/HawkEars) is also a deep learning
+classifier that is specifically trained to classify Canada’s bird
+species. HawkEars is implemented in the same fashion as BirdNET so that
+users will also be able to download a report. Initial tests of HawkEars
+on the same expert dataset as above suggest it performs much better than
+BirdNET for Canadian species, with more than double the recall and
+higher precision at score thresholds above 0.50 (Huus et al. (2025)).
+
+Both classifiers are run in WildTrax 2.0 without location or date
+filtering turned on. The minimum score threshold is 0.20 for BirdNET
+version 2.1 and 0.30 for HawkEars version 1.0.8.
 
 ## Classifier performance
+
+For each window (typically 3 seconds) of an acoustic recording, the
+classifier outputs a score, which is a unitless, numeric expression of
+the model’s “confidence” in its prediction, scaled from 0 to 1. Scores
+cannot be directly interpreted as probabilities unless they have been
+scaled for a particular dataset. Classifier scores can be converted to
+species detections by setting a threshold (e.g., 0.8) above which to
+consider a species present within a given spectrogram Wood and Kahl
+(2024). False positives can still occur at high score thresholds, so
+often verification by a human observer is still necessary.
 
 Choosing a score threshold will depend on the goals of the project;
 however, threshold choice is a trade-off between false positives (i.e.,
@@ -66,37 +74,6 @@ F-score is a combination of precision and recall and can also used to
 select a score threshold by selecting the peak value.
 
 $Fscore = \frac{2*precision*recall}{precision + recall}$
-
-ABMI has evaluated BirdNET with a dataset of 623 3-minute recordings.
-All species were annotated in each minute of each recording by our top
-expert listeners and further groomed for false positives and negatives.
-The dataset was selected to include at least 10 recordings with
-detections of the most common 203 Canadian bird species. Recordings were
-primarily sourced from Alberta and Ontario to include variation in
-dialect. We evaluated BirdNET by running it using the local eBird
-occurrence data for each recording and comparing results with our expert
-dataset and pooling the total detections across species per minute of
-recording to calculate overall precision, recall, and F-score.
-
-Precision ranged from 0.36 at a score threshold of 0.10 to 0.94 at a
-score threshold of 0.99 (Figure 1). Recall ranged from 0.01 at a score
-threshold of 0.99 to 0.36 of 0.1 F-score was similarly low, ranging from
-0.03 at a score threshold of 0.01 to 0.36 at a score threshold of 0.99.
-Neither the precision-recall curve nor the plot of F-score relative to
-score threshold showed a typical concave down curve shape, suggesting
-that a low score threshold of 0.10 would be best to optimize trade-offs
-between precision and recall.
-
-![](classifiers-tutorial_files/figure-html/unnamed-chunk-2-1.png)
-
-![](classifiers-tutorial_files/figure-html/unnamed-chunk-3-1.png)
-
-WildTrax uses both BirdNET and HawkEars to automatically classify
-species in all recordings that are uploaded to the system. The
-sensitivity for BirdNET is set at 1.5 to reduce the probability of false
-positives and the score threshold is set low at 0.1 to allow users to
-set higher thresholds as needed. The list of species is filtered by
-eBird occurrence data for the week of recording, but not by location.
 
 ## Evaluating
 
@@ -157,7 +134,7 @@ ggplot(eval) +
   theme_bw()
 ```
 
-![](classifiers-tutorial_files/figure-html/unnamed-chunk-6-1.png)
+![](classifiers-tutorial_files/figure-html/unnamed-chunk-3-1.png)
 
 ``` r
 ggplot(eval) +
@@ -169,7 +146,7 @@ ggplot(eval) +
   theme_bw()
 ```
 
-![](classifiers-tutorial_files/figure-html/unnamed-chunk-6-2.png)
+![](classifiers-tutorial_files/figure-html/unnamed-chunk-3-2.png)
 
 ``` r
 ggplot(eval) +
@@ -181,7 +158,7 @@ ggplot(eval) +
   theme_bw()
 ```
 
-![](classifiers-tutorial_files/figure-html/unnamed-chunk-6-3.png)
+![](classifiers-tutorial_files/figure-html/unnamed-chunk-3-3.png)
 
 ``` r
 ggplot(eval) +
@@ -193,7 +170,7 @@ ggplot(eval) +
   theme_bw()
 ```
 
-![](classifiers-tutorial_files/figure-html/unnamed-chunk-6-4.png)
+![](classifiers-tutorial_files/figure-html/unnamed-chunk-3-4.png)
 
 ## Selecting and filtering a threshold
 
@@ -338,7 +315,7 @@ to detect individual calls as opposed to just the first call in each
 task (1SPT) or minute (1SPM). This might be of interest if you’re using
 call rate in a behavioural analysis, or if you’re looking for detections
 for tool development like distance estimation or building a focal
-species recognizer. Let’s try it for White-throated Sparrow (WTSP):
+species recognizer. Let’s try it for White-crowned Sparrow (WCSP):
 
 ``` r
 #Evaluate classifier performance
@@ -358,13 +335,13 @@ eval_wcsp[eval_wcsp$threshold==min(threshold_wcsp$threshold),]
 #Filter to detections
 detections_wcsp <- data[[1]] |>
   filter(species_common_name == "White-crowned Sparrow", 
-         confidence > min(threshold_wtsp$threshold))
+         confidence > min(threshold_wcsp$threshold))
 ```
 
 As before, you’ll probably want to upload your detections to WildTrax
 for verification, even though the classifiers performance for
-White-throated Sparrow is pretty good. Let’s take a look at our output
-as call rate to see if it’s higher at the beginning of the season, as we
+White-crowned Sparrow is pretty good. Let’s take a look at our output as
+call rate to see if it’s higher at the beginning of the season, as we
 would expect:
 
 ``` r
@@ -396,15 +373,16 @@ ggplot(occupied_wcsp) +
   theme_bw()
 ```
 
-![](classifiers-tutorial_files/figure-html/unnamed-chunk-12-1.png)
+![](classifiers-tutorial_files/figure-html/unnamed-chunk-9-1.png)
 
 ## Other applications
 
 Visit the [BirdNET Github
 repository](https://github.com/birdnet-team/BirdNET-Analyzer) and
-HawkEars repository to run or modify these classifiers on your own
-computer. The decision to pursue other applications should be made with
-the effect of a classifier’s low recall rate in mind:
+[HawkEars Github repository](https://github.com/jhuus/HawkEars) to run
+or modify these classifiers on your own computer. The decision to pursue
+other applications should be made with the effect of a classifier’s low
+recall rate in mind:
 
 1.  With presence / absence data, a classifier is unlikely to be
     reliably to confirm absences due to the low recall.

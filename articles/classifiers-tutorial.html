@@ -109,31 +109,37 @@ WildTrax.</p>
 <div class="section level2">
 <h2 id="classifiers">Classifiers<a class="anchor" aria-label="anchor" href="#classifiers"></a>
 </h2>
-<p>Classifier scores can be converted to species detections by setting a
-threshold (e.g., 0.8) above which to consider a species present within a
-given spectrogram <span class="citation">Wood and Kahl (2024)</span>.
-False positives can still occur at high score thresholds, so often
-verification by a human observer is still necessary.</p>
+<p>The WildTrax 2.0 release (2025) runs inference with two classifiers
+on recordings that are uploaded to the system.</p>
 <p><a href="https://birdnet.cornell.edu/" class="external-link">BirdNET</a> is a deep learning
 classifier developed by the Cornell Lab of Ornithology that is trained
 to classify more than 6,000 of the world’s most common bird species,
 including most North American bird species <span class="citation">Kahl
-et al. (2021)</span>. The model converts audio recordings into windows
-of spectrograms and outputs a probability score for each species in each
-one. The WildTrax 2.0 release (2025) is accompanied by the introduction
-of a new deep learning model, HawkEars (<span class="citation">Huus et
-al. (2025)</span>), that can classify many of Canada’s most common bird
-species. HawkEars is implemented in the same fashion as BirdNET so that
-users will also be able to download a report and use the same set of
-<code>wildrtrax</code> functions demonstrated above on it. HawkEars is
-also freely available from <a href="https://github.com/jhuus/HawkEars" class="external-link">Github</a>. Initial tests of
-HawkEars on the same expert dataset as above suggest it performs much
-better than BirdNET for Canadian species, with more than double the
-recall and higher precision at score thresholds above 50.</p>
+et al. (2021)</span>.</p>
+<p><a href="https://github.com/jhuus/HawkEars" class="external-link">HawkEars</a> is also a
+deep learning classifier that is specifically trained to classify
+Canada’s bird species. HawkEars is implemented in the same fashion as
+BirdNET so that users will also be able to download a report. Initial
+tests of HawkEars on the same expert dataset as above suggest it
+performs much better than BirdNET for Canadian species, with more than
+double the recall and higher precision at score thresholds above 0.50
+(<span class="citation">Huus et al. (2025)</span>).</p>
+<p>Both classifiers are run in WildTrax 2.0 without location or date
+filtering turned on. The minimum score threshold is 0.20 for BirdNET
+version 2.1 and 0.30 for HawkEars version 1.0.8.</p>
 </div>
 <div class="section level2">
 <h2 id="classifier-performance">Classifier performance<a class="anchor" aria-label="anchor" href="#classifier-performance"></a>
 </h2>
+<p>For each window (typically 3 seconds) of an acoustic recording, the
+classifier outputs a score, which is a unitless, numeric expression of
+the model’s “confidence” in its prediction, scaled from 0 to 1. Scores
+cannot be directly interpreted as probabilities unless they have been
+scaled for a particular dataset. Classifier scores can be converted to
+species detections by setting a threshold (e.g., 0.8) above which to
+consider a species present within a given spectrogram <span class="citation">Wood and Kahl (2024)</span>. False positives can still
+occur at high score thresholds, so often verification by a human
+observer is still necessary.</p>
 <p>Choosing a score threshold will depend on the goals of the project;
 however, threshold choice is a trade-off between false positives (i.e.,
 incorrect classifications) and false negatives (i.e., missed detections;
@@ -157,33 +163,6 @@ threshold.</p>
 <p>F-score is a combination of precision and recall and can also used to
 select a score threshold by selecting the peak value.</p>
 <p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mi>s</mi><mi>c</mi><mi>o</mi><mi>r</mi><mi>e</mi><mo>=</mo><mfrac><mrow><mn>2</mn><mo>*</mo><mi>p</mi><mi>r</mi><mi>e</mi><mi>c</mi><mi>i</mi><mi>s</mi><mi>i</mi><mi>o</mi><mi>n</mi><mo>*</mo><mi>r</mi><mi>e</mi><mi>c</mi><mi>a</mi><mi>l</mi><mi>l</mi></mrow><mrow><mi>p</mi><mi>r</mi><mi>e</mi><mi>c</mi><mi>i</mi><mi>s</mi><mi>i</mi><mi>o</mi><mi>n</mi><mo>+</mo><mi>r</mi><mi>e</mi><mi>c</mi><mi>a</mi><mi>l</mi><mi>l</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex">Fscore = \frac{2 * precision* recall}{precision + recall}</annotation></semantics></math></p>
-<p>ABMI has evaluated BirdNET with a dataset of 623 3-minute recordings.
-All species were annotated in each minute of each recording by our top
-expert listeners and further groomed for false positives and negatives.
-The dataset was selected to include at least 10 recordings with
-detections of the most common 203 Canadian bird species. Recordings were
-primarily sourced from Alberta and Ontario to include variation in
-dialect. We evaluated BirdNET by running it using the local eBird
-occurrence data for each recording and comparing results with our expert
-dataset and pooling the total detections across species per minute of
-recording to calculate overall precision, recall, and F-score.</p>
-<p>Precision ranged from 0.36 at a score threshold of 0.10 to 0.94 at a
-score threshold of 0.99 (Figure 1). Recall ranged from 0.01 at a score
-threshold of 0.99 to 0.36 of 0.1 F-score was similarly low, ranging from
-0.03 at a score threshold of 0.01 to 0.36 at a score threshold of 0.99.
-Neither the precision-recall curve nor the plot of F-score relative to
-score threshold showed a typical concave down curve shape, suggesting
-that a low score threshold of 0.10 would be best to optimize trade-offs
-between precision and recall.</p>
-<p><img src="classifiers-tutorial_files/figure-html/unnamed-chunk-2-1.png" class="r-plt" alt="" width="700"></p>
-<p><img src="classifiers-tutorial_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="700"></p>
-<p>WildTrax uses both BirdNET and HawkEars to automatically classify
-species in all recordings that are uploaded to the system. The
-sensitivity for BirdNET is set at 1.5 to reduce the probability of false
-positives and the score threshold is set low at 0.1 to allow users to
-set higher thresholds as needed. The list of species is filtered by
-eBird occurrence data for the week of recording, but not by
-location.</p>
 </div>
 <div class="section level2">
 <h2 id="evaluating">Evaluating<a class="anchor" aria-label="anchor" href="#evaluating"></a>
@@ -237,7 +216,7 @@ classifier is performing:</p>
 <span>  <span class="fu">xlim</span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">ylim</span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">theme_bw</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="classifiers-tutorial_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="700"></p>
+<p><img src="classifiers-tutorial_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="700"></p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">ggplot</span><span class="op">(</span><span class="va">eval</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">geom_smooth</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>x<span class="op">=</span><span class="va">threshold</span>, y<span class="op">=</span><span class="va">recall</span>, colour<span class="op">=</span><span class="va">classifier</span><span class="op">)</span>, linewidth<span class="op">=</span><span class="fl">1.5</span><span class="op">)</span> <span class="op">+</span></span>
@@ -246,7 +225,7 @@ classifier is performing:</p>
 <span>  <span class="fu">xlim</span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">ylim</span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">theme_bw</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="classifiers-tutorial_files/figure-html/unnamed-chunk-6-2.png" class="r-plt" alt="" width="700"></p>
+<p><img src="classifiers-tutorial_files/figure-html/unnamed-chunk-3-2.png" class="r-plt" alt="" width="700"></p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">ggplot</span><span class="op">(</span><span class="va">eval</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">geom_smooth</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>x<span class="op">=</span><span class="va">threshold</span>, y<span class="op">=</span><span class="va">fscore</span>, colour<span class="op">=</span><span class="va">classifier</span><span class="op">)</span>, linewidth<span class="op">=</span><span class="fl">1.5</span><span class="op">)</span> <span class="op">+</span></span>
@@ -255,7 +234,7 @@ classifier is performing:</p>
 <span>  <span class="fu">xlim</span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">ylim</span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">theme_bw</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="classifiers-tutorial_files/figure-html/unnamed-chunk-6-3.png" class="r-plt" alt="" width="700"></p>
+<p><img src="classifiers-tutorial_files/figure-html/unnamed-chunk-3-3.png" class="r-plt" alt="" width="700"></p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">ggplot</span><span class="op">(</span><span class="va">eval</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">geom_smooth</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>x<span class="op">=</span><span class="va">recall</span>, y<span class="op">=</span><span class="va">precision</span>, colour<span class="op">=</span><span class="va">classifier</span><span class="op">)</span>, linewidth<span class="op">=</span><span class="fl">1.5</span><span class="op">)</span> <span class="op">+</span></span>
@@ -264,7 +243,7 @@ classifier is performing:</p>
 <span>  <span class="fu">xlim</span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">ylim</span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">theme_bw</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="classifiers-tutorial_files/figure-html/unnamed-chunk-6-4.png" class="r-plt" alt="" width="700"></p>
+<p><img src="classifiers-tutorial_files/figure-html/unnamed-chunk-3-4.png" class="r-plt" alt="" width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="selecting-and-filtering-a-threshold">Selecting and filtering a threshold<a class="anchor" aria-label="anchor" href="#selecting-and-filtering-a-threshold"></a>
@@ -395,7 +374,7 @@ it to detect individual calls as opposed to just the first call in each
 task (1SPT) or minute (1SPM). This might be of interest if you’re using
 call rate in a behavioural analysis, or if you’re looking for detections
 for tool development like distance estimation or building a focal
-species recognizer. Let’s try it for White-throated Sparrow (WTSP):</p>
+species recognizer. Let’s try it for White-crowned Sparrow (WCSP):</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Evaluate classifier performance</span></span>
 <span></span>
@@ -414,11 +393,11 @@ species recognizer. Let’s try it for White-throated Sparrow (WTSP):</p>
 <span><span class="co">#Filter to detections</span></span>
 <span><span class="va">detections_wcsp</span> <span class="op">&lt;-</span> <span class="va">data</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">species_common_name</span> <span class="op">==</span> <span class="st">"White-crowned Sparrow"</span>, </span>
-<span>         <span class="va">confidence</span> <span class="op">&gt;</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">threshold_wtsp</span><span class="op">$</span><span class="va">threshold</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span>         <span class="va">confidence</span> <span class="op">&gt;</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">threshold_wcsp</span><span class="op">$</span><span class="va">threshold</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>As before, you’ll probably want to upload your detections to WildTrax
 for verification, even though the classifiers performance for
-White-throated Sparrow is pretty good. Let’s take a look at our output
-as call rate to see if it’s higher at the beginning of the season, as we
+White-crowned Sparrow is pretty good. Let’s take a look at our output as
+call rate to see if it’s higher at the beginning of the season, as we
 would expect:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Calculate detections per second and mean confidence in each recording</span></span>
@@ -447,16 +426,16 @@ would expect:</p>
 <span>  <span class="fu">xlab</span><span class="op">(</span><span class="st">"Day of year"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">ylab</span><span class="op">(</span><span class="st">"Rate of White-crowned Sparrow detections per minute"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">theme_bw</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="classifiers-tutorial_files/figure-html/unnamed-chunk-12-1.png" class="r-plt" alt="" width="700"></p>
+<p><img src="classifiers-tutorial_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" alt="" width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="other-applications">Other applications<a class="anchor" aria-label="anchor" href="#other-applications"></a>
 </h2>
 <p>Visit the <a href="https://github.com/birdnet-team/BirdNET-Analyzer" class="external-link">BirdNET Github
-repository</a> and HawkEars repository to run or modify these
-classifiers on your own computer. The decision to pursue other
-applications should be made with the effect of a classifier’s low recall
-rate in mind:</p>
+repository</a> and <a href="https://github.com/jhuus/HawkEars" class="external-link">HawkEars
+Github repository</a> to run or modify these classifiers on your own
+computer. The decision to pursue other applications should be made with
+the effect of a classifier’s low recall rate in mind:</p>
 <ol style="list-style-type: decimal">
 <li><p>With presence / absence data, a classifier is unlikely to be
 reliably to confirm absences due to the low recall.</p></li>

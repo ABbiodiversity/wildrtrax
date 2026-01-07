@@ -119,8 +119,8 @@ download the data.
 
 ``` r
 # Download all of the published Ecosystem Health ARU data to a single object
-wt_get_projects(sensor_id = "ARU") |>
-  dplyr::filter(grepl('^Ecosystem Health',project)) %>%
+wt_get_projects("ARU") |>
+  dplyr::filter(grepl("^Ecosystem Health",project)) %>%
   dplyr::mutate(data = purrr::map(.x = project_id, .f = ~wt_download_report(project_id = .x, sensor_id = "ARU", reports = "main")))
 ```
 

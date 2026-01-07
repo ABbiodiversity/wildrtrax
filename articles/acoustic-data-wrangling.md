@@ -38,26 +38,6 @@ tag) counts to numeric:
 
 ``` r
 my_tmtt_data <- wt_replace_tmtt(data = my_tidy_data, calc = "round")
-#> # A tibble: 330 × 31
-#>    organization project_id location  location_id location_buffer_m longitude
-#>    <chr>             <int> <chr>           <int>             <dbl>     <dbl>
-#>  1 BU                  620 CHPP-WP-1       94515                NA     -110.
-#>  2 BU                  620 CHPP-WP-1       94515                NA     -110.
-#>  3 BU                  620 CHPP-WP-1       94515                NA     -110.
-#>  4 BU                  620 CHPP-WP-1       94515                NA     -110.
-#>  5 BU                  620 CHPP-WP-1       94515                NA     -110.
-#>  6 BU                  620 CHPP-WP-1       94515                NA     -110.
-#>  7 BU                  620 CHPP-WP-1       94515                NA     -110.
-#>  8 BU                  620 CHPP-WP-1       94515                NA     -110.
-#>  9 BU                  620 CHPP-WP-1       94515                NA     -110.
-#> 10 BU                  620 CHPP-WP-1       94515                NA     -110.
-#> # ℹ 320 more rows
-#> # ℹ 25 more variables: latitude <dbl>, equipment_make <chr>,
-#> #   equipment_model <chr>, recording_id <dbl>, recording_date_time <dttm>,
-#> #   task_id <dbl>, task_is_complete <lgl>, task_duration <dbl>,
-#> #   task_method <chr>, species_code <chr>, species_common_name <chr>,
-#> #   species_scientific_name <chr>, individual_order <int>, tag_id <int>,
-#> #   individual_count <chr>, vocalization <chr>, detection_time <dbl>, …
 ```
 
 and finally, widen the data into a species matrix.
