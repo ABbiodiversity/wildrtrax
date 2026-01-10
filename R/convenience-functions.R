@@ -229,7 +229,8 @@ wt_replace_tmtt <- function(data, calc="round"){
   .tmtt <- readRDS(system.file("extdata", "tmtt_predictions.rds", package="wildrtrax"))
 
   dat.tmtt <- data |>
-    rename(individual_count = abundance)
+    rename(individual_count = abundance) |>
+    mutate(id = row_number())
 
   # only TMTT rows for replacement
   dat.tmt <- dat.tmtt |> filter(individual_count == "TMTT")
@@ -257,7 +258,8 @@ wt_replace_tmtt <- function(data, calc="round"){
 
   dat.tmtt <- dat.tmtt |>
     mutate(individual_count = case_when(individual_count == "TMTT" ~ NA_real_, TRUE ~ as.numeric(individual_count))) |>
-    rows_update(dat.tmt, by = c("location_id","species_code","observer_id","recording_date_time"))
+    rows_update(dat.tmt, by = c("id")) |>
+    select(-id)
 
   return(dat.tmtt)
 }
