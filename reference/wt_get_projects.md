@@ -1,7 +1,7 @@
 # Get a project summary from WildTrax
 
 Obtain a table listing projects that the user is able to download data
-for
+for.
 
 ## Usage
 
@@ -18,8 +18,7 @@ wt_get_projects(sensor)
 ## Value
 
 A data frame listing the projects that the user can download data for,
-including: project name, id, year, number of tasks, a geographic
-bounding box and project status.
+including: project name, id, year, number of tasks and project status.
 
 ## Examples
 
@@ -27,6 +26,6 @@ bounding box and project status.
 if (FALSE) { # \dontrun{
 # Authenticate first:
 wt_auth()
-wt_get_projects(sensor_id = "ARU")
+wt_get_projects(sensor = "ARU")
 } # }
 ```
