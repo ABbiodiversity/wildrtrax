@@ -321,6 +321,7 @@
   species_class = col_character(),
   species_code = col_character(),
   species_common_name = col_character(),
+  species_health = col_character(),
   species_individual_comments = col_character(),
   species_scientific_name = col_character(),
   sunrise_utc = col_datetime(),
