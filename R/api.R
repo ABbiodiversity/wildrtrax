@@ -27,7 +27,7 @@ wt_auth <- function(force = FALSE) {
 
 #' Get a project summary from WildTrax
 #'
-#' @description Obtain a table listing projects that the user is able to download data for
+#' @description Obtain a table listing projects that the user is able to download data for.
 #'
 #' @param sensor Can be one of "ARU", "CAM", or "PC"
 #'
@@ -46,7 +46,7 @@ wt_auth <- function(force = FALSE) {
 #' wt_get_projects(sensor = "ARU")
 #' }
 #'
-#' @return A data frame listing the projects that the user can download data for, including: project name, id, year, number of tasks, a geographic bounding box and project status.
+#' @return A data frame listing the projects that the user can download data for, including: project name, id, year, number of tasks and project status.
 #'
 
 wt_get_projects <- function(sensor) {

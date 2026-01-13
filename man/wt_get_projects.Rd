@@ -10,10 +10,10 @@ wt_get_projects(sensor)
 \item{sensor}{Can be one of "ARU", "CAM", or "PC"}
 }
 \value{
-A data frame listing the projects that the user can download data for, including: project name, id, year, number of tasks, a geographic bounding box and project status.
+A data frame listing the projects that the user can download data for, including: project name, id, year, number of tasks and project status.
 }
 \description{
-Obtain a table listing projects that the user is able to download data for
+Obtain a table listing projects that the user is able to download data for.
 }
 \examples{
 \dontrun{
