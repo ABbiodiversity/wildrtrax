@@ -5,7 +5,7 @@
 \alias{.wt_col_types}
 \title{Column assignments}
 \format{
-An object of class \code{list} of length 109.
+An object of class \code{list} of length 110.
 }
 \usage{
 .wt_col_types

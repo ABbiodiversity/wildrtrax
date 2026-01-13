@@ -19,7 +19,7 @@ Obtain a table listing projects that the user is able to download data for
 \dontrun{
 # Authenticate first:
 wt_auth()
-wt_get_projects(sensor_id = "ARU")
+wt_get_projects(sensor = "ARU")
 }
 
 }
