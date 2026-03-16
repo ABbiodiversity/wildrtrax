@@ -114,7 +114,7 @@ wt_tidy_species <- function(data,
   if("survey_url" %in% colnames(data)){
     data <- data |>
       rename(task_id=survey_id,
-             recording_date_time=survey_date)
+             recording_date_time=survey_date_time)
   }
 
   if('bird' %in% remove){
@@ -185,7 +185,7 @@ wt_tidy_species <- function(data,
     if("survey_url" %in% colnames(data)){
       filtered.none <- filtered.none |>
         rename(survey_id=task_id,
-               survey_date = recording_date_time)
+               survey_date_time = recording_date_time)
     }
 
     #return the filtered object with nones added
@@ -254,10 +254,20 @@ wt_replace_tmtt <- function(data, calc="round"){
 
   # replace TMTT rows with predictions
 
-  dat.tmtt <- suppressWarnings(dat.tmtt |>
-    mutate(individual_count = case_when(individual_count %in% c("TMTT", "TNPE") ~ NA_real_, TRUE ~ as.numeric(individual_count))) |>
-    rows_update(dat.tmt, by = c("id")) |>
-    select(-id))
+  dat.tmt <- dat.tmt |>
+    mutate(individual_count = as.numeric(individual_count))
+
+  dat.tmtt <- suppressWarnings(
+    dat.tmtt |>
+      mutate(
+        individual_count = case_when(
+          individual_count %in% c("TMTT", "TNPE") ~ NA_real_,
+          TRUE ~ as.numeric(individual_count)
+        )
+      ) |>
+      rows_update(dat.tmt, by = "id") |>
+      select(-id)
+  )
 
   return(dat.tmtt)
 }
@@ -357,7 +367,7 @@ wt_format_occupancy <- function(data,
   if("survey_url" %in% colnames(data)){
     data <- data |>
       rename(task_id=survey_id,
-             recording_date_time = survey_date,
+             recording_date_time = survey_date_time,
              observer_id = observer,
              task_method = survey_duration_method)
   }

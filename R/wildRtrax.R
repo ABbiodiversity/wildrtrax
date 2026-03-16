@@ -238,6 +238,13 @@ utils::globalVariables(
     "uploadDate",
     "individualCount",
     "detectedSpeciesIds",
-    "recordingURL"
+    "recordingURL",
+    "surveyDateTime",
+    "distanceBand",
+    "distanceMethod",
+    "durationInterval",
+    "comments",
+    "isHeard",
+    "isSeen"
   )
 )

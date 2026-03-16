@@ -249,16 +249,17 @@ wt_download_report <- function(project_id, sensor_id, reports, max_seconds=300) 
     gsub("[:<>|*?\"/\\\\]", "_", x)
   }
 
+  # Extract everything (works on macOS/Linux)
   zip::unzip(tmp, exdir = td)
 
+  # List what got extracted
   files_extracted <- list.files(td, recursive = TRUE, full.names = TRUE)
 
+  # Rename all extracted files to safe names
   for (old_path in files_extracted) {
-
-    new_name <- safe_windows_filename(basename(old_path))
-    new_path <- file.path(dirname(old_path), new_name)
-
-    if (old_path != new_path) {
+    safe_name <- safe_windows_filename(basename(old_path))
+    new_path <- file.path(dirname(old_path), safe_name)
+    if (!file.exists(new_path) && old_path != new_path) {
       file.rename(old_path, new_path)
     }
   }
@@ -288,11 +289,25 @@ wt_download_report <- function(project_id, sensor_id, reports, max_seconds=300) 
   # Return the requested report(s)
   report <- paste(paste0("_",reports), collapse = "|")
   x <- x[grepl(report, names(x))]
-  # Return a data frame if only 1 element in the list (i.e., only 1 report requested)
+
   if (length(x) == 1) {
     x <- x[[1]]
+    if ("abundance" %in% names(x)) {
+      x <- rename(x, individual_count = abundance)
+    }
+    if ("survey_date" %in% names(x)) {
+      x <- rename(x, survey_date_time = survey_date)
+    }
   } else {
-    x
+    x <- map(x, function(.x) {
+      if ("abundance" %in% names(.x)) {
+        .x <- rename(.x, individual_count = abundance)
+      }
+      if ("survey_date" %in% names(.x)) {
+        .x <- rename(.x, survey_date_time = survey_date)
+      }
+      .x
+    })
   }
 
   # Delete csv files
@@ -408,7 +423,7 @@ wt_get_project_species <- function(project) {
 #' wt_download_media(output = "my/output/folder", type = "recording")
 #' }
 #'
-#' @return An organized folder of media. Assigning wt_download_tags to an object will return the table form of the data with the functions returning the after effects in the output directory
+#' @return An organized folder of media.
 
 wt_download_media <- function(input, output, type = c("recording","image", "tag_clip_audio","tag_clip_spectrogram")) {
 
@@ -1008,6 +1023,25 @@ wt_get_sync <- function(api, project = NULL, organization = NULL, max_seconds = 
 
       return(org_df)
 
+    } else if  (api_match == "organization_locations") {
+
+      tmp <- tempfile(fileext = ".csv")
+
+      req <- request("https://www-api.wildtrax.ca") |>
+        req_url_path_append(api_path) |>
+        req_url_query(organizationId = organization) |>
+        req_headers(Authorization = paste("Bearer", ._wt_auth_env_$access_token)) |>
+        req_user_agent(.gen_ua()) |>
+        req_method("GET") |>
+        req_timeout(max_seconds)
+
+      req_perform(req, path = tmp)
+
+      org_df <- read_csv(tmp, show_col_types = FALSE)
+
+      org_df <- org_df |>
+        rename(location_buffer_m = buffer_m)
+
     } else {
 
     tmp <- tempfile(fileext = ".csv")
@@ -1030,7 +1064,30 @@ wt_get_sync <- function(api, project = NULL, organization = NULL, max_seconds = 
 
   } else if (!is.null(project)) {
 
-    if(api_match == "project_image_metadata") {
+    if(api_match == "project_locations") {
+
+      api_path <- "bis/download-location"
+
+      tmp <- tempfile(fileext = ".csv")
+
+      req <- request("https://www-api.wildtrax.ca") |>
+        req_url_path_append(api_path) |>
+        req_url_query(projectId = project) |>
+        req_headers(Authorization = paste("Bearer", ._wt_auth_env_$access_token)) |>
+        req_user_agent(.gen_ua()) |>
+        req_method("GET") |>
+        req_timeout(max_seconds)
+
+      req_perform(req, path = tmp)
+
+      proj_df <- suppressWarnings(read_csv(tmp, show_col_types = FALSE, progress = FALSE))
+
+      proj_df <- proj_df |>
+        rename(location_buffer_m = buffer_m)
+
+      return(proj_df)
+
+    } else if (api_match == "project_image_metadata") {
 
       api_path <- "bis/camera/download-camera-tasks-by-project-id"
 
@@ -1047,6 +1104,39 @@ wt_get_sync <- function(api, project = NULL, organization = NULL, max_seconds = 
       req_perform(req, path = tmp)
 
       proj_df <- suppressWarnings(read_csv(tmp, show_col_types = FALSE, progress = FALSE))
+
+      return(proj_df)
+
+    } else if (api_match == "project_point_counts") {
+
+      api_path <- "bis/download-point-count-by-project-id"
+      tmp <- tempfile(fileext = ".csv")
+
+      req <- request("https://www-api.wildtrax.ca") |>
+        req_url_path_append(api_path) |>
+        req_url_query(projectId = project) |>
+        req_headers(Authorization = paste("Bearer", ._wt_auth_env_$access_token)) |>
+        req_user_agent(.gen_ua()) |>
+        req_method("GET") |>
+        req_timeout(max_seconds)
+
+      req_perform(req, path = tmp)
+
+      proj_df <- suppressWarnings(read_csv(tmp, show_col_types = FALSE, progress = FALSE))
+
+      proj_df <- proj_df |>
+        rename(
+          survey_date_time = surveyDateTime,
+          detection_distance = distanceBand,
+          survey_distance_method = distanceMethod,
+          detection_time = durationInterval,
+          survey_duration_method = durationMethod,
+          individual_count = abundance,
+          survey_comments = comments,
+          detection_heard = isHeard,
+          detection_seen = isSeen,
+          species_code = species
+        )
 
       return(proj_df)
 

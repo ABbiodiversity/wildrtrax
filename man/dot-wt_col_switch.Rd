@@ -5,7 +5,7 @@
 \alias{.wt_col_switch}
 \title{Column switch assignments}
 \format{
-An object of class \code{list} of length 1.
+An object of class \code{list} of length 13.
 }
 \usage{
 .wt_col_switch
