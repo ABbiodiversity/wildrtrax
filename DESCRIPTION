@@ -1,6 +1,6 @@
 Package: wildrtrax
 Title: Environmental Sensor Data Management and Analytics to and from WildTrax
-Version: 1.5.1
+Version: 2.0.0
 Language: en-CA
 Authors@R: 
     c(person(given = "Alex",
@@ -17,31 +17,10 @@ Authors@R:
              email = "ecknight@ualberta.ca"))
 Maintainer: Alex MacPhail <agmacpha@ualberta.ca>
 Description: This R package contains functions to help manage and analyze environmental sensor data to and from WildTrax.
-Depends: R (>= 4.5.0)
+Depends: R (>= 4.5.3)
 License: MIT + file LICENSE
 Imports:
-    dplyr (>= 1.1.0),
-    fs,
-    ggplot2,
-    httr2,
-    magick,
-    purrr,
-    readr,
-    seewave,
-    sf,
-    suntools,
-    terra,
-    tibble,
-    tidyr (>= 1.0.2),
-    tuneR,
-    unmarked
-Suggests: 
-    knitr,
-    rmarkdown,
-    testthat (>= 3.0.0),
-    usethis,
-    withr
-Remotes: borealbirds/QPAD
+    httr2
 VignetteBuilder: knitr, rmarkdown
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
