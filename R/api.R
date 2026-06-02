@@ -295,17 +295,11 @@ wt_download_report <- function(project_id, sensor_id, reports, max_seconds=300) 
 
   if (length(x) == 1) {
     x <- x[[1]]
-    if ("abundance" %in% names(x)) {
-      x <- rename(x, individual_count = abundance)
-    }
     if ("survey_date" %in% names(x)) {
       x <- rename(x, survey_date_time = survey_date)
     }
   } else {
     x <- map(x, function(.x) {
-      if ("abundance" %in% names(.x)) {
-        .x <- rename(.x, individual_count = abundance)
-      }
       if ("survey_date" %in% names(.x)) {
         .x <- rename(.x, survey_date_time = survey_date)
       }
@@ -1128,7 +1122,6 @@ wt_get_sync <- function(api, project = NULL, organization = NULL, max_seconds = 
           survey_distance_method = distanceMethod,
           detection_time = durationInterval,
           survey_duration_method = durationMethod,
-          individual_count = abundance,
           survey_comments = comments,
           detection_heard = isHeard,
           detection_seen = isSeen,
