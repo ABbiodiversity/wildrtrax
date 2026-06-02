@@ -209,8 +209,8 @@ test_that("Complex column check across reports and sync", {
 
 report_endpoints <- list(
   list(project = 620, type = "ARU", reports = c("main","ai","recording","tag","project","location")),
-  list(project = 881, type = "PC", reports = "main"),
-  list(project = 251, type = "CAM", reports = c("main","megadetector","image_set_report","image_report"))
+  list(project = 881, type = "PC", reports = c("main", "project", "location", "point_count")),
+  list(project = 251, type = "CAM", reports = c("main","location", "project", "tag", "megadetector","image_set_report","image_report"))
 )
 
 report_cols <- report_endpoints %>%
@@ -252,8 +252,6 @@ all_columns <- full_join(report_cols |> rename(column_name = report_name), sync_
   select(column_name, report_or_sync, report_name, sync_name)
 
 expect_no_error(all_columns) #EXPECT WE ACTUALLY EXPECT AN ERROR - KEEP WORKING ON THIS
-
-#write_csv(all_columns, "./all_columns_check.csv")
 
 })
 

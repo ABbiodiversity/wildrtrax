@@ -27,6 +27,7 @@ utils::globalVariables(
     "RankOrder",
     "ResultMinute",
     "ResultStartSeconds",
+    "survey_date_time",
     "Score",
     "SegmentDurationSeconds",
     "TIME",

@@ -206,12 +206,15 @@ wt_download_report <- function(project_id, sensor_id, reports, max_seconds=300) 
   }
 
   query_params <- list(
-    locationReport = "true",
-    projectReport = "true",
-    tagReport = "true",
-    recordingReport = "true",
-    mainReport = "true",
-    aiReport = "true",
+    locationReport = if ("location" %in% reports) "true" else "false",
+    projectReport = if ("project" %in% reports) "true" else "false",
+    tagReport = if ("tag" %in% reports) "true" else "false",
+    recordingReport = if ("recording" %in% reports) "true" else "false",
+    mainReport = if ("main" %in% reports) "true" else "false",
+    aiReport = if ("ai" %in% reports) "true" else "false",
+    imageSetReport = if ("image_set" %in% reports) "true" else "false",
+    imageReport = if ("image_report" %in% reports) "true" else "false",
+    megaDetectorReport = if ("megadetector" %in% reports) "true" else "false",
     includeMetaData = "true",
     sensorId = sensor_id
   )
@@ -384,18 +387,7 @@ wt_get_project_species <- function(project) {
   resp <- request("https://www-api.wildtrax.ca") |>
     req_url_path_append("bis/get-project-species-details") |>
     req_url_query(projectId = project) |>
-    req_headers(
-      Authorization = resp <- request("https://www-api.wildtrax.ca") |>
-  req_url_path_append("bis/get-project-species-details") |>
-  req_url_query(projectId = 3706) |>
-  req_headers(
-    Authorization = paste("Bearer", ._wt_auth_env_$access_token)
-  ) |>
-  req_user_agent(.gen_ua()) |>
-  req_method("GET") |>
-  req_perform()
-
-    ) |>
+    req_headers(Authorization = paste("Bearer", ._wt_auth_env_$access_token)) |>
     req_user_agent(.gen_ua()) |>
     req_method("GET") |>
     req_perform()
@@ -1045,11 +1037,7 @@ wt_get_sync <- function(api, project = NULL, organization = NULL, max_seconds = 
         req_timeout(max_seconds)
 
       req_perform(req, path = tmp)
-
       org_df <- read_csv(tmp, show_col_types = FALSE)
-
-      org_df <- org_df |>
-        rename(location_buffer_m = buffer_m)
 
     } else {
 
@@ -1336,10 +1324,12 @@ wt_get_view <- function(api, project = NULL, organization = NULL, max_seconds = 
         req_body_json(list(
           organizationId = organization,
           limit          = max_page_size,
+          birdNetMinConfidence = 0.2,
+          hawkEarMinConfidence = 0.2,
           orderBy        = "locationName",
           orderDirection = "asc"
         )) |>
-        req_method("GET") |>
+        req_method("POST") |>
         req_timeout(300)
 
       resp <- req_perform_iterative(req, iterate_with_offset("page_index"))

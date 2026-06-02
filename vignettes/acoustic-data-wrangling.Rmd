@@ -34,7 +34,7 @@ library(dplyr)
 # Start by getting everything you need
 Sys.setenv(WT_USERNAME = 'guest', WT_PASSWORD = 'Apple123')
 wt_auth()
-my_report <- wt_download_report(project_id = 668, sensor_id = 'ARU', reports = "main") 
+my_report <- wt_download_report(project_id = 620, sensor_id = 'ARU', reports = "main") 
 
 
 ```
