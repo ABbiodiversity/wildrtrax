@@ -796,7 +796,7 @@ wt_kaleidoscope_tags <- function (input, output = NULL, freq_bump = TRUE) {
     mutate(individual_number = row_number()) |>
     ungroup() |>
     add_column(vocalization = "", .after = "individual_number") |>
-    add_column(individual_count = 1, .after= "vocalization") |>
+    add_column(abundance = 1, .after= "vocalization") |>
     mutate(vocalization = case_when(species_code == "Noise" ~ "Non-vocal", TRUE ~ "Call")) |>
     add_column(internal_tag_id = "", .after = "max_tag_freq") |>
     mutate(recording_date_time = as.character(recording_date_time)) |>
@@ -810,7 +810,7 @@ wt_kaleidoscope_tags <- function (input, output = NULL, freq_bump = TRUE) {
     mutate(min_tag_freq = case_when(freq_bump == TRUE ~ min_tag_freq - 10000, TRUE ~ min_tag_freq),
            max_tag_freq = case_when(freq_bump == TRUE ~ max_tag_freq + 10000, TRUE ~ max_tag_freq)) |>
     relocate(task_duration, .after = task_method) |>
-    relocate(tag_start_time, .after = individual_count) |>
+    relocate(tag_start_time, .after = abundance) |>
     relocate(tag_duration, .after = tag_start_time) |>
     relocate(min_tag_freq, .after = tag_duration) |>
     relocate(max_tag_freq, .after = min_tag_freq) |>
@@ -888,8 +888,8 @@ wt_songscope_tags <- function (input, output = c("env","csv"), output_file=NULL,
       mutate(individual_number = 1) |>
       ungroup() |>
       mutate(`vocalization` = vocalization, .after = individual_number) |>
-      add_column(individual_count = 1, .after= "vocalization") |>
-      relocate(tag_start_time, .after = individual_count) |>
+      add_column(abundance = 1, .after= "vocalization") |>
+      relocate(tag_start_time, .after = abundance) |>
       relocate(tag_duration, .after = tag_start_time) |>
       add_column(min_tag_freq = "", .after= "tag_duration") |>
       add_column(max_tag_freq = "", .after= "min_tag_freq") |>
@@ -898,7 +898,7 @@ wt_songscope_tags <- function (input, output = c("env","csv"), output_file=NULL,
       mutate(recording_sample_frequency = 44100) |>
       mutate(internal_tag_id = "", .after = "max_tag_freq") |>
       select(location, recording_date_time, task_duration, task_method, observer, species_code,
-             individual_number, vocalization, individual_count, tag_start_time, tag_duration,
+             individual_number, vocalization, abundance, tag_start_time, tag_duration,
              min_tag_freq, max_tag_freq, species_individual_comments, tag_is_hidden_for_verification, recording_sample_frequency, internal_tag_id)
 
   } else if (method == "1SPT") {
@@ -914,8 +914,8 @@ wt_songscope_tags <- function (input, output = c("env","csv"), output_file=NULL,
       ungroup() |>
       filter(!individual_number > 1) |>
       mutate(`vocalization` = vocalization) |>
-      add_column(individual_count = 1, .after= "vocalization") |>
-      relocate(tag_start_time, .after = individual_count) |>
+      add_column(abundance = 1, .after= "vocalization") |>
+      relocate(tag_start_time, .after = abundance) |>
       relocate(tag_duration, .after = tag_start_time) |>
       add_column(min_tag_freq = "", .after= "tag_duration") |>
       add_column(max_tag_freq = "", .after= "min_tag_freq") |>
@@ -924,7 +924,7 @@ wt_songscope_tags <- function (input, output = c("env","csv"), output_file=NULL,
       mutate(recording_sample_frequency = 44100) |>
       add_column(internal_tag_id = "", .after = "max_tag_freq") |>
       select(location, recording_date_time, task_method, task_duration, observer, species_code,
-             individual_number, vocalization, individual_count, tag_start_time, tag_duration,
+             individual_number, vocalization, abundance, tag_start_time, tag_duration,
              min_tag_freq, max_tag_freq, species_individual_comments, tag_is_hidden_for_verification, recording_sample_frequency, internal_tag_id)
 
   } else {

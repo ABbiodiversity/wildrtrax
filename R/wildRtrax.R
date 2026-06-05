@@ -55,7 +55,6 @@ utils::globalVariables(
     "image_id",
     "index_value",
     "index_variable",
-    "individual_count",
     "individual_order",
     "internal_tag_id",
     "is_species_allowed_in_project",

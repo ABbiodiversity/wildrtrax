@@ -328,9 +328,9 @@ wt_additional_species <- function(data, remove_species = TRUE, threshold = 0.5, 
       mutate(individual_number = row_number(), .after = species_code) |>
       ungroup() |>
       mutate(vocalization = "SONG", .after = individual_number) |>
-      mutate(individual_count = 1, .after = vocalization) |>
+      mutate(abundance = 1, .after = vocalization) |>
       rename(tag_start_time = ai_detection_time) |>
-      relocate(tag_start_time, .after = individual_count) |>
+      relocate(tag_start_time, .after = abundance) |>
       mutate(tag_duration = "", .after = tag_start_time) |>
       mutate(min_tag_freq = "", .after = tag_duration) |>
       mutate(max_tag_freq = "", .after = min_tag_freq) |>

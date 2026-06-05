@@ -252,7 +252,7 @@ wt_download_report <- function(project_id, sensor_id, reports, max_seconds=300) 
     gsub("[:<>|*?\"/\\\\]", "_", x)
   }
 
-  # Extract everything (works on macOS/Linux)
+  # Extract everything (works on Unix)
   zip::unzip(tmp, exdir = td)
 
   # List what got extracted
@@ -1309,25 +1309,33 @@ wt_get_view <- function(api, project = NULL, organization = NULL, max_seconds = 
 
       req <- request("https://www-api.wildtrax.ca") |>
         req_url_path_append(api_path) |>
-        req_headers(
-          Authorization = paste("Bearer", ._wt_auth_env_$access_token),
-          "Content-Type" = "application/json"
-        ) |>
+        req_headers(Authorization = paste("Bearer", ._wt_auth_env_$access_token), "Content-Type" = "application/json") |>
         req_user_agent(.gen_ua()) |>
         req_body_json(list(
-          organizationId = organization,
-          limit          = max_page_size,
+          organizationId       = organization,
+          limit                = max_page_size,
+          page                 = 1,
           birdNetMinConfidence = 0.2,
-          hawkEarMinConfidence = 0.2,
-          orderBy        = "locationName",
-          orderDirection = "asc"
-        )) |>
+          hawkEarMinConfidence = 0.35,
+          orderBy              = "locationName",
+          orderDirection       = "asc"
+        ), digits = 2) |>
         req_method("POST") |>
         req_timeout(300)
 
-      resp <- req_perform_iterative(req, iterate_with_offset("page_index"))
-
-      json <- resp_body_json(resp[[1]], simplifyVector = FALSE)
+      resp <- req_perform_iterative(
+        req,
+        next_req = function(resp, req) {
+          json <- resp_body_json(resp)
+          if (length(json$result) == 0) return(NULL)
+          current_body <- req$body$data
+          req |> req_body_json(
+            modifyList(current_body, list(page = current_body$page + 1)),
+            digits = 2
+          )
+        },
+        max_reqs = Inf
+      )
 
       replace_nulls <- function(x) {
         if (is.list(x)) {
@@ -1339,12 +1347,10 @@ wt_get_view <- function(api, project = NULL, organization = NULL, max_seconds = 
       }
 
       all_results <- map(resp, ~ {
-        json <- resp_body_json(.x, simplifyVector = FALSE)
-        map_dfr(json, ~ {
-          rec <- replace_nulls(.x)
-          as_tibble(rec)
-        })
-      })
+        json <- resp_body_json(.x, simplifyVector = TRUE)
+        json$result |> as_tibble()
+      }) |>
+        list_rbind()
 
       org_df_recs <- bind_rows(all_results) |> distinct()
 

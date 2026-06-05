@@ -254,7 +254,7 @@ all_columns <- full_join(report_cols |> rename(column_name = report_name), sync_
   mutate(report_or_sync = coalesce(in_report, in_sync),
          report_name = ifelse(!is.na(in_report), column_name, NA_character_),
          sync_name = ifelse(!is.na(in_sync), column_name, NA_character_)) |>
-  select(column_name, report_or_sync, report_name, sync_name)
+  select(source_api, source_report, column_name, report_or_sync, report_name, sync_name)
 
 expect_no_error(all_columns) #EXPECT WE ACTUALLY EXPECT AN ERROR - KEEP WORKING ON THIS
 

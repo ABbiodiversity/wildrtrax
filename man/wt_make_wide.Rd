@@ -15,7 +15,7 @@ wt_make_wide(data, sound = "all")
 A dataframe identical to input with observations of the specified groups removed.
 }
 \description{
-This function converts a long-formatted report into a wide survey by species dataframe of individual_count values.
+This function converts a long-formatted report into a wide survey by species dataframe of abundance values.
 }
 \examples{
 \dontrun{
