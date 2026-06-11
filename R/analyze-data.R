@@ -75,59 +75,44 @@ wt_summarise_cam <- function(detect_data, raw_data, time_interval = "day",
 
       x <- raw_data |>
         group_by({{ project_col }}, {{ station_col }}, {{ image_set_id }}) |>
-        summarise(start_date = as.Date(min({{ date_time_col }})),
-                  end_date = as.Date(max({{ date_time_col }}))) |>
-        ungroup()
-
-      if (any(c(is.na(x$start_date), is.na(x$end_date)))) {
-        message("Parsing of image date time produced NAs, these will be dropped")
-        x <- drop_na(x)
-      }
-
-      # Expand the time ranges into individual days of operation (smallest unit)
-      x <- x |>
-        group_by({{ project_col }}, {{ station_col }}, {{ image_set_id }}) |>
-        mutate(day = list(seq.Date(start_date, end_date, by = "day"))) |>
-        unnest(day) |>
-        mutate(year = as.integer(format(day, "%Y"))) |>
-        select({{ project_col }}, {{ station_col }}, {{ image_set_id }}, year, day) |>
-        ungroup()
-
-      print(x, n = 30)
+        summarise(
+          start_date = as.Date(min({{ date_time_col }}, na.rm = TRUE)),
+          end_date   = as.Date(max({{ date_time_col }}, na.rm = TRUE)),
+          .groups = "drop"
+        )
 
     } else {
 
       x <- raw_data |>
+        arrange({{ project_col }}, {{ station_col }}, {{ image_set_id }}, {{ date_time_col }}) |>
         group_by({{ project_col }}, {{ station_col }}, {{ image_set_id }}) |>
-        arrange(image_date_time) |>
         mutate(
-          cam_ok = case_when(image_fov == "OOR" ~ FALSE, TRUE ~ TRUE),
-          period = cumsum(cam_ok != lag(cam_ok, default = first(cam_ok))) + 1
+          cam_ok = image_fov == ""
         ) |>
         filter(cam_ok) |>
-        group_by({{ project_col }}, {{ station_col }}, {{ image_set_id }}, period) |>
         summarise(
-          start_date      = min(image_date_time, na.rm = TRUE) |> as.Date(),
-          end_date        = max(image_date_time, na.rm = TRUE) |> as.Date(),
-        ) |> ungroup()
+          start_date = as.Date(min({{ date_time_col }}, na.rm = TRUE)),
+          end_date   = as.Date(max({{ date_time_col }}, na.rm = TRUE)),
+          .groups = "drop"
+        )
 
-      if (any(c(is.na(x$start_date), is.na(x$end_date)))) {
-        message("Parsing of image date time produced NAs, these will be dropped")
-        x <- drop_na(x)
-      }
-
-      if(nrow(x) == 0) {
-        stop("The remaining images in the dataset were all out of the field of view.")
-      }
-
-      # Expand the time ranges into individual days of operation (smallest unit)
-      x <- x |>
-        group_by({{ project_col }}, {{ station_col }}, {{ image_set_id }}, period) |>
-        mutate(day = list(seq.Date(start_date, end_date, by = "day"))) |>
-        unnest(day) |>
-        mutate(year = as.integer(format(day, "%Y"))) |>
-        select({{ project_col }}, {{ station_col }}, {{ image_set_id }}, year, day)
     }
+
+    if (any(c(is.na(x$start_date), is.na(x$end_date)))) {
+      message("Parsing of image date time produced NAs, these will be dropped")
+      x <- drop_na(x)
+    }
+
+    if (nrow(x) == 0) {
+      stop("The remaining images in the dataset were all out of the field of view.")
+    }
+
+    x <- x |>
+      mutate(day = map2(start_date, end_date, ~ seq.Date(.x, .y, by = "day"))) |>
+      unnest(day) |>
+      distinct({{ project_col }}, {{ station_col }}, {{ image_set_id }}, day) |>
+      mutate(year = as.integer(format(day, "%Y"))) |>
+      select({{ project_col }}, {{ station_col }}, {{ image_set_id }}, year, day)
 
   } else {
 
@@ -161,8 +146,7 @@ wt_summarise_cam <- function(detect_data, raw_data, time_interval = "day",
 
   # Summarise variable of interest
   y <- y |>
-    # I think it's okay to leave out image_set_id here
-    group_by(across(all_of(grouping_cols)), {{ project_col }}, {{ station_col }}, {{ species_col }}) |>
+    group_by({{project_col}}, {{ station_col }}, {{species_col}}, year, {{ time_interval }}) |>
     summarise(detections = n(),
               counts = sum(max_animals)) |>
     ungroup() |>
@@ -181,7 +165,8 @@ wt_summarise_cam <- function(detect_data, raw_data, time_interval = "day",
 
   } else if (time_interval == "week") {
     x <- x |>
-      mutate(week = as.numeric(format(day, "%V"))) |>
+      mutate(year = as.integer(strftime(day, "%G")),
+             week = as.integer(strftime(day, "%V"))) |>
       group_by({{ project_col }}, {{ station_col }}, year, week) |>
       summarise(n_days_effort = n_distinct(day)) |>
       ungroup()
@@ -217,19 +202,18 @@ wt_summarise_cam <- function(detect_data, raw_data, time_interval = "day",
     variable <- c("detections", "counts", "presence")
   }
 
-  print(z)
-
   # Make wide if desired, using
   if (output_format == "wide") {
     z <- z |>
-      pivot_wider(id_cols = 1:4, names_from = {{species_col}}, values_from = {{variable}}, names_sep = ".")
+      pivot_wider(id_cols = c({{ project_col }}, {{ station_col }}, year,
+                              {{ time_interval }}, n_days_effort),
+                  names_from = {{ species_col }}, values_from = {{ variable }}, names_sep = ".") |>
+      unnest()
   } else if (output_format == "long") {
-    z <- z |> select(1:5, {{variable}}) |>
+    z <- z |> select({{project_col}}, {{ station_col }}, year,
+                     {{ time_interval }}, n_days_effort,
+                     {{species_col}}, {{variable}}) |>
       pivot_longer(cols = {{variable}}, names_to = "variable", values_to = "value")
-  } else {
-    z
-    # If neither 'wide' or 'long' is specified, just return z without pivoting plus a message.
-    message("Please specify `wide` or `long` in the output_format argument.")
   }
 
   return(z)
