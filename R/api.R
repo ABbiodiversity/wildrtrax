@@ -286,6 +286,7 @@ wt_download_report <- function(project_id, sensor_id, reports, max_seconds=300) 
     readr::read_csv(.x, show_col_types = FALSE,
                     skip_empty_rows = TRUE,
                     col_types = .wt_col_types,
+                    na = character(),
                     progress = FALSE)
   )) %>% purrr::set_names(files.less)
 
