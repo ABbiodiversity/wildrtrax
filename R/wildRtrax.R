@@ -36,6 +36,7 @@ utils::globalVariables(
     "aru_task_status",
     "clip_url",
     "confidence",
+    "individual_count",
     "counts",
     "data",
     "detection",

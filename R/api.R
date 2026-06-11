@@ -1329,10 +1329,8 @@ wt_get_view <- function(api, project = NULL, organization = NULL, max_seconds = 
           json <- resp_body_json(resp)
           if (length(json$result) == 0) return(NULL)
           current_body <- req$body$data
-          req |> req_body_json(
-            modifyList(current_body, list(page = current_body$page + 1)),
-            digits = 2
-          )
+          current_body$page <- current_body$page + 1
+          req |> req_body_json(current_body, digits = 2)
         },
         max_reqs = Inf
       )

@@ -3,16 +3,6 @@ library(purrr)
 library(dplyr)
 library(tidyr)
 
-# test_that("errors when WT_USERNAME or WT_PASSWORD are missing", {
-#   withr::with_envvar(
-#     c(WT_USERNAME = "", WT_PASSWORD = ""),
-#     expect_error(
-#       .wt_auth(),
-#       "Environment variables are not set"
-#     )
-#   )
-# })
-
 aoi <- list(
   c(-112.85438, 57.13472),
   c(-113.14364, 54.74858),
@@ -250,13 +240,26 @@ sync_cols <- sync_endpoints %>%
   distinct() |>
   mutate(in_sync = TRUE)
 
-all_columns <- full_join(report_cols |> rename(column_name = report_name), sync_cols |> rename(column_name = sync_name), by = "column_name") |>
-  mutate(report_or_sync = coalesce(in_report, in_sync),
-         report_name = ifelse(!is.na(in_report), column_name, NA_character_),
-         sync_name = ifelse(!is.na(in_sync), column_name, NA_character_)) |>
-  select(source_api, source_report, column_name, report_or_sync, report_name, sync_name)
+report_only <- anti_join(
+  report_cols,
+  sync_cols,
+  by = c("report_name" = "sync_name")
+)
 
-expect_no_error(all_columns) #EXPECT WE ACTUALLY EXPECT AN ERROR - KEEP WORKING ON THIS
+sync_only <- anti_join(
+  sync_cols,
+  report_cols,
+  by = c("sync_name" = "report_name")
+)
+
+in_both <- inner_join(
+  report_cols,
+  sync_cols,
+  by = c("report_name" = "sync_name"),
+  relationship = "many-to-many"
+)
+
+expect_true(nrow(in_both) > 1)
 
 })
 
