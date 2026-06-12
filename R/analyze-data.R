@@ -210,7 +210,7 @@ wt_summarise_cam <- function(detect_data, raw_data, time_interval = "day",
                   names_from = {{ species_col }}, values_from = {{ variable }}, names_sep = ".") |>
       unnest()
   } else if (output_format == "long") {
-    z <- z |> select({{project_col}}, {{ station_col }}, year,
+    z <- z |> select({{ project_col }}, {{ station_col }}, year,
                      {{ time_interval }}, n_days_effort,
                      {{ species_col }}, {{ variable }}) |>
       pivot_longer(cols = {{ variable }}, names_to = "variable", values_to = "value")
@@ -280,7 +280,8 @@ wt_ind_detect <- function(x, threshold, units = "minutes", datetime_col = image_
     t <- c(t, "Human", "Vehicle", "Unknown Vehicle", "All Terrain Vehicle", "Train", "Heavy Equipment")
   }
   # Filter out unwanted tags, including NAs
-  x <- filter(x, !species_common_name %in% t & !is.na(species_common_name))
+  x <- x |>
+    filter(!species_common_name %in% t, !is.na(species_common_name))
   if (remove_domestic) {
     # All tags in WildTrax that refer to domestic animals begin with 'Domestic __'
     x <- filter(x, !grepl("^Domestic", species_common_name))
@@ -311,7 +312,7 @@ wt_ind_detect <- function(x, threshold, units = "minutes", datetime_col = image_
       arrange(project_id, location, {{ datetime_col }}, species_common_name) |>
       group_by(project_id, location, species_common_name) |>
       # Calculate the time difference between subsequent images
-      mutate(interval = as.numeric(difftime({{datetime_col}}, lag({{ datetime_col }}), units = "secs"))) |>
+      mutate(interval = as.numeric(difftime({{ datetime_col }}, lag({{ datetime_col }}), units = "secs"))) |>
       # Is this considered a new detection?
       mutate(new_detection = ifelse(is.na(interval) | abs(interval) >= threshold, TRUE, FALSE)) |>
       ungroup() |>
