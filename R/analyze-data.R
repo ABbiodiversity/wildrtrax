@@ -127,20 +127,20 @@ wt_summarise_cam <- function(detect_data, raw_data, time_interval = "day",
   }
 
   # Based on the desired timeframe, assess when each detection occurred
-  if (time_interval == "day" || time_interval == "full") {
+  if (time_interval == "day" | time_interval == "full") {
     y <- detect_data |>
-      mutate(year = as.integer(format({{ start_col_det }}, "%Y")),
+      mutate(year = as.integer(format({{ start_col_det }}, "%G")),
              day = as.Date({{ start_col_det }}))
     grouping_cols <- c("year", "day")
   } else if (time_interval == "week") {
     y <- detect_data |>
-      mutate(year = as.integer(format({{ start_col_det }}, "%Y")),
-             week = as.integer(format({{ start_col_det }}, "%V")))  # ISO week
+      mutate(year = as.integer(format({{ start_col_det }}, "%G")),
+             week = as.integer(format({{ start_col_det }}, "%V")))
     grouping_cols <- c("year", "week")
   } else if (time_interval == "month") {
     y <- detect_data |>
-      mutate(year = as.integer(format({{ start_col_det }}, "%Y")),
-             month = format({{ start_col_det }}, "%B"))  # Full month name
+      mutate(year = as.integer(format({{ start_col_det }}, "%G")),
+             month = format({{ start_col_det }}, "%B"))
     grouping_cols <- c("year", "month")
   }
 
@@ -189,7 +189,14 @@ wt_summarise_cam <- function(detect_data, raw_data, time_interval = "day",
   } else if (time_interval == "full") {
     z <- x |>
       crossing(sp) |>
-      left_join(y) |>
+      left_join(y)
+
+    message('print x')
+    print(x)
+    message('print z')
+    print(z)
+
+    z <- z |>
       mutate(across(everything(), ~ replace_na(.x, 0))) |>
       group_by({{ project_col }}, {{ station_col }}, year, {{ species_col }}) |>
       summarise(detections = sum(detections),
@@ -208,7 +215,7 @@ wt_summarise_cam <- function(detect_data, raw_data, time_interval = "day",
       pivot_wider(id_cols = c({{ project_col }}, {{ station_col }}, year,
                               {{ time_interval }}, n_days_effort),
                   names_from = {{ species_col }}, values_from = {{ variable }}, names_sep = ".") |>
-      unnest()
+      unnest(everything())
   } else if (output_format == "long") {
     z <- z |> select({{ project_col }}, {{ station_col }}, year,
                      {{ time_interval }}, n_days_effort,

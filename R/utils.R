@@ -252,12 +252,14 @@
 
 #' Column assignments
 #'
-#' @description Assign correct column types for reports
+#' @description Assign correct column types for reports, varying by sensor
+#'
+#' @param sensor_id Character. Sensor type (e.g. "PC", "ARU"). Determines
+#'   type overrides for columns that differ between sensors.
 #'
 #' @importFrom readr col_character col_double col_logical col_date col_datetime col_integer
 #'
 #' @keywords internal
-#'
 
 .wt_col_types <- function(sensor_id = NULL) {
 

@@ -135,7 +135,7 @@ wt_get_projects <- function(sensor) {
 #' }
 #'
 #' @import httr2
-#' @import purrr setnames map walk
+#' @importFrom purrr set_names map walk
 #' @importFrom dplyr rename filter pull
 #' @importFrom tibble as_tibble
 #' @importFrom readr read_csv col_character col_logical
@@ -288,7 +288,7 @@ wt_download_report <- function(project_id, sensor_id, reports, max_seconds=300) 
              col_types = .wt_col_types(sensor_id),
              na = character(),
              progress = FALSE)
-  )) %>% set_names(files.less)
+  )) %>% purrr::set_names(files.less)
 
   # Return the requested report(s)
   report <- paste(paste0("_",reports), collapse = "|")
