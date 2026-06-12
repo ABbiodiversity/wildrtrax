@@ -135,7 +135,7 @@ wt_get_projects <- function(sensor) {
 #' }
 #'
 #' @import httr2
-#' @import purrr
+#' @import purrr setnames map walk
 #' @importFrom dplyr rename filter pull
 #' @importFrom tibble as_tibble
 #' @importFrom readr read_csv col_character col_logical
@@ -269,7 +269,7 @@ wt_download_report <- function(project_id, sensor_id, reports, max_seconds=300) 
 
   # Remove special characters from project names safely
   list.files(td, pattern = "\\.csv$", full.names = TRUE, recursive = TRUE) %>%
-    purrr::walk(~ {
+    walk(~ {
       old_path <- .x
       new_path <- file.path(dirname(.x), safe_windows_filename(basename(.x)))
       if (!file.exists(new_path)) file.rename(old_path, new_path)
@@ -282,13 +282,13 @@ wt_download_report <- function(project_id, sensor_id, reports, max_seconds=300) 
   files.full <- list.files(td, pattern= "\\.csv$", full.names = TRUE, recursive = TRUE)
   files.less <- basename(files.full)
 
-  x <- purrr::map(.x = files.full, .f = ~ suppressWarnings(
-    readr::read_csv(.x, show_col_types = FALSE,
-                    skip_empty_rows = TRUE,
-                    col_types = .wt_col_types,
-                    na = character(),
-                    progress = FALSE)
-  )) %>% purrr::set_names(files.less)
+  x <- map(.x = files.full, .f = ~ suppressWarnings(
+    read_csv(.x, show_col_types = FALSE,
+             skip_empty_rows = TRUE,
+             col_types = .wt_col_types(sensor_id),
+             na = character(),
+             progress = FALSE)
+  )) %>% set_names(files.less)
 
   # Return the requested report(s)
   report <- paste(paste0("_",reports), collapse = "|")
