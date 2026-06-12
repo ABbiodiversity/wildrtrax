@@ -146,7 +146,7 @@ wt_summarise_cam <- function(detect_data, raw_data, time_interval = "day",
 
   # Summarise variable of interest
   y <- y |>
-    group_by({{project_col}}, {{ station_col }}, {{species_col}}, year, {{ time_interval }}) |>
+    group_by({{ project_col }}, {{ station_col }}, {{ species_col }}, year, {{ time_interval }}) |>
     summarise(detections = n(),
               counts = sum(max_animals)) |>
     ungroup() |>
@@ -212,8 +212,8 @@ wt_summarise_cam <- function(detect_data, raw_data, time_interval = "day",
   } else if (output_format == "long") {
     z <- z |> select({{project_col}}, {{ station_col }}, year,
                      {{ time_interval }}, n_days_effort,
-                     {{species_col}}, {{variable}}) |>
-      pivot_longer(cols = {{variable}}, names_to = "variable", values_to = "value")
+                     {{ species_col }}, {{ variable }}) |>
+      pivot_longer(cols = {{ variable }}, names_to = "variable", values_to = "value")
   }
 
   return(z)
@@ -250,7 +250,7 @@ wt_ind_detect <- function(x, threshold, units = "minutes", datetime_col = image_
   # Ensure that datetime_col is of class POSIXct; if not, try to convert.
   name <- enquo(datetime_col) |> quo_name()
   if (!inherits(x[[name]], c("POSIXct"))) {
-    x <- x |> mutate({{datetime_col}} := as.POSIXct({{datetime_col}}, format = "%Y-%m-%d %H:%M:%S", tz = "UTC"))
+    x <- x |> mutate({{ datetime_col }} := as.POSIXct({{ datetime_col }}, format = "%Y-%m-%d %H:%M:%S", tz = "UTC"))
     message("Your datetime_col has been converted to a POSIXct DateTime.")
   }
   # Check if x contains the required columns - standard output from WildTrax. Probably should make this more flexible.
@@ -293,7 +293,7 @@ wt_ind_detect <- function(x, threshold, units = "minutes", datetime_col = image_
     # Use image_id because sometimes {{datetime_col}} is same for 2 images
     group_by(location, image_id, species_common_name) |>
     mutate(individual_count = sum(individual_count)) |>
-    distinct(location, {{datetime_col}}, species_common_name, individual_count, .keep_all = TRUE) |>
+    distinct(location, {{ datetime_col }}, species_common_name, individual_count, .keep_all = TRUE) |>
     ungroup()
 
   # Determine independent detections by species in loop;
@@ -308,10 +308,10 @@ wt_ind_detect <- function(x, threshold, units = "minutes", datetime_col = image_
     x2 <- x1 |>
       filter(species_common_name == sp) |>
       # Order the dataframe
-      arrange(project_id, location, {{datetime_col}}, species_common_name) |>
+      arrange(project_id, location, {{ datetime_col }}, species_common_name) |>
       group_by(project_id, location, species_common_name) |>
       # Calculate the time difference between subsequent images
-      mutate(interval = as.numeric(difftime({{datetime_col}}, lag({{datetime_col}}), units = "secs"))) |>
+      mutate(interval = as.numeric(difftime({{datetime_col}}, lag({{ datetime_col }}), units = "secs"))) |>
       # Is this considered a new detection?
       mutate(new_detection = ifelse(is.na(interval) | abs(interval) >= threshold, TRUE, FALSE)) |>
       ungroup() |>
@@ -326,8 +326,8 @@ wt_ind_detect <- function(x, threshold, units = "minutes", datetime_col = image_
   # Summarise detections
   x3 <- bind_rows(detections) |>
     group_by(detection, project_id, location, species_common_name) |>
-    summarise(start_time = min({{datetime_col}}),
-              end_time = max({{datetime_col}}),
+    summarise(start_time = min({{ datetime_col }}),
+              end_time = max({{ datetime_col }}),
               total_duration_seconds = as.numeric(difftime(end_time, start_time, units = "secs")),
               n_images = n(),
               avg_animals_per_image = mean(individual_count),
