@@ -999,48 +999,20 @@ wt_get_sync <- function(api, project = NULL, organization = NULL, max_seconds = 
 
   print(paste('Calling...', api_path))
 
-  if(!is.null(organization)) {
+  if (!is.null(organization)) {
 
-    if(api_match == "organization_deployments") {
-
-      tmp <- tempfile(fileext = ".csv")
-
-      req <- request("https://www-api.wildtrax.ca") |>
-        req_url_path_append(api_path) |>
-        req_url_query(organizationId = organization) |>
-        req_headers(Authorization = paste("Bearer", ._wt_auth_env_$access_token)) |>
-        req_user_agent(.gen_ua()) |>
-        req_method("GET") |>
-        req_timeout(max_seconds)
-
-      req_perform(req, path = tmp)
-
-      org_df <- read_csv(tmp, show_col_types = FALSE)
-
-      return(org_df)
-
-    } else if  (api_match == "organization_locations") {
-
-      tmp <- tempfile(fileext = ".csv")
-
-      req <- request("https://www-api.wildtrax.ca") |>
-        req_url_path_append(api_path) |>
-        req_url_query(organizationId = organization) |>
-        req_headers(Authorization = paste("Bearer", ._wt_auth_env_$access_token)) |>
-        req_user_agent(.gen_ua()) |>
-        req_method("GET") |>
-        req_timeout(max_seconds)
-
-      req_perform(req, path = tmp)
-      org_df <- read_csv(tmp, show_col_types = FALSE)
-
+    # Determine the correct query parameter name
+    org_query_param <- if (api_match %in% c("organization_deployments", "organization_locations")) {
+      "organizationId"
     } else {
+      "orgId"
+    }
 
     tmp <- tempfile(fileext = ".csv")
 
     req <- request("https://www-api.wildtrax.ca") |>
       req_url_path_append(api_path) |>
-      req_url_query(orgId = organization) |>
+      req_url_query(!!org_query_param := organization) |>
       req_headers(Authorization = paste("Bearer", ._wt_auth_env_$access_token)) |>
       req_user_agent(.gen_ua()) |>
       req_method("POST") |>
@@ -1052,11 +1024,9 @@ wt_get_sync <- function(api, project = NULL, organization = NULL, max_seconds = 
 
     return(org_df)
 
-    }
-
   } else if (!is.null(project)) {
 
-    if(api_match == "project_locations") {
+    if (api_match == "project_locations") {
 
       api_path <- "bis/download-location"
 
@@ -1133,21 +1103,21 @@ wt_get_sync <- function(api, project = NULL, organization = NULL, max_seconds = 
 
     } else {
 
-    tmp <- tempfile(fileext = ".csv")
+      tmp <- tempfile(fileext = ".csv")
 
-    req <- request("https://www-api.wildtrax.ca") |>
-      req_url_path_append(api_path) |>
-      req_url_query(projectId = project) |>
-      req_headers(Authorization = paste("Bearer", ._wt_auth_env_$access_token)) |>
-      req_user_agent(.gen_ua()) |>
-      req_method("POST") |>
-      req_timeout(max_seconds)
+      req <- request("https://www-api.wildtrax.ca") |>
+        req_url_path_append(api_path) |>
+        req_url_query(projectId = project) |>
+        req_headers(Authorization = paste("Bearer", ._wt_auth_env_$access_token)) |>
+        req_user_agent(.gen_ua()) |>
+        req_method("POST") |>
+        req_timeout(max_seconds)
 
-    req_perform(req, path = tmp)
+      req_perform(req, path = tmp)
 
-    proj_df <- read_csv(tmp, show_col_types = FALSE)
+      proj_df <- read_csv(tmp, show_col_types = FALSE)
 
-    return(proj_df)
+      return(proj_df)
 
     }
 
