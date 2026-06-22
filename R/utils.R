@@ -152,7 +152,7 @@
   }
 
   if (path != "/bis/download-report") {
-    req <- request("https://www-api.wildtrax.ca") |>
+    req <- request("https://dev-api.wildtrax.ca") |>
       req_url_path_append(path) |>
       req_body_json(query_params) |>
       req_headers(Authorization = paste("Bearer", ._wt_auth_env_$access_token)) |>
@@ -205,7 +205,7 @@
     query_params <- as.list(query_params)
   }
 
-  r <- request("https://www-api.wildtrax.ca") |>
+  r <- request("https://dev-api.wildtrax.ca") |>
     req_url_path_append(path) |>
     req_body_json(query_params) |>
     req_headers(Authorization = paste("Bearer", ._wt_auth_env_$access_token)) |>
