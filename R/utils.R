@@ -385,12 +385,18 @@
   )
 
   # Sensor-specific overrides
-  overrides <- switch(
-    sensor_id,
-    "PC" = list(detection_time = col_character()),
-    "ARU" = list(detection_time = col_double()),
+  overrides <- if (is.null(sensor_id)) {
     list()
-  )
+  } else {
+    switch(
+      sensor_id,
+      "PC"  = list(detection_time = col_character()),
+      "ARU" = list(detection_time = col_double()),
+      list()
+    )
+  }
+
+  do.call(cols, modifyList(base_types, overrides))
 
 }
 

@@ -922,9 +922,7 @@ wt_location_photos <- function(organization, output = NULL) {
 #' @param max_seconds Numeric; Number of seconds to force to wait for downloads.
 #'
 #' @import httr2 dplyr
-#' @importFrom tidyr unnest
 #' @importFrom readr read_csv
-#' @importFrom tibble as_tibble
 #'
 #' @export
 #'
@@ -1013,7 +1011,7 @@ wt_get_sync <- function(api, project = NULL, organization = NULL, max_seconds = 
 
     req_perform(req, path = tmp)
 
-    org_df <- read_csv(tmp, show_col_types = FALSE)
+    org_df <- read_csv(tmp, show_col_types = FALSE, col_types = .wt_col_types())
 
     return(org_df)
 
@@ -1031,9 +1029,17 @@ wt_get_sync <- function(api, project = NULL, organization = NULL, max_seconds = 
 
     req_perform(req, path = tmp)
 
-    proj_df <- read_csv(tmp, show_col_types = FALSE)
+    if(api == "project_point_counts"){
 
-    return(proj_df)
+      proj_df <- suppressWarnings(read_csv(tmp, show_col_types = FALSE, col_types = .wt_col_types("PC")))
+      return(proj_df)
+
+    } else {
+
+      proj_df <- suppressWarnings(read_csv(tmp, show_col_types = FALSE, col_types = .wt_col_types()))
+      return(proj_df)
+
+    }
   }
 }
 
