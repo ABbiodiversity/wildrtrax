@@ -61,7 +61,7 @@ wt_audio_scanner <- function(path, file_type, extra_cols = FALSE) {
     mutate(size_Mb = round(map_dbl(.x = file_path, .f = ~file_size(.x)) / 10e5, digits = 2), # Convert file sizes to megabytes
                   file_path = as.character(file_path)) |>
     select(file_path, size_Mb) |>
-    filter(!size_Mb < 1) |>
+    filter(!size_Mb < 0.1) |>
     mutate(file_name = sub("\\..*", "", basename(file_path)), file_type = sub('.*\\.(\\w+)$', '\\1', basename(file_path))) |>
     # Parse location, recording date time and other temporal columns
     separate(file_name, into = c("location", "recording_date_time"), sep = "(?:_0\\+1_|_|__0__|__1__)", extra = "merge", remove = FALSE) |>

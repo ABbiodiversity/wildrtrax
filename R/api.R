@@ -223,7 +223,7 @@ wt_download_report <- function(project_id, sensor_id, reports, max_seconds=300) 
   td <- tempdir()
   u <- .gen_ua()
 
-  req <- request("https://www-api.wildtrax.ca") |>
+  req <- request("https://dev-api.wildtrax.ca") |>
     req_url_path_append("bis/download-report") |>
     req_url_query(!!!query_params) |>
     req_body_json(body_json) |>
@@ -379,7 +379,7 @@ wt_get_project_species <- function(project) {
     stop("You need to supply a project ID.", call. = FALSE)
   }
 
-  resp <- request("https://www-api.wildtrax.ca") |>
+  resp <- request("https://dev-api.wildtrax.ca") |>
     req_url_path_append("bis/get-project-species-details") |>
     req_url_query(projectId = project) |>
     req_headers(Authorization = paste("Bearer", ._wt_auth_env_$access_token)) |>
@@ -549,7 +549,7 @@ wt_dd_summary <- function(sensor = c('ARU','CAM','PC'), species = NULL, boundary
 
   if(is.null(tok_used)) {
     #Provide non-login user a way to search species - limited by dd-get-species however
-    ddspp <- request("https://www-api.wildtrax.ca") |>
+    ddspp <- request("https://dev-api.wildtrax.ca") |>
       req_url_path_append("/bis/get-all-species") |>
       req_headers(
         Authorization = tok_used,
@@ -681,7 +681,7 @@ wt_dd_summary <- function(sensor = c('ARU','CAM','PC'), species = NULL, boundary
 
     if(is.null(boundary)) {payload_ll$polygonBoundary <- NULL}
 
-    rr <- request("https://www-api.wildtrax.ca") |>
+    rr <- request("https://dev-api.wildtrax.ca") |>
       req_url_path_append("/bis/get-data-discoverer-long-lat-summary") |>
       req_headers(
         Authorization = tok_used,
@@ -703,7 +703,7 @@ wt_dd_summary <- function(sensor = c('ARU','CAM','PC'), species = NULL, boundary
       zoomLevel = 20
     )
 
-    rr2 <- request("https://www-api.wildtrax.ca") |>
+    rr2 <- request("https://dev-api.wildtrax.ca") |>
       req_url_path_append("/bis/get-data-discoverer-map-and-projects") |>
       req_headers(
         Authorization = tok_used,
@@ -813,7 +813,7 @@ wt_location_photos <- function(organization, output = NULL) {
 
   org_numeric <- .get_org_id(organization)
 
-  r <- request("https://www-api.wildtrax.ca") |>
+  r <- request("https://dev-api.wildtrax.ca") |>
     req_url_path_append("bis/get-location-image-summary") |>
     req_url_query(
       limit = 500,
@@ -964,7 +964,7 @@ wt_get_sync <- function(api, project = NULL, organization = NULL, max_seconds = 
     organization_locations = "download-location-by-org-id",
     organization_visits = "download-location-visits-by-org-id",
     organization_equipment = "download-equipment-by-org-id",
-    organization_deployments = "download-location-equipment-by-org-id",
+    organization_deployments = "download-location-equipment-by-organization-id",
     organization_recordings = "download-recordings-by-org-id",
     project_locations = "download-location",
     project_aru_tasks = "download-tasks-by-project-id",
@@ -980,7 +980,7 @@ wt_get_sync <- function(api, project = NULL, organization = NULL, max_seconds = 
     "download-location-by-org-id" = list(orgId = organization),
     "download-location-visits-by-org-id" = list(orgId = organization),
     "download-equipment-by-org-id" = list(orgId = organization),
-    "download-location-equipment-by-org-id" = list(orgId = organization),
+    "download-location-equipment-by-organization-id" = list(orgId = organization),
     "download-recordings-by-org-id" = list(orgId = organization),
     "download-location" = list(projectId = project),
     "download-tasks-by-project-id" = list(projectId = project),
@@ -1003,7 +1003,7 @@ wt_get_sync <- function(api, project = NULL, organization = NULL, max_seconds = 
 
     tmp <- tempfile(fileext = ".csv")
 
-    req <- request("https://www-api.wildtrax.ca") |>
+    req <- request("https://dev-api.wildtrax.ca") |>
       req_url_path_append(api_path) |>
       req_url_query(orgId = organization) |>
       req_headers(Authorization = paste("Bearer", ._wt_auth_env_$access_token)) |>
@@ -1019,86 +1019,9 @@ wt_get_sync <- function(api, project = NULL, organization = NULL, max_seconds = 
 
   } else if (!is.null(project)) {
 
-    if(api_match == "project_locations") {
-
-      api_path <- "bis/download-location"
-
-      tmp <- tempfile(fileext = ".csv")
-
-      req <- request("https://www-api.wildtrax.ca") |>
-        req_url_path_append(api_path) |>
-        req_url_query(projectId = project) |>
-        req_headers(Authorization = paste("Bearer", ._wt_auth_env_$access_token)) |>
-        req_user_agent(.gen_ua()) |>
-        req_method("GET") |>
-        req_timeout(max_seconds)
-
-      req_perform(req, path = tmp)
-
-      proj_df <- suppressWarnings(read_csv(tmp, show_col_types = FALSE, progress = FALSE))
-
-      proj_df <- proj_df |>
-        rename(location_buffer_m = buffer_m)
-
-      return(proj_df)
-
-    } else if (api_match == "project_image_metadata") {
-
-      api_path <- "bis/camera/download-camera-tasks-by-project-id"
-
-      tmp <- tempfile(fileext = ".csv")
-
-      req <- request("https://www-api.wildtrax.ca") |>
-        req_url_path_append(api_path) |>
-        req_url_query(projectId = project) |>
-        req_headers(Authorization = paste("Bearer", ._wt_auth_env_$access_token)) |>
-        req_user_agent(.gen_ua()) |>
-        req_method("GET") |>
-        req_timeout(max_seconds)
-
-      req_perform(req, path = tmp)
-
-      proj_df <- suppressWarnings(read_csv(tmp, show_col_types = FALSE, progress = FALSE))
-
-      return(proj_df)
-
-    } else if (api_match == "project_point_counts") {
-
-      api_path <- "bis/download-point-count-by-project-id"
-      tmp <- tempfile(fileext = ".csv")
-
-      req <- request("https://www-api.wildtrax.ca") |>
-        req_url_path_append(api_path) |>
-        req_url_query(projectId = project) |>
-        req_headers(Authorization = paste("Bearer", ._wt_auth_env_$access_token)) |>
-        req_user_agent(.gen_ua()) |>
-        req_method("GET") |>
-        req_timeout(max_seconds)
-
-      req_perform(req, path = tmp)
-
-      proj_df <- suppressWarnings(read_csv(tmp, show_col_types = FALSE, progress = FALSE))
-
-      proj_df <- proj_df |>
-        rename(
-          survey_date_time = surveyDateTime,
-          detection_distance = distanceBand,
-          survey_distance_method = distanceMethod,
-          detection_time = durationInterval,
-          survey_duration_method = durationMethod,
-          survey_comments = comments,
-          detection_heard = isHeard,
-          detection_seen = isSeen,
-          species_code = species
-        )
-
-      return(proj_df)
-
-    } else {
-
     tmp <- tempfile(fileext = ".csv")
 
-    req <- request("https://www-api.wildtrax.ca") |>
+    req <- request("https://dev-api.wildtrax.ca") |>
       req_url_path_append(api_path) |>
       req_url_query(projectId = project) |>
       req_headers(Authorization = paste("Bearer", ._wt_auth_env_$access_token)) |>
@@ -1111,11 +1034,7 @@ wt_get_sync <- function(api, project = NULL, organization = NULL, max_seconds = 
     proj_df <- read_csv(tmp, show_col_types = FALSE)
 
     return(proj_df)
-
-    }
-
   }
-
 }
 
 #' Get data from WildTrax views
@@ -1219,7 +1138,7 @@ wt_get_view <- function(api, project = NULL, organization = NULL, max_seconds = 
 
     if(!(api_match %in% c("organization_equipment","organization_recordings","organization_usage_report"))) {
 
-    resp <- request("https://www-api.wildtrax.ca") |>
+    resp <- request("https://dev-api.wildtrax.ca") |>
       req_url_path_append(api_path) |>
       req_headers(
         Authorization = paste("Bearer", ._wt_auth_env_$access_token),
@@ -1243,7 +1162,7 @@ wt_get_view <- function(api, project = NULL, organization = NULL, max_seconds = 
 
     } else if (api_match == "organization_equipment") {
 
-      resp <- request("https://www-api.wildtrax.ca") |>
+      resp <- request("https://dev-api.wildtrax.ca") |>
         req_url_path_append(api_path) |>
         req_headers(
           Authorization = paste("Bearer", ._wt_auth_env_$access_token),
@@ -1271,7 +1190,7 @@ wt_get_view <- function(api, project = NULL, organization = NULL, max_seconds = 
 
       max_page_size <- 10000
 
-      req <- request("https://www-api.wildtrax.ca") |>
+      req <- request("https://dev-api.wildtrax.ca") |>
         req_url_path_append(api_path) |>
         req_headers(Authorization = paste("Bearer", ._wt_auth_env_$access_token), "Content-Type" = "application/json") |>
         req_user_agent(.gen_ua()) |>
@@ -1320,7 +1239,7 @@ wt_get_view <- function(api, project = NULL, organization = NULL, max_seconds = 
 
     } else if (api_match == "organization_usage_report") {
 
-      resp <- request("https://www-api.wildtrax.ca") |>
+      resp <- request("https://dev-api.wildtrax.ca") |>
         req_url_path_append(api_path) |>
         req_url_query(organizationId = organization) |>
         req_headers(Authorization = paste("Bearer", ._wt_auth_env_$access_token)) |>
@@ -1338,7 +1257,7 @@ wt_get_view <- function(api, project = NULL, organization = NULL, max_seconds = 
 
   } else if (!is.null(project)) {
 
-    resp <- request("https://www-api.wildtrax.ca") |>
+    resp <- request("https://dev-api.wildtrax.ca") |>
       req_url_path_append(api_path) |>
       req_headers(
         Authorization = paste("Bearer", ._wt_auth_env_$access_token),
