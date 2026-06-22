@@ -103,4 +103,5 @@ wt_get_sync <- function(api, project = NULL, organization = NULL, max_seconds = 
 
   col_spec <- if (api == "project_image_metadata") cols(image_comments = col_character()) else readr::cols()
   read_csv(tmp, col_types = col_spec, show_col_types = FALSE)
+
 }

@@ -135,7 +135,7 @@
 #'
 #' @section Defines the API functions utilized to get data from WildTrax
 #'
-#' @description Generic function to handle certain POST requests
+#' @description Generic function to handle POST requests
 #'
 #' @param path The path to the API
 #' @param ... Argument to pass along into POST query
@@ -155,6 +155,32 @@
     req_headers(Authorization = paste("Bearer", ._wt_auth_env_$access_token)) |>
     req_user_agent(.gen_ua()) |>
     req_method("POST") |>
+    req_timeout(max_time)
+
+  req_perform(req, path = out_path)
+
+}
+
+#' @description Generic function to handle GET requests
+#'
+#' @param path The path to the API
+#' @param ... Argument to pass along into GET query
+#' @param max_time The maximum number of seconds the API request can take. By default 300.
+#'
+#' @keywords internal
+#'
+#' @import httr2
+
+.wt_api_gr <- function(path, query_params = list(), ..., max_time = 300, out_path = NULL) {
+
+  if (.wt_auth_expired()) stop("Please authenticate with wt_auth().", call. = FALSE)
+
+  req <- request("https://www-api.wildtrax.ca") |>
+    req_url_path_append(path) |>
+    req_url_query(!!!query_params) |>
+    req_headers(Authorization = paste("Bearer", ._wt_auth_env_$access_token)) |>
+    req_user_agent(.gen_ua()) |>
+    req_method("GET") |>
     req_timeout(max_time)
 
   req_perform(req, path = out_path)
