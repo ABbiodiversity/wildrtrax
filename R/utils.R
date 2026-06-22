@@ -257,7 +257,7 @@
 #' @param sensor_id Character. Sensor type (e.g. "PC", "ARU"). Determines
 #'   type overrides for columns that differ between sensors.
 #'
-#' @importFrom readr col_character col_double col_logical col_date col_datetime col_integer
+#' @importFrom readr col_character col_double col_logical col_date col_datetime col_integer col_guess
 #'
 #' @keywords internal
 
@@ -396,7 +396,7 @@
     )
   }
 
-  do.call(cols, modifyList(base_types, overrides))
+  do.call(cols, c(modifyList(base_types, overrides)))
 
 }
 

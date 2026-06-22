@@ -1011,7 +1011,7 @@ wt_get_sync <- function(api, project = NULL, organization = NULL, max_seconds = 
 
     req_perform(req, path = tmp)
 
-    org_df <- read_csv(tmp, show_col_types = FALSE, col_types = .wt_col_types())
+    org_df <- read_csv(tmp, show_col_types = FALSE)
 
     return(org_df)
 
@@ -1029,16 +1029,15 @@ wt_get_sync <- function(api, project = NULL, organization = NULL, max_seconds = 
 
     req_perform(req, path = tmp)
 
-    if(api == "project_point_counts"){
-
-      proj_df <- suppressWarnings(read_csv(tmp, show_col_types = FALSE, col_types = .wt_col_types("PC")))
+    if(api_match == "project_point_counts"){
+      proj_df <- read_csv(tmp, show_col_types = FALSE)
       return(proj_df)
-
+    } else if(api_match == "project_image_metadata") {
+      proj_df <- read_csv(tmp, show_col_types = FALSE, col_types = cols(image_comments = col_character()))
+      return(proj_df)
     } else {
-
-      proj_df <- suppressWarnings(read_csv(tmp, show_col_types = FALSE, col_types = .wt_col_types()))
+      proj_df <- read_csv(tmp, show_col_types = FALSE)
       return(proj_df)
-
     }
   }
 }
