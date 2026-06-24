@@ -914,6 +914,7 @@ wt_location_photos <- function(organization, output = NULL) {
 #'   \item `"project_aru_tasks"`
 #'   \item `"project_aru_tags"`
 #'   \item `"project_image_metadata"`
+#'   \item `"project_image_sets"`
 #'   \item `"project_camera_tags"`
 #'   \item `"project_point_counts"`
 #' }
@@ -964,10 +965,11 @@ wt_get_sync <- function(api, project = NULL, organization = NULL, max_seconds = 
     organization_equipment = "download-equipment-by-org-id",
     organization_deployments = "download-location-equipment-by-org-id",
     organization_recordings = "download-recordings-by-org-id",
-    project_locations = "download-location-by-project-id",
+    project_locations = "download-location",
     project_aru_tasks = "download-tasks-by-project-id",
     project_aru_tags = "download-tags-by-project-id",
     project_image_metadata = "download-camera-tasks-by-project-id",
+    project_image_sets = "download-image-set-by-project-id",
     project_camera_tags = "download-camera-tags-by-project-id",
     project_point_counts = "download-point-count-by-project-id"
   )
@@ -980,10 +982,11 @@ wt_get_sync <- function(api, project = NULL, organization = NULL, max_seconds = 
     "download-equipment-by-org-id" = list(orgId = organization),
     "download-location-equipment-by-org-id" = list(orgId = organization),
     "download-recordings-by-org-id" = list(orgId = organization),
-    "download-location-by-project-id" = list(projectId = project),
+    "download-location" = list(projectId = project),
     "download-tasks-by-project-id" = list(projectId = project),
     "download-tags-by-project-id" = list(projectId = project),
     "download-camera-tasks-by-project-id" = list(projectId = project),
+    "download-image-set-by-project-id" = list(projectId = project),
     "download-camera-tags-by-project-id" = list(projectId = project),
     "download-point-count-by-project-id" = list(projectId = project)
   )
