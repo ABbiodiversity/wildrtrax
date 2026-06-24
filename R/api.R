@@ -25,7 +25,6 @@ wt_auth <- function(force = FALSE) {
 
 }
 
-
 #' Get data from WildTrax syncs and downloads
 #'
 #' @description Fetch data for syncs and downloads in WildTrax. You must specify at least one of `project` or `organization` depending on the API
@@ -41,6 +40,7 @@ wt_auth <- function(force = FALSE) {
 #'   \item `"project_aru_tasks"`
 #'   \item `"project_aru_tags"`
 #'   \item `"project_image_metadata"`
+#'   \item `"project_image_sets`
 #'   \item `"project_camera_tags"`
 #'   \item `"project_point_counts"`
 #' }
@@ -81,6 +81,7 @@ wt_get_sync <- function(api, project = NULL, organization = NULL, max_seconds = 
     project_aru_tasks        = "download-tasks-by-project-id",
     project_aru_tags         = "download-tags-by-project-id",
     project_image_metadata   = "download-camera-tasks-by-project-id",
+    project_image_sets       = "download-image-set-by-project-id",
     project_camera_tags      = "download-camera-tags-by-project-id",
     project_point_counts     = "download-point-count-by-project-id"
   )
