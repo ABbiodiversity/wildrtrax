@@ -193,6 +193,52 @@ wt_path_summary <- function(
   invisible(NULL)
 }
 
+#' Extract a folder level from file paths
+#'
+#' Extracts the folder name at a specified level of a file path hierarchy.
+#' This is useful for creating grouping variables (e.g., site identifiers)
+#' from image directory structures.
+#'
+#' @param paths A character vector of file paths, typically produced by
+#'   [wt_image_paths()].
+#' @param level A positive integer specifying the folder level to extract.
+#'   Folder levels can be identified using [wt_path_summary()].
+#' @param path_split Character string used to split file paths into their
+#'   component folders. If `NULL`, defaults to the operating system's file
+#'   separator.
+#'
+#' @details
+#' File paths are first stripped of their filenames before being split into
+#' folder components. The requested folder level is then extracted from each
+#' path.
+#'
+#' This function is primarily intended to create grouping variables for
+#' downstream functions such as [wt_image_datetime()].
+#'
+#' @return
+#' A character vector containing the folder name at the requested level for
+#' each input file path.
+#'
+#' @examples
+#' \dontrun{
+#'
+#' imgs <- wt_image_paths("my_sample")
+#'
+#' # Extract the first folder level (e.g., site)
+#' site <- wt_extract_folder_level(
+#'   imgs,
+#'   level = 1
+#' )
+#'
+#' # Extract the second folder level
+#' camera <- wt_extract_folder_level(
+#'   imgs,
+#'   level = 2
+#' )
+#'
+#' }
+#'
+#' @export
 
 wt_extract_folder_level <- function(
     paths,
@@ -221,7 +267,7 @@ wt_extract_folder_level <- function(
 
     if (!is.numeric(level)|| level < 1 || length(level) != 1){
       stop(
-        "`level` must be a numeric scalar of length 1.",
+        "`level` must be a positive integer.",
         call. = FALSE
       )
     }
@@ -245,7 +291,7 @@ wt_extract_folder_level <- function(
     folder_lengths <- lengths(
       folder_level
     )
-    if(!all(folder_lengths > level)){
+    if(!all(folder_lengths >= level)){
       stop(
         "Some paths have less sub-folders than the level specified.",
         call. = FALSE
@@ -279,6 +325,10 @@ wt_extract_folder_level <- function(
 #'   first and last `n` images within each group.
 #' @param n Number of images to sample from the beginning and end of each
 #'   group when `method = "fast"`. Defaults to 5.
+#' @param tz Time zone used when converting `DateTimeOriginal` to a
+#'   `POSIXct` object. Must be one of the values returned by
+#'   [OlsonNames()]. If `NULL` (default), datetimes are returned as
+#'   character strings.
 #'
 #' @details
 #' The `"fast"` method is intended for quickly assessing the datetimes
@@ -296,7 +346,9 @@ wt_extract_folder_level <- function(
 #' \itemize{
 #'   \item `path`: image file path
 #'   \item `group`: grouping variable, if supplied
-#'   \item `DateTimeOriginal`: datetime extracted from EXIF metadata
+#'   \item `DateTimeOriginal`: the extracted datetime. This is returned
+#'   as a `POSIXct` object when `tz` is supplied and as a character vector
+#'   otherwise.
 #' }
 #'
 #' @examples
@@ -314,17 +366,19 @@ wt_extract_folder_level <- function(
 #' wt_image_datetime(
 #'   imgs,
 #'   method = "fast",
-#'   group = site
+#'   group = site,
+#'   tz = "US/Central"
 #' )
 #'
 #' }
-#'
+#' @importFrom exifr read_exif
 #' @export
 wt_image_datetime <- function(
     paths,
     method = c("fast", "exact"),
     group = NULL,
-    n = 5
+    n = 5,
+    tz = NULL
 ){
 
   if(!is.character(paths)){
@@ -369,6 +423,20 @@ wt_image_datetime <- function(
 
     group <- as.factor(group)
 
+  }
+  if(!is.null(tz)){
+    if(!is.character(tz)){
+      stop(
+        "`tz` must be a characeter object",
+        call. = FALSE
+      )
+    }
+    if(!tz %in% OlsonNames()){
+      stop(
+        "`tz` must be a timezone represented in `OlsonNames()`",
+        call. = FALSE
+      )
+    }
   }
 
   if(!is.numeric(n) || length(n) != 1 || n < 1 || n %% 1 != 0){
@@ -427,6 +495,27 @@ wt_image_datetime <- function(
     paths[idx],
     tags = "DateTimeOriginal"
   )
+  # parse the datetimes a bit so they
+  #  are not all split by colons
+  exif$DateTimeOriginal <- sub(
+    "^([0-9]{4}):([0-9]{2}):([0-9]{2})",
+    "\\1-\\2-\\3",
+    exif$DateTimeOriginal
+  )
+  if(!is.null(tz)){
+    exif$DateTimeOriginal <- as.POSIXct(
+      exif$DateTimeOriginal,
+      tz = tz
+    )
+    class(out$DateTimeOriginal) <- class(
+      exif$DateTimeOriginal
+    )
+  } else {
+    warning(
+      "`tz` was NULL so DateTimeOriginal is a character object.",
+      call. = FALSE
+    )
+  }
 
   match_idx <- match(paths[idx], exif$SourceFile)
 
@@ -438,3 +527,469 @@ wt_image_datetime <- function(
 
 }
 
+
+#' Check image datetimes against expected years
+#'
+#' Internal helper function used by [wt_image_check()] to identify groups
+#' containing image datetimes outside the expected years.
+#'
+#' @keywords internal
+wt_check_datetime_year <- function(
+    x,
+    years = NULL
+){
+
+  if(is.null(years)){
+    return(
+      list(
+        passed = TRUE,
+        flagged_groups = character(0)
+      )
+    )
+  }
+
+  yrs <- as.integer(format(x$DateTimeOriginal, "%Y"))
+
+  bad <- tapply(
+    yrs,
+    x$group,
+    function(z){
+      any(!is.na(z) & !z %in% years)
+    }
+  )
+
+  flagged <- names(bad)[bad]
+
+  list(
+    passed = length(flagged) == 0,
+    flagged_groups = flagged
+  )
+
+}
+
+
+#' Check image datetimes against expected months
+#'
+#' Internal helper function used by [wt_image_check()] to identify groups
+#' containing image datetimes outside the expected months.
+#'
+#' @keywords internal
+wt_check_datetime_month <- function(
+    x,
+    months = NULL
+){
+
+  if(is.null(months)){
+    return(
+      list(
+        passed = TRUE,
+        flagged_groups = character(0)
+      )
+    )
+  }
+
+  mth <- as.integer(format(x$DateTimeOriginal, "%m"))
+
+  bad <- tapply(
+    mth,
+    x$group,
+    function(z){
+      any(!is.na(z) & !z %in% months)
+    }
+  )
+
+  flagged <- names(bad)[bad]
+
+  list(
+    passed = length(flagged) == 0,
+    flagged_groups = flagged
+  )
+
+}
+
+#' Identify image datetimes occurring on January 1
+#'
+#' Internal helper function used by [wt_image_check()] to identify groups
+#' containing image timestamps on January 1, which can indicate incorrectly
+#' initialized camera clocks.
+#'
+#' @keywords internal
+wt_check_datetime_jan1 <- function(
+    x
+){
+
+  first_dates <- tapply(
+    x$DateTimeOriginal,
+    x$group,
+    function(z){
+
+      z <- z[!is.na(z)]
+
+      if(length(z) == 0){
+        return(NA)
+      }
+
+      min(z)
+
+    }
+  )
+
+  first_dates <- as.POSIXct(first_dates)
+
+  jan1 <- !is.na(first_dates) &
+    as.integer(format(first_dates, "%m")) == 1 &
+    as.integer(format(first_dates, "%d")) == 1
+
+  flagged <- names(first_dates)[jan1]
+
+  list(
+    passed = length(flagged) == 0,
+    flagged_groups = flagged
+  )
+
+}
+
+#' Identify groups with constant image datetimes
+#'
+#' Internal helper function used by [wt_image_check()] to identify groups where
+#' all images have the same datetime, which may indicate an incorrectly set
+#' camera clock.
+#' @keywords internal
+wt_check_datetime_constant <- function(
+    x
+){
+
+  bad <- tapply(
+    x$DateTimeOriginal,
+    x$group,
+    function(z){
+
+      z <- unique(z[!is.na(z)])
+
+      length(z) <= 1
+
+    }
+  )
+
+  flagged <- names(bad)[bad]
+
+  list(
+    passed = length(flagged) == 0,
+    flagged_groups = flagged
+  )
+
+}
+
+#' Identify invalid image datetimes
+#'
+#' Internal helper function used by [wt_image_check()] to identify groups with
+#' image timestamps occurring before a minimum year or in the future.
+#'
+#' @param min_year Minimum acceptable year for image timestamps.
+#'
+#' @keywords internal
+wt_check_invalid_datetime <- function(
+    x,
+    min_year = 1995
+){
+
+  yr <- as.integer(
+    format(
+      x$DateTimeOriginal,
+      "%Y"
+    )
+  )
+
+  future <- x$DateTimeOriginal > Sys.time()
+  early <- yr < min_year
+
+  early_groups <- tapply(
+    early,
+    x$group,
+    function(z){
+      any(z, na.rm = TRUE)
+    }
+  )
+
+  future_groups <- tapply(
+    future,
+    x$group,
+    function(z){
+      any(z, na.rm = TRUE)
+    }
+  )
+
+  early_groups <- names(early_groups)[early_groups]
+  future_groups <- names(future_groups)[future_groups]
+
+  list(
+    passed = length(early_groups) == 0 &&
+      length(future_groups) == 0,
+    early_groups = early_groups,
+    future_groups = future_groups
+  )
+
+}
+
+#' Print image datetime QA/QC results
+#'
+#' Internal helper function used by [wt_image_check()] to format and print
+#' datetime quality control results.
+#'
+#' @keywords internal
+wt_print_datetime_report <- function(
+    results,
+    verbose = FALSE
+){
+
+  cat("\nImage datetime QA/QC\n")
+  cat("====================\n\n")
+
+  checks <- c(
+    "Year check" = "year",
+    "Month check" = "month",
+    "January 1 check" = "jan1",
+    "Constant datetime check" = "constant",
+    "Invalid datetime check" = "invalid"
+  )
+
+  for(i in seq_along(checks)){
+
+    name <- names(checks)[i]
+    res <- results[[checks[i]]]
+
+    if(res$passed){
+
+      status <- "✓ Passed"
+
+    } else {
+
+      if(checks[i] == "invalid"){
+
+        n_early <- length(res$early_groups)
+        n_future <- length(res$future_groups)
+
+        problems <- character(0)
+
+        if(n_early > 0){
+          problems <- c(
+            problems,
+            paste0(
+              n_early,
+              " early"
+            )
+          )
+        }
+
+        if(n_future > 0){
+          problems <- c(
+            problems,
+            paste0(
+              n_future,
+              " future"
+            )
+          )
+        }
+
+        status <- paste0(
+          "✗ Failed (",
+          paste(
+            problems,
+            collapse = ", "
+          ),
+          ")"
+        )
+
+      } else {
+
+        n <- length(res$flagged_groups)
+
+        status <- paste0(
+          "✗ Failed (",
+          n,
+          ifelse(
+            n == 1,
+            " group)",
+            " groups)"
+          )
+        )
+      }
+    }
+
+    cat(
+      sprintf(
+        "%-28s%s\n",
+        name,
+        status
+      )
+    )
+
+    if(verbose && !res$passed){
+
+      cat("\n")
+
+      if(checks[i] == "invalid"){
+
+        if(length(res$early_groups) > 0){
+
+          cat("Groups with early dates:\n")
+          cat(
+            paste(
+              res$early_groups,
+              collapse = "\n"
+            )
+          )
+          cat("\n\n")
+
+        }
+
+        if(length(res$future_groups) > 0){
+
+          cat("Groups with future dates:\n")
+          cat(
+            paste(
+              res$future_groups,
+              collapse = "\n"
+            )
+          )
+          cat("\n\n")
+
+        }
+
+      } else {
+
+        cat("Groups:\n")
+        cat(
+          paste(
+            res$flagged_groups,
+            collapse = "\n"
+          )
+        )
+        cat("\n\n")
+
+      }
+    }
+  }
+
+  invisible(NULL)
+
+}
+
+
+#' Check image datetimes for common quality issues
+#'
+#' Performs quality assurance checks on image timestamps extracted using
+#' [wt_image_datetime()]. The function checks for timestamps outside expected
+#' years or months, default camera timestamps occurring on January 1, groups
+#' with constant timestamps, and invalid timestamps occurring before a
+#' specified minimum year or in the future.
+#'
+#' @param x A data frame containing image datetime information, typically
+#'   produced by [wt_image_datetime()]. The data frame must contain
+#'   `DateTimeOriginal` as a `POSIXct` or `POSIXlt` object and a `group`
+#'   column identifying image groups (e.g., sites).
+#' @param years Optional numeric vector specifying acceptable years.
+#'   Groups containing timestamps outside this range will be flagged.
+#' @param months Optional numeric vector specifying acceptable months
+#'   (1-12). Groups containing timestamps outside this range will be flagged.
+#' @param min_year Minimum acceptable year for image timestamps. Defaults to
+#'   1995 (when Exif data was first released)
+#' @param verbose Logical. Should the report include the names of groups with
+#'   detected issues? Defaults to `FALSE`, which prints only a compact summary
+#'   of checks and the number of groups with potential issues. When `TRUE`,
+#'   flagged groups are printed below each failed check. Flagged groups
+#'   can always be checked in the returned list object of this function,
+#'   if present.
+#'
+#' @details
+#' This function summarizes several common camera timestamp issues that can
+#' occur during wildlife camera deployments. These include incorrectly set
+#' camera clocks, uninitialized cameras, and timestamps outside the expected
+#' sampling period.
+#'
+#' The function prints a summary of detected issues and invisibly returns a
+#' list containing the results of each individual check.
+#'
+#' @return
+#' Invisibly returns a list containing the results of each quality control
+#' check. Each check contains logical information indicating whether the check
+#' passed and the groups containing potential issues.
+#'
+#' @examples
+#' \dontrun{
+#'
+#' imgs <- wt_image_paths("my_sample")
+#'
+#' datetime <- wt_image_datetime(
+#'   imgs,
+#'   group = 1,
+#'   tz = "US/Central"
+#' )
+#'
+#' wt_image_check(
+#'   datetime,
+#'   years = 2024,
+#'   months = 5:10
+#' )
+#'
+#' }
+#'
+#' @export
+wt_image_check <- function(
+    x,
+    years = NULL,
+    months = NULL,
+    min_year = 1995,
+    verbose = FALSE
+){
+
+  if(!inherits(x$DateTimeOriginal, "POSIXt")){
+    stop(
+      "`x$DateTimeOriginal` must be a datetime object.",
+      call. = FALSE
+    )
+  }
+
+  if(!"group" %in% names(x)){
+    stop(
+      "`x` must contain a `group` column (see ?wt_image_datetime).",
+      call. = FALSE
+    )
+  }
+  if(!any(complete.cases(x))){
+    cat("NA values present in x, removing rows with NA values\n")
+    x <- x[complete.cases(x),]
+  }
+
+
+  # checks on x
+
+  results <- list(
+    year = wt_check_datetime_year(
+      x,
+      years
+    ),
+    month = wt_check_datetime_month(
+      x,
+      months
+    ),
+    jan1 = wt_check_datetime_jan1(
+      x
+    ),
+    constant = wt_check_datetime_constant(
+      x
+    ),
+    invalid = wt_check_invalid_datetime(
+      x,
+      min_year = min_year
+    )
+  )
+
+  wt_print_datetime_report(
+    results,
+    verbose = verbose
+  )
+
+  invisible(results)
+
+}
