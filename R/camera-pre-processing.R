@@ -507,9 +507,6 @@ wt_image_datetime <- function(
       exif$DateTimeOriginal,
       tz = tz
     )
-    class(out$DateTimeOriginal) <- class(
-      exif$DateTimeOriginal
-    )
   } else {
     warning(
       "`tz` was NULL so DateTimeOriginal is a character object.",
@@ -517,7 +514,24 @@ wt_image_datetime <- function(
     )
   }
 
-  match_idx <- match(paths[idx], exif$SourceFile)
+  match_idx <- match(
+    tolower(
+      normalizePath(
+        paths[idx]
+      )
+    ),
+    tolower(
+      normalizePath(
+        exif$SourceFile
+      )
+    )
+  )
+  if(!is.null(tz)){
+    out$DateTimeOriginal <- as.POSIXct(
+      rep(NA_character_, nrow(out)),
+      tz = tz
+    )
+  }
 
   out$DateTimeOriginal[idx] <-
     exif$DateTimeOriginal[match_idx]

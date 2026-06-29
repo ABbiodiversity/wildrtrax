@@ -40,7 +40,8 @@ Suggests:
     rmarkdown,
     testthat (>= 3.0.0),
     usethis,
-    withr
+    withr,
+    jpeg
 Remotes: borealbirds/QPAD
 VignetteBuilder: knitr, rmarkdown
 Encoding: UTF-8
