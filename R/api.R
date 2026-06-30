@@ -223,7 +223,7 @@ wt_download_report <- function(project_id, sensor_id, reports, max_seconds=300) 
   td <- tempdir()
   u <- .gen_ua()
 
-  req <- request("https://dev-api.wildtrax.ca") |>
+  req <- request("https://www-api.wildtrax.ca") |>
     req_url_path_append("bis/download-report") |>
     req_url_query(!!!query_params) |>
     req_body_json(body_json) |>
@@ -379,7 +379,7 @@ wt_get_project_species <- function(project) {
     stop("You need to supply a project ID.", call. = FALSE)
   }
 
-  resp <- request("https://dev-api.wildtrax.ca") |>
+  resp <- request("https://www-api.wildtrax.ca") |>
     req_url_path_append("bis/get-project-species-details") |>
     req_url_query(projectId = project) |>
     req_headers(Authorization = paste("Bearer", ._wt_auth_env_$access_token)) |>
@@ -549,7 +549,7 @@ wt_dd_summary <- function(sensor = c('ARU','CAM','PC'), species = NULL, boundary
 
   if(is.null(tok_used)) {
     #Provide non-login user a way to search species - limited by dd-get-species however
-    ddspp <- request("https://dev-api.wildtrax.ca") |>
+    ddspp <- request("https://www-api.wildtrax.ca") |>
       req_url_path_append("/bis/get-all-species") |>
       req_headers(
         Authorization = tok_used,
@@ -681,7 +681,7 @@ wt_dd_summary <- function(sensor = c('ARU','CAM','PC'), species = NULL, boundary
 
     if(is.null(boundary)) {payload_ll$polygonBoundary <- NULL}
 
-    rr <- request("https://dev-api.wildtrax.ca") |>
+    rr <- request("https://www-api.wildtrax.ca") |>
       req_url_path_append("/bis/get-data-discoverer-long-lat-summary") |>
       req_headers(
         Authorization = tok_used,
@@ -703,7 +703,7 @@ wt_dd_summary <- function(sensor = c('ARU','CAM','PC'), species = NULL, boundary
       zoomLevel = 20
     )
 
-    rr2 <- request("https://dev-api.wildtrax.ca") |>
+    rr2 <- request("https://www-api.wildtrax.ca") |>
       req_url_path_append("/bis/get-data-discoverer-map-and-projects") |>
       req_headers(
         Authorization = tok_used,
@@ -813,7 +813,7 @@ wt_location_photos <- function(organization, output = NULL) {
 
   org_numeric <- .get_org_id(organization)
 
-  r <- request("https://dev-api.wildtrax.ca") |>
+  r <- request("https://www-api.wildtrax.ca") |>
     req_url_path_append("bis/get-location-image-summary") |>
     req_url_query(
       limit = 500,
@@ -1004,7 +1004,7 @@ wt_get_sync <- function(api, project = NULL, organization = NULL, max_seconds = 
 
     tmp <- tempfile(fileext = ".csv")
 
-    req <- request("https://dev-api.wildtrax.ca") |>
+    req <- request("https://www-api.wildtrax.ca") |>
       req_url_path_append(api_path) |>
       req_url_query(orgId = organization) |>
       req_headers(Authorization = paste("Bearer", ._wt_auth_env_$access_token)) |>
@@ -1022,7 +1022,7 @@ wt_get_sync <- function(api, project = NULL, organization = NULL, max_seconds = 
 
     tmp <- tempfile(fileext = ".csv")
 
-    req <- request("https://dev-api.wildtrax.ca") |>
+    req <- request("https://www-api.wildtrax.ca") |>
       req_url_path_append(api_path) |>
       req_url_query(projectId = project) |>
       req_headers(Authorization = paste("Bearer", ._wt_auth_env_$access_token)) |>
@@ -1087,7 +1087,7 @@ wt_get_sync <- function(api, project = NULL, organization = NULL, max_seconds = 
 #'
 #' @return A tibble with column headers for the specified API call.
 
-wt_get_view <- function(api, project = NULL, organization = NULL, max_seconds = 300) {
+wt_get_view <- function(api, project = NULL, organization = NULL, max_seconds = 300, ai_threshold = 0.5) {
 
   api_match <- api
   organization <- if (!is.null(organization)) {
@@ -1146,7 +1146,7 @@ wt_get_view <- function(api, project = NULL, organization = NULL, max_seconds = 
 
     if(!(api_match %in% c("organization_equipment","organization_recordings","organization_usage_report"))) {
 
-    resp <- request("https://dev-api.wildtrax.ca") |>
+    resp <- request("https://www-api.wildtrax.ca") |>
       req_url_path_append(api_path) |>
       req_headers(
         Authorization = paste("Bearer", ._wt_auth_env_$access_token),
@@ -1170,7 +1170,7 @@ wt_get_view <- function(api, project = NULL, organization = NULL, max_seconds = 
 
     } else if (api_match == "organization_equipment") {
 
-      resp <- request("https://dev-api.wildtrax.ca") |>
+      resp <- request("https://www-api.wildtrax.ca") |>
         req_url_path_append(api_path) |>
         req_headers(
           Authorization = paste("Bearer", ._wt_auth_env_$access_token),
@@ -1198,7 +1198,7 @@ wt_get_view <- function(api, project = NULL, organization = NULL, max_seconds = 
 
       max_page_size <- 10000
 
-      req <- request("https://dev-api.wildtrax.ca") |>
+      req <- request("https://www-api.wildtrax.ca") |>
         req_url_path_append(api_path) |>
         req_headers(Authorization = paste("Bearer", ._wt_auth_env_$access_token), "Content-Type" = "application/json") |>
         req_user_agent(.gen_ua()) |>
@@ -1206,8 +1206,8 @@ wt_get_view <- function(api, project = NULL, organization = NULL, max_seconds = 
           organizationId       = organization,
           limit                = max_page_size,
           page                 = 1,
-          birdNetMinConfidence = 0.2,
-          hawkEarMinConfidence = 0.35,
+          birdNetMinConfidence = ai_threshold,
+          hawkEarMinConfidence = ai_threshold,
           orderBy              = "locationName",
           orderDirection       = "asc"
         ), digits = 2) |>
@@ -1247,7 +1247,7 @@ wt_get_view <- function(api, project = NULL, organization = NULL, max_seconds = 
 
     } else if (api_match == "organization_usage_report") {
 
-      resp <- request("https://dev-api.wildtrax.ca") |>
+      resp <- request("https://www-api.wildtrax.ca") |>
         req_url_path_append(api_path) |>
         req_url_query(organizationId = organization) |>
         req_headers(Authorization = paste("Bearer", ._wt_auth_env_$access_token)) |>
@@ -1265,7 +1265,7 @@ wt_get_view <- function(api, project = NULL, organization = NULL, max_seconds = 
 
   } else if (!is.null(project)) {
 
-    resp <- request("https://dev-api.wildtrax.ca") |>
+    resp <- request("https://www-api.wildtrax.ca") |>
       req_url_path_append(api_path) |>
       req_headers(
         Authorization = paste("Bearer", ._wt_auth_env_$access_token),
