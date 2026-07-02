@@ -20,7 +20,33 @@ Description: This R package contains functions to help manage and analyze enviro
 Depends: R (>= 4.5.3)
 License: MIT + file LICENSE
 Imports:
+<<<<<<< HEAD
     httr2
+=======
+    dplyr (>= 1.1.0),
+    fs,
+    ggplot2,
+    httr2,
+    magick,
+    purrr,
+    readr,
+    seewave,
+    sf,
+    suntools,
+    terra,
+    tibble,
+    tidyr (>= 1.0.2),
+    tuneR,
+    unmarked
+Suggests: 
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0),
+    usethis,
+    withr,
+    jpeg
+Remotes: borealbirds/QPAD
+>>>>>>> pr-95
 VignetteBuilder: knitr, rmarkdown
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
