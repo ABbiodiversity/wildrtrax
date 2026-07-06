@@ -34,7 +34,8 @@ Imports:
     tibble,
     tidyr (>= 1.0.2),
     tuneR,
-    unmarked
+    unmarked,
+    zip
 Suggests: 
     knitr,
     rmarkdown,

@@ -396,7 +396,12 @@
     )
   }
 
-  do.call(cols, c(modifyList(base_types, overrides)))
+  merged <- c(
+    base_types[!names(base_types) %in% names(overrides)],
+    overrides
+  )
+
+  do.call(cols, merged)
 
 }
 

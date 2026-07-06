@@ -1,6 +1,4 @@
-#' Set of analysis functions
-#'
-#' @section Summarise camera data by location, time interval, and species.
+#' @section Set of analysis functions
 #'
 #' @description This function takes your independent detection data and summarises it by location, specified time interval, and species.
 #'
@@ -75,26 +73,20 @@ wt_summarise_cam <- function(detect_data, raw_data, time_interval = "day",
 
       x <- raw_data |>
         group_by({{ project_col }}, {{ station_col }}, {{ image_set_id }}) |>
-        summarise(
-          start_date = as.Date(min({{ date_time_col }}, na.rm = TRUE)),
-          end_date   = as.Date(max({{ date_time_col }}, na.rm = TRUE)),
-          .groups = "drop"
-        )
+        summarise(start_date = as.Date(min({{ date_time_col }}, na.rm = TRUE)),
+                  end_date   = as.Date(max({{ date_time_col }}, na.rm = TRUE))) |>
+        ungroup()
 
     } else {
 
       x <- raw_data |>
         arrange({{ project_col }}, {{ station_col }}, {{ image_set_id }}, {{ date_time_col }}) |>
         group_by({{ project_col }}, {{ station_col }}, {{ image_set_id }}) |>
-        mutate(
-          cam_ok = image_fov == ""
-        ) |>
+        mutate(cam_ok = image_fov == "") |>
         filter(cam_ok) |>
-        summarise(
-          start_date = as.Date(min({{ date_time_col }}, na.rm = TRUE)),
-          end_date   = as.Date(max({{ date_time_col }}, na.rm = TRUE)),
-          .groups = "drop"
-        )
+        summarise(start_date = as.Date(min({{ date_time_col }}, na.rm = TRUE)),
+                  end_date   = as.Date(max({{ date_time_col }}, na.rm = TRUE))) |>
+        ungroup()
 
     }
 
@@ -146,7 +138,7 @@ wt_summarise_cam <- function(detect_data, raw_data, time_interval = "day",
 
   # Summarise variable of interest
   y <- y |>
-    group_by({{ project_col }}, {{ station_col }}, {{ species_col }}, year, {{ time_interval }}) |>
+    group_by({{ project_col }}, {{ station_col }}, {{ species_col }}, year) |>
     summarise(detections = n(),
               counts = sum(max_animals)) |>
     ungroup() |>
@@ -189,16 +181,9 @@ wt_summarise_cam <- function(detect_data, raw_data, time_interval = "day",
   } else if (time_interval == "full") {
     z <- x |>
       crossing(sp) |>
-      left_join(y)
-
-    message('print x')
-    print(x)
-    message('print z')
-    print(z)
-
-    z <- z |>
-      mutate(across(everything(), ~ replace_na(.x, 0))) |>
-      group_by({{ project_col }}, {{ station_col }}, year, {{ species_col }}) |>
+      left_join(y) |>
+      mutate(across(all_of(c("detections", "counts", "presence")), ~ replace_na(.x, 0))) |>
+      group_by({{ project_col }}, {{ station_col }}, {{ species_col }}) |>
       summarise(detections = sum(detections),
                 counts = sum(counts),
                 presence = ifelse(any(presence == 1), 1, 0)) |>
@@ -209,17 +194,15 @@ wt_summarise_cam <- function(detect_data, raw_data, time_interval = "day",
     variable <- c("detections", "counts", "presence")
   }
 
+  print(z)
+
   # Make wide if desired, using
   if (output_format == "wide") {
     z <- z |>
-      pivot_wider(id_cols = c({{ project_col }}, {{ station_col }}, year,
-                              {{ time_interval }}, n_days_effort),
-                  names_from = {{ species_col }}, values_from = {{ variable }}, names_sep = ".") |>
+      pivot_wider(names_from = {{ species_col }}, values_from = {{ variable }}, names_sep = ".") |>
       unnest(everything())
   } else if (output_format == "long") {
-    z <- z |> select({{ project_col }}, {{ station_col }}, year,
-                     {{ time_interval }}, n_days_effort,
-                     {{ species_col }}, {{ variable }}) |>
+    z <- z |>
       pivot_longer(cols = {{ variable }}, names_to = "variable", values_to = "value")
   }
 

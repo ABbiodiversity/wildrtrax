@@ -135,6 +135,7 @@ wt_get_projects <- function(sensor) {
 #' }
 #'
 #' @import httr2
+#' @importFrom zip unzip
 #' @importFrom purrr set_names map walk
 #' @importFrom dplyr rename filter pull
 #' @importFrom tibble as_tibble
@@ -253,7 +254,7 @@ wt_download_report <- function(project_id, sensor_id, reports, max_seconds=300) 
   }
 
   # Extract everything (works on Unix)
-  zip::unzip(tmp, exdir = td)
+  unzip(tmp, exdir = td)
 
   # List what got extracted
   files_extracted <- list.files(td, recursive = TRUE, full.names = TRUE)
@@ -1065,7 +1066,8 @@ wt_get_sync <- function(api, project = NULL, organization = NULL, max_seconds = 
 #' }
 #' @param project Numeric; The project id
 #' @param organization Numeric; The organization id
-#' @param max_seconds Numeric; Number of seconds to force to wait for downloads.
+#' @param max_seconds Numeric; Number of seconds to force to wait for downloads
+#' @param ai_threshold Numeric; Minimum threshold set for AI classifier detections
 #'
 #' @import httr2 dplyr
 #' @importFrom tidyr unnest
