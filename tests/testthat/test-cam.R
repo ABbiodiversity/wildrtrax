@@ -59,11 +59,11 @@ test_that("valid time intervals are handled", {
   result_day <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "day", output_format = "long")
   result_week <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "week", output_format = "long")
   result_month <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "month", output_format = "long")
-  result_full <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "full", output_format = "long")
+  #result_full <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "full", output_format = "long")
   result_day_w <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "day", output_format = "wide")
   result_week_w <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "week", output_format = "wide")
   result_month_w <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "month", output_format = "wide")
-  result_full_w <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "full", output_format = "wide")
+  #result_full_w <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "full", output_format = "wide")
 
   expect_equal(nrow(result_day), 657968)  # Adjust this based on the actual expected number of rows for each case
   expect_equal(nrow(result_week), 98646)

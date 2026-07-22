@@ -1,4 +1,4 @@
-#' @section Set of analysis functions
+#' Summarise camera data
 #'
 #' @description This function takes your independent detection data and summarises it by location, specified time interval, and species.
 #'
