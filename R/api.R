@@ -350,6 +350,7 @@ wt_get_species <- function(){
     species_common_name = map_chr(spp, ~ ifelse(!is.null(.x$commonName), .x$commonName, NA)),
     species_class = map_chr(spp, ~ ifelse(!is.null(.x$className), .x$className, NA)),
     species_order = map_chr(spp, ~ ifelse(!is.null(.x$order), .x$order, NA)),
+    species_family = map_chr(spp, ~ ifelse(!is.null(.x$family), .x$family, NA)),
     species_scientific_name = map_chr(spp, ~ ifelse(!is.null(.x$scientificName), .x$scientificName, NA))
   )
 
