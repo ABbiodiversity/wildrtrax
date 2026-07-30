@@ -18,7 +18,7 @@ wt_download_media(
 \item{type}{Either recording, image, tag_clip_spectrogram, tag_clip_audio}
 }
 \value{
-An organized folder of media. Assigning wt_download_tags to an object will return the table form of the data with the functions returning the after effects in the output directory
+An organized folder of media.
 }
 \description{
 Download acoustic and image media in batch. Includes the download of tag clips and spectrograms for the ARU sensor.

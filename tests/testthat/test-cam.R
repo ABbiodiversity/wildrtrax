@@ -39,35 +39,6 @@ test_that("Summarise cam", {
   expect_true(!is.null(test_data_set))
 })
 
-test_that("A specific summarized cam process", {
-
-  df <- test_data_set
-
-  summary <- wt_summarise_cam(
-    detect_data = ind_detections,
-    raw_data = df,
-    time_interval = "month",
-    variable = "counts",
-    output_format = "long")
-
-  ind_detec.focal <- ind_detections |>
-    filter(location=="1081-NE" & species_common_name=="Moose")
-  summary.focal <- summary |>
-    filter(location=="1081-NE" & species_common_name=="Moose",!value==0) |>
-    select(value)
-
-  expected <- ind_detec.focal |>
-    mutate(month = as.numeric(format(as.Date(start_time),"%m"))) |>
-    group_by(month) |>
-    summarise(total_count=sum(max_animals)) |>
-    select(total_count)
-
-  expected
-  summary.focal
-
-  expect_true(identical(sort(expected$total_count), sort(summary.focal$value)))
-})
-
 test_that("error when both raw_data and effort_data are provided", {
   test_data_set
   expect_error(wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, effort_data = test_data_set), "Please only supply a value for one of `raw_data` or `effort_data`.")

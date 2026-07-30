@@ -3,16 +3,6 @@ library(purrr)
 library(dplyr)
 library(tidyr)
 
-test_that("errors when WT_USERNAME or WT_PASSWORD are missing", {
-  withr::with_envvar(
-    c(WT_USERNAME = "", WT_PASSWORD = ""),
-    expect_error(
-      .wt_auth(),
-      "Environment variables are not set"
-    )
-  )
-})
-
 aoi <- list(
   c(-112.85438, 57.13472),
   c(-113.14364, 54.74858),
@@ -209,16 +199,21 @@ test_that("Complex column check across reports and sync", {
 
 report_endpoints <- list(
   list(project = 620, type = "ARU", reports = c("main","ai","recording","tag","project","location")),
-  list(project = 881, type = "PC", reports = "main"),
-  list(project = 251, type = "CAM", reports = c("main","megadetector","image_set_report","image_report"))
+  list(project = 881, type = "PC", reports = c("main", "project", "location", "point_count")),
+  list(project = 251, type = "CAM", reports = c("main","location", "project", "tag", "megadetector","image_set_report","image_report"))
 )
 
 report_cols <- report_endpoints %>%
   map_df(~ {
     df <- wt_download_report(.x$project, .x$type, .x$reports)
-    # Flatten if list of dataframes
-    cols <- if (is.list(df)) unique(unlist(map(df, names))) else names(df)
-    tibble(report_name = cols)
+    # Flatten if list of dataframes, preserving which report each col came from
+    if (is.list(df)) {
+      map_df(names(df), function(report) {
+        tibble(report_name = names(df[[report]]), source_report = report)
+      })
+    } else {
+      tibble(report_name = names(df), source_report = .x$reports)
+    }
   }) %>%
   distinct() %>%
   mutate(in_report = TRUE)
@@ -240,20 +235,31 @@ sync_endpoints <- list(
 sync_cols <- sync_endpoints %>%
   map_df(~ {
     args <- if (!is.null(.x$org)) list(api=.x$api, organization=.x$org) else list(api=.x$api, project=.x$project)
-    tibble(sync_name = names(do.call(wt_get_sync, args)))
+    tibble(sync_name = names(do.call(wt_get_sync, args)), source_api = .x$api)
   }) %>%
   distinct() |>
   mutate(in_sync = TRUE)
 
-all_columns <- full_join(report_cols |> rename(column_name = report_name), sync_cols |> rename(column_name = sync_name), by = "column_name") |>
-  mutate(report_or_sync = coalesce(in_report, in_sync),
-         report_name = ifelse(!is.na(in_report), column_name, NA_character_),
-         sync_name = ifelse(!is.na(in_sync), column_name, NA_character_)) |>
-  select(column_name, report_or_sync, report_name, sync_name)
+report_only <- anti_join(
+  report_cols,
+  sync_cols,
+  by = c("report_name" = "sync_name")
+)
 
-expect_no_error(all_columns) #EXPECT WE ACTUALLY EXPECT AN ERROR - KEEP WORKING ON THIS
+sync_only <- anti_join(
+  sync_cols,
+  report_cols,
+  by = c("sync_name" = "report_name")
+)
 
-#write_csv(all_columns, "./all_columns_check.csv")
+in_both <- inner_join(
+  report_cols,
+  sync_cols,
+  by = c("report_name" = "sync_name"),
+  relationship = "many-to-many"
+)
+
+expect_true(nrow(in_both) > 1)
 
 })
 

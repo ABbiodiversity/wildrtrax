@@ -135,7 +135,7 @@ wt_get_projects <- function(sensor) {
 #' }
 #'
 #' @import httr2
-#' @import purrr
+#' @importFrom purrr set_names map walk
 #' @importFrom dplyr rename filter pull
 #' @importFrom tibble as_tibble
 #' @importFrom readr read_csv col_character col_logical
@@ -206,12 +206,15 @@ wt_download_report <- function(project_id, sensor_id, reports, max_seconds=300) 
   }
 
   query_params <- list(
-    locationReport = "true",
-    projectReport = "true",
-    tagReport = "true",
-    recordingReport = "true",
-    mainReport = "true",
-    aiReport = "true",
+    locationReport = if ("location" %in% reports) "true" else "false",
+    projectReport = if ("project" %in% reports) "true" else "false",
+    tagReport = if ("tag" %in% reports) "true" else "false",
+    recordingReport = if ("recording" %in% reports) "true" else "false",
+    mainReport = if ("main" %in% reports) "true" else "false",
+    aiReport = if ("ai" %in% reports) "true" else "false",
+    imageSetReport = if ("image_set" %in% reports) "true" else "false",
+    imageReport = if ("image_report" %in% reports) "true" else "false",
+    megaDetectorReport = if ("megadetector" %in% reports) "true" else "false",
     includeMetaData = "true",
     sensorId = sensor_id
   )
@@ -249,23 +252,24 @@ wt_download_report <- function(project_id, sensor_id, reports, max_seconds=300) 
     gsub("[:<>|*?\"/\\\\]", "_", x)
   }
 
+  # Extract everything (works on Unix)
   zip::unzip(tmp, exdir = td)
 
+  # List what got extracted
   files_extracted <- list.files(td, recursive = TRUE, full.names = TRUE)
 
+  # Rename all extracted files to safe names
   for (old_path in files_extracted) {
-
-    new_name <- safe_windows_filename(basename(old_path))
-    new_path <- file.path(dirname(old_path), new_name)
-
-    if (old_path != new_path) {
+    safe_name <- safe_windows_filename(basename(old_path))
+    new_path <- file.path(dirname(old_path), safe_name)
+    if (!file.exists(new_path) && old_path != new_path) {
       file.rename(old_path, new_path)
     }
   }
 
   # Remove special characters from project names safely
   list.files(td, pattern = "\\.csv$", full.names = TRUE, recursive = TRUE) %>%
-    purrr::walk(~ {
+    walk(~ {
       old_path <- .x
       new_path <- file.path(dirname(.x), safe_windows_filename(basename(.x)))
       if (!file.exists(new_path)) file.rename(old_path, new_path)
@@ -278,21 +282,30 @@ wt_download_report <- function(project_id, sensor_id, reports, max_seconds=300) 
   files.full <- list.files(td, pattern= "\\.csv$", full.names = TRUE, recursive = TRUE)
   files.less <- basename(files.full)
 
-  x <- purrr::map(.x = files.full, .f = ~ suppressWarnings(
-    readr::read_csv(.x, show_col_types = FALSE,
-                    skip_empty_rows = TRUE,
-                    col_types = .wt_col_types,
-                    progress = FALSE)
+  x <- map(.x = files.full, .f = ~ suppressWarnings(
+    read_csv(.x, show_col_types = FALSE,
+             skip_empty_rows = TRUE,
+             col_types = .wt_col_types(sensor_id),
+             na = character(),
+             progress = FALSE)
   )) %>% purrr::set_names(files.less)
 
   # Return the requested report(s)
   report <- paste(paste0("_",reports), collapse = "|")
   x <- x[grepl(report, names(x))]
-  # Return a data frame if only 1 element in the list (i.e., only 1 report requested)
+
   if (length(x) == 1) {
     x <- x[[1]]
+    if ("survey_date" %in% names(x)) {
+      x <- rename(x, survey_date_time = survey_date)
+    }
   } else {
-    x
+    x <- map(x, function(.x) {
+      if ("survey_date" %in% names(.x)) {
+        .x <- rename(.x, survey_date_time = survey_date)
+      }
+      .x
+    })
   }
 
   # Delete csv files
@@ -369,9 +382,7 @@ wt_get_project_species <- function(project) {
   resp <- request("https://www-api.wildtrax.ca") |>
     req_url_path_append("bis/get-project-species-details") |>
     req_url_query(projectId = project) |>
-    req_headers(
-      Authorization = NULL
-    ) |>
+    req_headers(Authorization = paste("Bearer", ._wt_auth_env_$access_token)) |>
     req_user_agent(.gen_ua()) |>
     req_method("GET") |>
     req_perform()
@@ -408,7 +419,7 @@ wt_get_project_species <- function(project) {
 #' wt_download_media(output = "my/output/folder", type = "recording")
 #' }
 #'
-#' @return An organized folder of media. Assigning wt_download_tags to an object will return the table form of the data with the functions returning the after effects in the output directory
+#' @return An organized folder of media.
 
 wt_download_media <- function(input, output, type = c("recording","image", "tag_clip_audio","tag_clip_spectrogram")) {
 
@@ -903,7 +914,8 @@ wt_location_photos <- function(organization, output = NULL) {
 #'   \item `"project_aru_tasks"`
 #'   \item `"project_aru_tags"`
 #'   \item `"project_image_metadata"`
-#'   \item `"project_camera_tags"`
+#'   \item `"project_image_sets"`
+#'   \item `"project_image_tags"`
 #'   \item `"project_point_counts"`
 #' }
 #' @param project Numeric; The project id
@@ -911,9 +923,7 @@ wt_location_photos <- function(organization, output = NULL) {
 #' @param max_seconds Numeric; Number of seconds to force to wait for downloads.
 #'
 #' @import httr2 dplyr
-#' @importFrom tidyr unnest
 #' @importFrom readr read_csv
-#' @importFrom tibble as_tibble
 #'
 #' @export
 #'
@@ -953,13 +963,14 @@ wt_get_sync <- function(api, project = NULL, organization = NULL, max_seconds = 
     organization_locations = "download-location-by-org-id",
     organization_visits = "download-location-visits-by-org-id",
     organization_equipment = "download-equipment-by-org-id",
-    organization_deployments = "download-location-equipment-by-organization-id",
+    organization_deployments = "download-location-equipment-by-org-id",
     organization_recordings = "download-recordings-by-org-id",
-    project_locations = "download-location",
+    project_locations = "download-location-by-project-id",
     project_aru_tasks = "download-tasks-by-project-id",
     project_aru_tags = "download-tags-by-project-id",
     project_image_metadata = "download-camera-tasks-by-project-id",
-    project_camera_tags = "download-camera-tags-by-project-id",
+    project_image_sets = "camera/download-image-set-by-project-id",
+    project_image_tags = "download-camera-tags-by-project-id",
     project_point_counts = "download-point-count-by-project-id"
   )
 
@@ -969,12 +980,13 @@ wt_get_sync <- function(api, project = NULL, organization = NULL, max_seconds = 
     "download-location-by-org-id" = list(orgId = organization),
     "download-location-visits-by-org-id" = list(orgId = organization),
     "download-equipment-by-org-id" = list(orgId = organization),
-    "download-location-equipment-by-organization-id" = list(orgId = organization),
+    "download-location-equipment-by-org-id" = list(orgId = organization),
     "download-recordings-by-org-id" = list(orgId = organization),
-    "download-location" = list(projectId = project),
+    "download-location-by-project-id" = list(projectId = project),
     "download-tasks-by-project-id" = list(projectId = project),
     "download-tags-by-project-id" = list(projectId = project),
     "download-camera-tasks-by-project-id" = list(projectId = project),
+    "camera/download-image-set-by-project-id" = list(projectId = project),
     "download-camera-tags-by-project-id" = list(projectId = project),
     "download-point-count-by-project-id" = list(projectId = project)
   )
@@ -989,26 +1001,6 @@ wt_get_sync <- function(api, project = NULL, organization = NULL, max_seconds = 
   print(paste('Calling...', api_path))
 
   if(!is.null(organization)) {
-
-    if(api_match == "organization_deployments") {
-
-      tmp <- tempfile(fileext = ".csv")
-
-      req <- request("https://www-api.wildtrax.ca") |>
-        req_url_path_append(api_path) |>
-        req_url_query(organizationId = organization) |>
-        req_headers(Authorization = paste("Bearer", ._wt_auth_env_$access_token)) |>
-        req_user_agent(.gen_ua()) |>
-        req_method("GET") |>
-        req_timeout(max_seconds)
-
-      req_perform(req, path = tmp)
-
-      org_df <- read_csv(tmp, show_col_types = FALSE)
-
-      return(org_df)
-
-    } else {
 
     tmp <- tempfile(fileext = ".csv")
 
@@ -1026,31 +1018,7 @@ wt_get_sync <- function(api, project = NULL, organization = NULL, max_seconds = 
 
     return(org_df)
 
-    }
-
   } else if (!is.null(project)) {
-
-    if(api_match == "project_image_metadata") {
-
-      api_path <- "bis/camera/download-camera-tasks-by-project-id"
-
-      tmp <- tempfile(fileext = ".csv")
-
-      req <- request("https://www-api.wildtrax.ca") |>
-        req_url_path_append(api_path) |>
-        req_url_query(projectId = project) |>
-        req_headers(Authorization = paste("Bearer", ._wt_auth_env_$access_token)) |>
-        req_user_agent(.gen_ua()) |>
-        req_method("GET") |>
-        req_timeout(max_seconds)
-
-      req_perform(req, path = tmp)
-
-      proj_df <- suppressWarnings(read_csv(tmp, show_col_types = FALSE, progress = FALSE))
-
-      return(proj_df)
-
-    } else {
 
     tmp <- tempfile(fileext = ".csv")
 
@@ -1064,14 +1032,17 @@ wt_get_sync <- function(api, project = NULL, organization = NULL, max_seconds = 
 
     req_perform(req, path = tmp)
 
-    proj_df <- read_csv(tmp, show_col_types = FALSE)
-
-    return(proj_df)
-
+    if(api_match == "project_point_counts"){
+      proj_df <- read_csv(tmp, show_col_types = FALSE)
+      return(proj_df)
+    } else if(api_match == "project_image_metadata") {
+      proj_df <- read_csv(tmp, show_col_types = FALSE, col_types = cols(image_comments = col_character()))
+      return(proj_df)
+    } else {
+      proj_df <- read_csv(tmp, show_col_types = FALSE)
+      return(proj_df)
     }
-
   }
-
 }
 
 #' Get data from WildTrax views
@@ -1116,7 +1087,7 @@ wt_get_sync <- function(api, project = NULL, organization = NULL, max_seconds = 
 #'
 #' @return A tibble with column headers for the specified API call.
 
-wt_get_view <- function(api, project = NULL, organization = NULL, max_seconds = 300) {
+wt_get_view <- function(api, project = NULL, organization = NULL, max_seconds = 300, ai_threshold = 0.5) {
 
   api_match <- api
   organization <- if (!is.null(organization)) {
@@ -1229,23 +1200,31 @@ wt_get_view <- function(api, project = NULL, organization = NULL, max_seconds = 
 
       req <- request("https://www-api.wildtrax.ca") |>
         req_url_path_append(api_path) |>
-        req_headers(
-          Authorization = paste("Bearer", ._wt_auth_env_$access_token),
-          "Content-Type" = "application/json"
-        ) |>
+        req_headers(Authorization = paste("Bearer", ._wt_auth_env_$access_token), "Content-Type" = "application/json") |>
         req_user_agent(.gen_ua()) |>
         req_body_json(list(
-          organizationId = organization,
-          limit          = max_page_size,
-          orderBy        = "locationName",
-          orderDirection = "asc"
-        )) |>
-        req_method("GET") |>
+          organizationId       = organization,
+          limit                = max_page_size,
+          page                 = 1,
+          birdNetMinConfidence = ai_threshold,
+          hawkEarMinConfidence = ai_threshold,
+          orderBy              = "locationName",
+          orderDirection       = "asc"
+        ), digits = 2) |>
+        req_method("POST") |>
         req_timeout(300)
 
-      resp <- req_perform_iterative(req, iterate_with_offset("page_index"))
-
-      json <- resp_body_json(resp[[1]], simplifyVector = FALSE)
+      resp <- req_perform_iterative(
+        req,
+        next_req = function(resp, req) {
+          json <- resp_body_json(resp)
+          if (length(json$result) == 0) return(NULL)
+          current_body <- req$body$data
+          current_body$page <- current_body$page + 1
+          req |> req_body_json(current_body, digits = 2)
+        },
+        max_reqs = Inf
+      )
 
       replace_nulls <- function(x) {
         if (is.list(x)) {
@@ -1257,12 +1236,10 @@ wt_get_view <- function(api, project = NULL, organization = NULL, max_seconds = 
       }
 
       all_results <- map(resp, ~ {
-        json <- resp_body_json(.x, simplifyVector = FALSE)
-        map_dfr(json, ~ {
-          rec <- replace_nulls(.x)
-          as_tibble(rec)
-        })
-      })
+        json <- resp_body_json(.x, simplifyVector = TRUE)
+        json$result |> as_tibble()
+      }) |>
+        list_rbind()
 
       org_df_recs <- bind_rows(all_results) |> distinct()
 

@@ -34,14 +34,14 @@ library(dplyr)
 # Start by getting everything you need
 Sys.setenv(WT_USERNAME = 'guest', WT_PASSWORD = 'Apple123')
 wt_auth()
-my_report <- wt_download_report(project_id = 668, sensor_id = 'ARU', reports = "main") 
-#
+my_report <- wt_download_report(project_id = 620, sensor_id = 'ARU', reports = "main") 
+
 
 ```
 
 ## Data wrangling
 
-Let's use some of the functins that are available to start cleaning up a data set. For this question, we don't need certain abiotic and mammal codes so let's remove those with `wt_tidy_species()`,
+Let's use some of the functions that are available to start cleaning up a data set. For this question, we don't need certain abiotic and mammal codes so let's remove those with `wt_tidy_species()`,
 
 ```{r, tidy-chunk, eval = T, echo = T, warning = F, message = F}
 my_tidy_data <- wt_tidy_species(my_report, remove = c("mammal"), zerofill = F)
@@ -71,7 +71,7 @@ head(my_wide_data)
 You can also perform a single-season, single-species occupancy work flow using `wt_format_occupancy()` once the data is downloaded.
 
 ```{r, eval = T, echo = T, warning = F, message = F}
-dat.occu <- wt_format_occupancy(my_report, species="WCSP", siteCovs=NULL)
+dat.occu <- wt_format_occupancy(my_report, species="WTSP", siteCovs=NULL)
 mod <- unmarked::occu(~ 1 ~ 1, dat.occu)
 mod
 
