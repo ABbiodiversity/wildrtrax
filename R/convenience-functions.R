@@ -94,7 +94,15 @@ wt_location_distances <- function(input_from_tibble = NULL, input_from_file = NU
 #'
 #' @examples
 #' \dontrun{
-#' dat.tidy <- wt_tidy_species(dat, remove=c("mammal", "unknown"), zerofill = T)
+#' #Example with ARU report.
+#' dat <- wt_download_report(
+#'   project_id = 47, sensor_id = "ARU", reports = c("main"))
+#' dat.tidy.aru <- wt_tidy_species(dat, remove=c("mammal", "unknown"), zerofill = T)
+#'
+#' #Example with PC report.
+#' dat <- wt_download_report(
+#'   project_id = 897, sensor_id = "PC", reports = c("main"))
+#' dat.tidy.pc <- wt_tidy_species(dat, remove=c("mammal", "unknown"), zerofill = T)
 #' }
 #' @return A dataframe identical to input with observations of the specified groups removed.
 
@@ -140,7 +148,8 @@ wt_tidy_species <- function(data,
   #Add the unknowns if requested
   if("unknown" %in% remove){
     species.remove <- .species %>%
-      filter(substr(species_common_name, 1, 12) == "Unidentified") %>%
+      filter(substr(species_common_name, 1, 12) == "Unidentified" |
+               substr(species_common_name, 1, 7) == "Unknown") %>%
       rbind(species.remove)
   }
 
@@ -166,16 +175,18 @@ wt_tidy_species <- function(data,
   #if you do need nones, add them
   if(zerofill==TRUE){
 
-    #first identify the unique visits (task_id) ensure locations are included for proper join
+    #first identify the unique visits (task_id) ensure locations are included for proper join.
+    #Added many columns to ensure information in those columns is not lost.
     visit <- data |>
-      select(organization, project_id, location, latitude, longitude, location_id, recording_date_time, task_id) |>
+      select(organization, project_id, location, location_id, location_buffer_m, latitude, longitude, equipment_make, equipment_model, recording_id, recording_date_time, task_id, task_is_complete, task_duration, task_method, observer, observer_id,
+             max_noise_volume, max_noise_type, max_noise_density, max_noise_channel, task_comments) |>
       distinct()
 
     #see if there are any that have been removed
     none <- suppressMessages(anti_join(visit, filtered)) |>
       mutate(species_code = "NONE",
              species_common_name = "NONE",
-             species_scientific_name = "NONE")
+             species_scientific_name = NA)
 
     #add to the filtered data
     filtered.none <- suppressMessages(full_join(filtered, none)) |>
