@@ -94,7 +94,15 @@ wt_location_distances <- function(input_from_tibble = NULL, input_from_file = NU
 #'
 #' @examples
 #' \dontrun{
-#' dat.tidy <- wt_tidy_species(dat, remove=c("mammal", "unknown"), zerofill = T)
+#' #Example with ARU report.
+#' dat <- wt_download_report(
+#'   project_id = 47, sensor_id = "ARU", reports = c("main"))
+#' dat.tidy.aru <- wt_tidy_species(dat, remove=c("mammal", "unknown"), zerofill = T)
+#'
+#' #Example with PC report.
+#' dat <- wt_download_report(
+#'   project_id = 897, sensor_id = "PC", reports = c("main"))
+#' dat.tidy.pc <- wt_tidy_species(dat, remove=c("mammal", "unknown"), zerofill = T)
 #' }
 #' @return A dataframe identical to input with observations of the specified groups removed.
 
@@ -140,7 +148,8 @@ wt_tidy_species <- function(data,
   #Add the unknowns if requested
   if("unknown" %in% remove){
     species.remove <- .species %>%
-      filter(substr(species_common_name, 1, 12) == "Unidentified") %>%
+      filter(substr(species_common_name, 1, 12) == "Unidentified" |
+               substr(species_common_name, 1, 7) == "Unknown") %>%
       rbind(species.remove)
   }
 
@@ -157,7 +166,7 @@ wt_tidy_species <- function(data,
     if("survey_url" %in% colnames(data)){
       filtered.sp <- filtered.sp |>
         rename(survey_id=task_id,
-               survey_date = recording_date_time)
+               survey_date_time = recording_date_time)
     }
 
     return(filtered.sp)
@@ -166,16 +175,30 @@ wt_tidy_species <- function(data,
   #if you do need nones, add them
   if(zerofill==TRUE){
 
-    #first identify the unique visits (task_id) ensure locations are included for proper join
+    #first identify the unique visits (task_id) ensure locations are included for proper join.
+    #The process is robust to different report types which have different column names,
+    #and is designed to maintain all task-related metadata.
+    # Define grouping column as task_id
+    group_col <- data$task_id
+
+    # Identify columns that only have one value per level of task_id. These columns are
+    # to be retained, so no task-level information is lost.
+    matching_cols <- names(data)[sapply(data, function(col) {
+      nrow(unique(data.frame(group_col, col))) == length(unique(group_col))
+    })]
+
+    #Select unique visits, while retaining all visit-level (task-level) metadata.
     visit <- data |>
-      select(organization, project_id, location, latitude, longitude, location_id, recording_date_time, task_id) |>
+      select(all_of(matching_cols)) |>
       distinct()
 
-    #see if there are any that have been removed
+    #see if there are any visits that have been removed.
+    #Setting species_code to NONE, species_common_name to NONE, and species_scientific_name to NA
+    #aligns with the way NONE is handled elsewhere.
     none <- suppressMessages(anti_join(visit, filtered)) |>
       mutate(species_code = "NONE",
              species_common_name = "NONE",
-             species_scientific_name = "NONE")
+             species_scientific_name = NA_character_)
 
     #add to the filtered data
     filtered.none <- suppressMessages(full_join(filtered, none)) |>
