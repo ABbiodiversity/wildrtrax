@@ -91,43 +91,103 @@ test_that("Download with authentication with boundary; multiple species logged i
 #   expect_true(!is.null(wt_download_report(197, 'CAM', 'main', F, max_seconds = 3000)))
 # })
 
-test_that("Get functions for all API combinations with specific project restrictions", {
-  # Set environment variables and authenticate
-  Sys.setenv(WT_USERNAME = "guest", WT_PASSWORD = "Apple123")
-  wt_auth(force = TRUE)
+# Set environment variables and authenticate
+Sys.setenv(WT_USERNAME = "guest", WT_PASSWORD = "Apple123")
+wt_auth(force = TRUE)
 
-  # Test for each API using pseudonyms
-  expect_no_error(wt_get_sync(api = "organization_locations", organization = 5205))
-  expect_no_error(wt_get_sync(api = "organization_visits", organization = 5205))
-  expect_no_error(wt_get_sync(api = "organization_equipment", organization = 5205))
-  expect_no_error(wt_get_sync(api = "organization_deployments", organization = 5205))
-  expect_no_error(wt_get_sync(api = "organization_recordings", organization = 5205))
-  expect_no_error(wt_get_sync(api = "project_locations", project = 620))
-  expect_no_error(wt_get_sync(api = "project_aru_tasks", project = 620))
-  expect_no_error(wt_get_sync(api = "project_aru_tags", project = 620))
-  expect_no_error(wt_get_sync(api = "project_image_metadata", project = 251))
-  expect_no_error(wt_get_sync(api = "project_camera_tags", project = 251))
-  expect_no_error(wt_get_sync(api = "project_point_counts", project = 804))
-})
+organizations <- tibble(
+  name = c("org_admin", "org_read", "no_org_proj_only", "no_org_or_project"),
+  id = c(5205, 5454, 5327, 5550),
+  should_error = c(FALSE, FALSE, TRUE, TRUE)
+)
 
+apis_sync <- c("organization_locations", "organization_visits", "organization_equipment", "organization_deployments", "organization_recordings")
+apis_view <- c("organization_locations", "organization_visits", "organization_equipment", "organization_deployments", "organization_recordings", "organization_image_sets", "organization_usage_report")
 
-test_that("Get functions for all API combinations with specific project restrictions", {
-  # Set environment variables and authenticate
-  Sys.setenv(WT_USERNAME = "guest", WT_PASSWORD = "Apple123")
-  wt_auth(force = TRUE)
+results <- list()
 
-  # Test for each API using pseudonyms
-  expect_no_error(wt_get_view(api = "organization_locations", organization = 5205))
-  expect_no_error(wt_get_view(api = "organization_visits", organization = 5205))
-  expect_no_error(wt_get_view(api = "organization_equipment", organization = 5205)) # TEXT PLAIN
-  expect_no_error(wt_get_view(api = "organization_deployments", organization = 5205))
-  expect_no_error(wt_get_view(api = "organization_recordings", organization = 5205))
-  expect_no_error(wt_get_view(api = "organization_image_sets", organization = 5205))
-  expect_no_error(wt_get_view(api = "organization_usage_report", organization = 5205))
-  expect_no_error(wt_get_view(api = "project_aru_tasks", project = 620))
-  expect_no_error(wt_get_view(api = "project_camera_tasks", project = 251))
-  expect_no_error(wt_get_view(api = "project_point_counts", project = 804))
-})
+for (i in seq_len(nrow(organizations))) {
+
+  org <- organizations$id[i]
+
+  ## Sync APIs
+  for (api in apis_sync) {
+
+    res <- tryCatch({
+
+      if (organizations$should_error[i]) {
+        expect_error(wt_get_sync(api = api, organization = org))
+      } else {
+        expect_no_error(wt_get_sync(api = api, organization = org))
+      }
+
+      tibble(
+        organization = organizations$name[i],
+        org_id = org,
+        api_type = "sync",
+        api = api,
+        expected = ifelse(organizations$should_error[i], "error", "success"),
+        result = "PASS",
+        message = NA_character_
+      )
+
+    }, error = function(e) {
+
+      tibble(
+        organization = organizations$name[i],
+        org_id = org,
+        api_type = "sync",
+        api = api,
+        expected = ifelse(organizations$should_error[i], "error", "success"),
+        result = "FAIL",
+        message = conditionMessage(e)
+      )
+
+    })
+
+    results[[length(results) + 1]] <- res
+  }
+
+  ## View APIs
+  for (api in apis_view) {
+
+    res <- tryCatch({
+
+      if (organizations$should_error[i]) {
+        expect_error(wt_get_view(api = api, organization = org))
+      } else {
+        expect_no_error(wt_get_view(api = api, organization = org))
+      }
+
+      tibble(
+        organization = organizations$name[i],
+        org_id = org,
+        api_type = "view",
+        api = api,
+        expected = ifelse(organizations$should_error[i], "error", "success"),
+        result = "PASS",
+        message = NA_character_
+      )
+
+    }, error = function(e) {
+
+      tibble(
+        organization = organizations$name[i],
+        org_id = org,
+        api_type = "view",
+        api = api,
+        expected = ifelse(organizations$should_error[i], "error", "success"),
+        result = "FAIL",
+        message = conditionMessage(e)
+      )
+
+    })
+
+    results[[length(results) + 1]] <- res
+  }
+}
+
+expect_true(bind_rows(results) |> rename(organization_role = organization) |> filter(result == "FAIL") |> nrow() == 0)
 
 test_that("Project species", {
   expect_no_error(wt_get_project_species(620))

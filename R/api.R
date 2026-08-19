@@ -213,7 +213,7 @@ wt_download_report <- function(project_id, sensor_id, reports, max_seconds=300) 
     recordingReport = if ("recording" %in% reports) "true" else "false",
     mainReport = if ("main" %in% reports) "true" else "false",
     aiReport = if ("ai" %in% reports) "true" else "false",
-    imageSetReport = if ("image_set" %in% reports) "true" else "false",
+    imageSetReport = if ("image_set_report" %in% reports) "true" else "false",
     imageReport = if ("image_report" %in% reports) "true" else "false",
     megaDetectorReport = if ("megadetector" %in% reports) "true" else "false",
     includeMetaData = "true",
@@ -555,9 +555,9 @@ wt_dd_summary <- function(sensor = c('ARU','CAM','PC'), species = NULL, boundary
       req_url_path_append("/bis/get-all-species") |>
       req_headers(
         Authorization = tok_used,
-        Origin = "https://www.wildtrax.ca/discover",
+        Origin = "https://dev.wildtrax.ca/discover",
         Pragma = "no-cache",
-        Referer = "https://www.wildtrax.ca/discover"
+        Referer = "https://dev.wildtrax.ca/discover"
       ) |>
       req_user_agent(u) |>
       req_body_json(list(sensorId = sensor)) |>
@@ -687,9 +687,9 @@ wt_dd_summary <- function(sensor = c('ARU','CAM','PC'), species = NULL, boundary
       req_url_path_append("/bis/get-data-discoverer-long-lat-summary") |>
       req_headers(
         Authorization = tok_used,
-        Origin = "https://www.wildtrax.ca/discover",
+        Origin = "https://dev.wildtrax.ca/discover",
         Pragma = "no-cache",
-        Referer = "https://www.wildtrax.ca/discover"
+        Referer = "https://dev.wildtrax.ca/discover"
       ) |>
       req_user_agent(u) |>
       req_body_json(payload_ll) |>
@@ -709,9 +709,9 @@ wt_dd_summary <- function(sensor = c('ARU','CAM','PC'), species = NULL, boundary
       req_url_path_append("/bis/get-data-discoverer-map-and-projects") |>
       req_headers(
         Authorization = tok_used,
-        Origin = "https://www.wildtrax.ca/discover",
+        Origin = "https://dev.wildtrax.ca/discover",
         Pragma = "no-cache",
-        Referer = "https://www.wildtrax.ca/discover"
+        Referer = "https://dev.wildtrax.ca/discover"
       ) |>
       req_user_agent(u) |>
       req_body_json(payload_mp) |>
