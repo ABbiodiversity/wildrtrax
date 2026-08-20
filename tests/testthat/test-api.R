@@ -91,10 +91,6 @@ test_that("Download with authentication with boundary; multiple species logged i
 #   expect_true(!is.null(wt_download_report(197, 'CAM', 'main', F, max_seconds = 3000)))
 # })
 
-# Set environment variables and authenticate
-Sys.setenv(WT_USERNAME = "guest", WT_PASSWORD = "Apple123")
-wt_auth(force = TRUE)
-
 organizations <- tibble(
   name = c("org_admin", "org_read", "no_org_proj_only", "no_org_or_project"),
   id = c(5205, 5454, 5327, 5550),

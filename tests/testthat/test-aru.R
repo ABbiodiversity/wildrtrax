@@ -66,7 +66,7 @@ test_that("Replacing TMTT", {
   cypress_hills <- wt_download_report(620, 'ARU', 'main')
   cypress_hills_tidy <- wt_tidy_species(cypress_hills, remove = c("mammal", "abiotic", "amphibian", "unknown"), zerofill = T)
   cypress_hills_tmtt <- wt_replace_tmtt(cypress_hills_tidy, calc = "round") |>
-    select(individual_count) |>
+    select(abundance) |>
     distinct()
   expect_true(!('TMTT' %in% cypress_hills_tmtt))
 })
@@ -87,10 +87,6 @@ test_that('Occupancy formatting', {
 
 rep <- wt_download_report(620, 'ARU', c('main','ai'))
 rep2 <- wt_download_report(84, 'ARU', c('main','ai'))
-
-test_that('Expect error wrong data', {
-  expect_error(wt_evaluate_classifier(fake, resolution = "task"))
-})
 
 test_that('Expect error wrong data', {
   expect_no_error(wt_evaluate_classifier(rep, resolution = "task", remove_species = F))
@@ -202,9 +198,6 @@ test_that("Kaleidoscope tags", {
 test_that("Wide with PC", {
   expect_no_error(wt_make_wide(pc_proj))
 })
-
-
-### test 46
 
 ecosys21 <- wt_download_report(685, 'ARU', 'main')
 

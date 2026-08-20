@@ -553,16 +553,19 @@ wt_add_grts <- function(data, group_locations_in_cell = FALSE) {
 
   # Check for intersection eventually
   if (nrow(data) > 0) {
-    grts_list[[length(grts_list) + 1]] <- readr::read_csv('https://code.usgs.gov/fort/nabat/nabatr/-/raw/dffbf6afda4d390dbe4d2bf8c51e854b960a33dd/data/GRTS_coords_Canada.csv', show_col_types = FALSE)
+    grts_list[[length(grts_list) + 1]] <- readr::read_csv('https://code.usgs.gov/fort/nabat/nabatr/-/raw/dffbf6afda4d390dbe4d2bf8c51e854b960a33dd/data/GRTS_coords_Canada.csv', show_col_types = FALSE) |>
+      suppressMessages()
   }
 
   if (nrow(data) > 0) {
-    grts_list[[length(grts_list) + 1]] <- readr::read_csv('https://code.usgs.gov/fort/nabat/nabatr/-/raw/dffbf6afda4d390dbe4d2bf8c51e854b960a33dd/data/GRTS_coords_Alaska.csv', show_col_types = FALSE)
+    grts_list[[length(grts_list) + 1]] <- readr::read_csv('https://code.usgs.gov/fort/nabat/nabatr/-/raw/dffbf6afda4d390dbe4d2bf8c51e854b960a33dd/data/GRTS_coords_Alaska.csv', show_col_types = FALSE) |>
+      suppressMessages()
   }
 
   # Check for intersection with contiguous US
   if (nrow(data) > 0) {
-    grts_list[[length(grts_list) + 1]] <- readr::read_csv('https://code.usgs.gov/fort/nabat/nabatr/-/raw/dffbf6afda4d390dbe4d2bf8c51e854b960a33dd/data/GRTS_coords_CONUS.csv', show_col_types = FALSE)
+    grts_list[[length(grts_list) + 1]] <- readr::read_csv('https://code.usgs.gov/fort/nabat/nabatr/-/raw/dffbf6afda4d390dbe4d2bf8c51e854b960a33dd/data/GRTS_coords_CONUS.csv', show_col_types = FALSE) |>
+      suppressMessages()
   }
 
   # If any datasets were downloaded, bind them together
