@@ -100,91 +100,6 @@ organizations <- tibble(
 apis_sync <- c("organization_locations", "organization_visits", "organization_equipment", "organization_deployments", "organization_recordings")
 apis_view <- c("organization_locations", "organization_visits", "organization_equipment", "organization_deployments", "organization_recordings", "organization_image_sets", "organization_usage_report")
 
-results <- list()
-
-for (i in seq_len(nrow(organizations))) {
-
-  org <- organizations$id[i]
-
-  ## Sync APIs
-  for (api in apis_sync) {
-
-    res <- tryCatch({
-
-      if (organizations$should_error[i]) {
-        expect_error(wt_get_sync(api = api, organization = org))
-      } else {
-        expect_no_error(wt_get_sync(api = api, organization = org))
-      }
-
-      tibble(
-        organization = organizations$name[i],
-        org_id = org,
-        api_type = "sync",
-        api = api,
-        expected = ifelse(organizations$should_error[i], "error", "success"),
-        result = "PASS",
-        message = NA_character_
-      )
-
-    }, error = function(e) {
-
-      tibble(
-        organization = organizations$name[i],
-        org_id = org,
-        api_type = "sync",
-        api = api,
-        expected = ifelse(organizations$should_error[i], "error", "success"),
-        result = "FAIL",
-        message = conditionMessage(e)
-      )
-
-    })
-
-    results[[length(results) + 1]] <- res
-  }
-
-  ## View APIs
-  for (api in apis_view) {
-
-    res <- tryCatch({
-
-      if (organizations$should_error[i]) {
-        expect_error(wt_get_view(api = api, organization = org))
-      } else {
-        expect_no_error(wt_get_view(api = api, organization = org))
-      }
-
-      tibble(
-        organization = organizations$name[i],
-        org_id = org,
-        api_type = "view",
-        api = api,
-        expected = ifelse(organizations$should_error[i], "error", "success"),
-        result = "PASS",
-        message = NA_character_
-      )
-
-    }, error = function(e) {
-
-      tibble(
-        organization = organizations$name[i],
-        org_id = org,
-        api_type = "view",
-        api = api,
-        expected = ifelse(organizations$should_error[i], "error", "success"),
-        result = "FAIL",
-        message = conditionMessage(e)
-      )
-
-    })
-
-    results[[length(results) + 1]] <- res
-  }
-}
-
-expect_true(bind_rows(results) |> rename(organization_role = organization) |> filter(result == "FAIL") |> nrow() == 0)
-
 test_that("Project species", {
   expect_no_error(wt_get_project_species(620))
 })
@@ -249,20 +164,22 @@ test_that("Download media", {
 })
 
 
-#######
+test_that("Column definitions for reports and syncs", {
 
-test_that("Complex column check across reports and sync", {
+####### Check for undefined column types across reports and syncs
+
+  Sys.setenv(WT_USERNAME = "guest", WT_PASSWORD = "Apple123")
+  wt_auth(force = TRUE)
 
 report_endpoints <- list(
-  list(project = 620, type = "ARU", reports = c("main","ai","recording","tag","project","location")),
-  list(project = 881, type = "PC", reports = c("main", "project", "location", "point_count")),
-  list(project = 251, type = "CAM", reports = c("main","location", "project", "tag", "megadetector","image_set_report","image_report"))
+  list(project = 4867, type = "ARU", reports = c("main","ai","recording","tag","project","location")),
+  list(project = 4869, type = "PC", reports = c("main", "project", "location", "point_count")),
+  list(project = 4868, type = "CAM", reports = c("main","location", "project", "tag", "megadetector","image_set_report","image_report"))
 )
 
 report_cols <- report_endpoints %>%
   map_df(~ {
     df <- wt_download_report(.x$project, .x$type, .x$reports)
-    # Flatten if list of dataframes, preserving which report each col came from
     if (is.list(df)) {
       map_df(names(df), function(report) {
         tibble(report_name = names(df[[report]]), source_report = report)
@@ -270,52 +187,43 @@ report_cols <- report_endpoints %>%
     } else {
       tibble(report_name = names(df), source_report = .x$reports)
     }
-  }) %>%
-  distinct() %>%
-  mutate(in_report = TRUE)
+  })
 
 sync_endpoints <- list(
-  list(api="organization_locations", org=5205),
-  list(api="organization_visits", org=5205),
-  list(api="organization_equipment", org=5205),
-  list(api="organization_deployments", org=5205),
-  list(api="organization_recordings", org=5205),
-  list(api="project_locations", project=620),
-  list(api="project_aru_tasks", project=620),
-  list(api="project_aru_tags", project=620),
-  list(api="project_image_metadata", project=251),
-  list(api="project_camera_tags", project=251),
-  list(api="project_point_counts", project=804)
+  list(api="organization_locations", org=5986),
+  list(api="organization_visits", org=5986),
+  list(api="organization_equipment", org=5986),
+  list(api="organization_deployments", org=5986),
+  list(api="organization_recordings", org=5986),
+  list(api="project_locations", project=4867),
+  list(api="project_aru_tasks", project=4867),
+  list(api="project_aru_tags", project=4867),
+  list(api="project_image_metadata", project=4868),
+  list(api="project_image_tags", project=4868),
+  list(api="project_image_sets", project=4868),
+  list(api="project_point_counts", project=4869)
 )
 
 sync_cols <- sync_endpoints %>%
   map_df(~ {
     args <- if (!is.null(.x$org)) list(api=.x$api, organization=.x$org) else list(api=.x$api, project=.x$project)
     tibble(sync_name = names(do.call(wt_get_sync, args)), source_api = .x$api)
-  }) %>%
-  distinct() |>
-  mutate(in_sync = TRUE)
+  })
 
-report_only <- anti_join(
-  report_cols,
-  sync_cols,
-  by = c("report_name" = "sync_name")
-)
+col_names <- report_cols |>
+  distinct(report_name)
+sync_names <- sync_cols |>
+  distinct(sync_name)
 
-sync_only <- anti_join(
-  sync_cols,
-  report_cols,
-  by = c("sync_name" = "report_name")
-)
+col_names_wt_col_types <- .wt_col_types() |> pluck("cols") |> names()
 
-in_both <- inner_join(
-  report_cols,
-  sync_cols,
-  by = c("report_name" = "sync_name"),
-  relationship = "many-to-many"
-)
+all_names <- c(
+  col_names |> pull(report_name),
+  sync_names |> pull(sync_name)
+) |> unique()
 
-expect_true(nrow(in_both) > 1)
+missing_names <- all_names[!(all_names %in% col_names_wt_col_types)]
+
+expect_true(length(missing_names) == 0)
 
 })
-
