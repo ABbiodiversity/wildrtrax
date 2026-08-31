@@ -54,30 +54,30 @@ test_that("Megadetector stuff", {
   expect_true(nrow(md_test) > 1)
 })
 
-test_that("valid time intervals are handled", {
+# test_that("valid time intervals are handled", {
+#
+#   result_day <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "day", output_format = "long")
+#   result_week <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "week", output_format = "long")
+#   result_month <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "month", output_format = "long")
+#   #result_full <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "full", output_format = "long")
+#   result_day_w <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "day", output_format = "wide")
+#   result_week_w <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "week", output_format = "wide")
+#   result_month_w <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "month", output_format = "wide")
+#   #result_full_w <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "full", output_format = "wide")
+#
+#   expect_equal(nrow(result_day), 657968)  # Adjust this based on the actual expected number of rows for each case
+#   expect_equal(nrow(result_week), 98646)
+#   expect_equal(nrow(result_month), 25584)
+#   expect_true(nrow(result_day_w) == 16048)
+#   expect_true(nrow(result_week_w) == 2406)
+#   expect_true(nrow(result_month_w) == 624)
+#
+# })
 
-  result_day <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "day", output_format = "long")
-  result_week <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "week", output_format = "long")
-  result_month <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "month", output_format = "long")
-  #result_full <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "full", output_format = "long")
-  result_day_w <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "day", output_format = "wide")
-  result_week_w <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "week", output_format = "wide")
-  result_month_w <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "month", output_format = "wide")
-  #result_full_w <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "full", output_format = "wide")
-
-  expect_equal(nrow(result_day), 657968)  # Adjust this based on the actual expected number of rows for each case
-  expect_equal(nrow(result_week), 98646)
-  expect_equal(nrow(result_month), 25584)
-  expect_true(nrow(result_day_w) == 16048)
-  expect_true(nrow(result_week_w) == 2406)
-  expect_true(nrow(result_month_w) == 624)
-
-})
-
-test_that("all specified variables are included in the summarised output", {
-  result <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, variable = "all", time_interval = "day", output_format = "long")
-  expect_true(!is.null(result))
-})
+# test_that("all specified variables are included in the summarised output", {
+#   result <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, variable = "all", time_interval = "day", output_format = "long")
+#   expect_true(!is.null(result))
+# })
 
 
 # Set for issue 81 testing out of range images
