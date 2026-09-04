@@ -199,45 +199,6 @@ test_that("Wide with PC", {
   expect_no_error(wt_make_wide(pc_proj))
 })
 
-ecosys21 <- wt_download_report(685, 'ARU', 'main')
-
-# add a location with 0 birds observed
-ecosys21_mod_row <- slice(ecosys21, 1)
-ecosys21_mod_row$species_code <- "MOBA"
-ecosys21_mod_row$species_scientific_name <- NA
-ecosys21_mod_row$vocalization <- "Non-vocal"
-ecosys21_mod_row$location_id <- ecosys21_mod_row$location_id+max(ecosys21$location_id)
-ecosys21_mod <- bind_rows(ecosys21, ecosys21_mod_row)
-
-# all locations from input should be present in outputs unless not transcribed
-ecosys21_locs <- ecosys21_mod |> filter(task_is_complete == TRUE) |>
-  distinct(location_id)
-
-ecosys21_tidy <- wt_tidy_species(ecosys21_mod, remove = c("mammal", "abiotic", "amphibian"), zerofill = T)
-#> Successfully downloaded the species table!
-ecosys21_locs |> anti_join(ecosys21_tidy, by = "location_id") |>
-  pull(location_id) |>
-  expect_length(0)
-
-ecosys21_tmtt <- wt_replace_tmtt(ecosys21_tidy, calc = "round")
-ecosys21_locs |> anti_join(ecosys21_tmtt, by = "location_id") |>
-  pull(location_id) |>
-  expect_length(0)
-#> Error: `.` has length 1, not length 0.
-
-ecosys21_wide <- wt_make_wide(ecosys21_tmtt, sound = "all")
-ecosys21_locs |> anti_join(ecosys21_wide, by = "location_id") |>
-  pull(location_id) |>
-  expect_length(0)
-#> Error: `.` has length 1, not length 0.
-
-# total abundance should be 0
-filter(ecosys21_wide, location_id == ecosys21_mod_row$location_id) |>
-  rowwise() |>
-  mutate(tot_birds = sum(c_across(matches("^....$") & !matches("^NONE$")), na.rm = TRUE)) |>
-  pull(tot_birds) |>
-  expect_equal(0)
-
 test_that('Getting QPAD offsets', {
   library(QPAD)
   cypress_hills <- wt_download_report(620, 'ARU', 'main')

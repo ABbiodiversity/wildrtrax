@@ -256,42 +256,28 @@ wt_replace_tmtt <- function(data, calc="round"){
   # only TMTT rows for replacement
   dat.tmt <- dat.tmtt |> filter(abundance %in% c("TMTT", "TNPE"))
 
-  if(nrow(dat.tmt) > 0){
+  if(nrow(dat.tmt) > 0) {
     dat.tmt <- dat.tmt |>
-      mutate(
-        species_code = ifelse(species_code %in% .tmtt$species_code, species_code, "species"),
-        observer_id = as.integer(ifelse(observer_id %in% .tmtt$observer_id, observer_id, 0))
-      ) |>
-      inner_join(.tmtt |> select(species_code, observer_id, pred),
-                 by = c("species_code", "observer_id")) |>
-      mutate(
-        abundance = case_when(
-          calc == "round"   ~ round(pred),
-          calc == "ceiling" ~ ceiling(pred),
-          calc == "floor"   ~ floor(pred),
-          TRUE ~ NA_real_
-        )
-      ) |>
+      mutate(species_code = case_when(species_code %in% .tmtt$species_code ~ species_code, TRUE ~ "species"),
+             observer_id = as.integer(case_when(observer_id %in% .tmtt$observer_id ~ observer_id, TRUE ~ 0))) |>
+      inner_join(.tmtt |> select(species_code, observer_id, pred), by = c("species_code", "observer_id")) |>
+      mutate(abundance = switch(calc,
+                                round = round(pred),
+                                ceiling = ceiling(pred),
+                                floor = floor(pred),
+                                NA_real_)) |>
       select(-pred)
   }
 
   # replace TMTT rows with predictions
-
   dat.tmt <- dat.tmt |>
     mutate(abundance = as.numeric(abundance))
 
-  dat.tmtt <- suppressWarnings(
-    dat.tmtt |>
-      mutate(
-        abundance = case_when(
-          abundance %in% c("TMTT", "TNPE") ~ NA_real_,
-          TRUE ~ as.numeric(abundance)
-        )
-      ) |>
-      rows_update(dat.tmt, by = "id") |>
-      select(-id)
-  )
-
+  dat.tmtt <- suppressWarnings(dat.tmtt |>
+                                 mutate(abundance = case_when(abundance %in% c("TMTT", "TNPE") ~ NA_real_,
+                                                              TRUE ~ as.numeric(abundance))) |>
+                                 rows_update(dat.tmt, by = "id") |>
+                                 select(-id))
   return(dat.tmtt)
 }
 
