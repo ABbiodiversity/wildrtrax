@@ -969,12 +969,13 @@ wt_songscope_tags <- function (input, output = c("env","csv"), output_file=NULL,
 #'
 #' # Process audio files from a directory
 #' wt_audio_scanner("/path/to/audio", file_type = "wav", extra_cols = TRUE) |>
-#'   wt_guano_tags()
+#'   purrr::map(.x = .$file_path, .f = ~wt_guano_tags(.x)) |>
+#'   bind_rows()
 #' }
 #'
 #' @return A csv formatted as a WildTrax tag template
 
-wt_guano_tags <- function(path, output = NULL, output_file = NULL) {
+wt_guano_tags <- function(path, output = FALSE, output_file = NULL) {
 
   wav_path <- path
   con <- file(wav_path, "rb")
@@ -1043,7 +1044,14 @@ wt_guano_tags <- function(path, output = NULL, output_file = NULL) {
     pivot_wider(names_from = key, values_from = value) |>
     rename(guano_version = `GUANO|Version`)
 
+  if (output) {
+    if (is.null(output_file)) stop("Please provide output_file when output = TRUE.")
+    write.csv(guan_tags, output_file, row.names = FALSE)
+    return(invisible(guan_tags))
+  }
+
   return(guan_tags)
+
 
 }
 
