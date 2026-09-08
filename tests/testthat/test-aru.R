@@ -232,4 +232,4 @@ test_that('Format FWMIS lookups', {
     wt_format_data(format = 'FWMIS'))
 })
 
-wt_guano_tags()
+wt_guano_tags("/Users/alexandremacphail/R/wildrtrax/tests/testthat/BAT1_2426_20250724_003827_000.wav")

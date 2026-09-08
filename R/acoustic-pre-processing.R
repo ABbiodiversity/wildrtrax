@@ -63,9 +63,8 @@ wt_audio_scanner <- function(path, file_type, extra_cols = FALSE) {
     select(file_path, size_Mb) |>
     filter(!size_Mb < 0.1) |>
     mutate(file_name = sub("\\..*", "", basename(file_path)), file_type = sub('.*\\.(\\w+)$', '\\1', basename(file_path))) |>
-    # Parse location, recording date time and other temporal columns
-    separate(file_name, into = c("location", "recording_date_time"), sep = "(?:_0\\+1_|_|__0__|__1__)", extra = "merge", remove = FALSE) |>
-    mutate(recording_date_time = sub('.+?(?:__)', '', recording_date_time)) |>
+    separate(file_name, into = c("location", "recording_date_time"), sep = "_(?=\\d{8}_)", extra = "merge", remove = FALSE) |>
+    mutate(recording_date_time = sub("_000$", "", recording_date_time)) |>
     mutate(recording_date_time = as.POSIXct(strptime(recording_date_time, format = "%Y%m%d_%H%M%S"))) |>
     mutate(julian = as.POSIXlt(recording_date_time)$yday,
            year = as.numeric(format(recording_date_time,"%Y")),
@@ -965,7 +964,12 @@ wt_songscope_tags <- function (input, output = c("env","csv"), output_file=NULL,
 #'
 #' @examples
 #' \dontrun{
-#' wt_guano_tags(path = my_audio_file.csv, output = NULL, output_file = NULL)
+#' # Process a single audio file
+#' wt_guano_tags("/path/to/audio_file.wav")
+#'
+#' # Process audio files from a directory
+#' wt_audio_scanner("/path/to/audio", file_type = "wav", extra_cols = TRUE) |>
+#'   wt_guano_tags()
 #' }
 #'
 #' @return A csv formatted as a WildTrax tag template
@@ -1014,13 +1018,32 @@ wt_guano_tags <- function(path, output = NULL, output_file = NULL) {
   # Convert to WildTrax tags and metadata
   guan_tags <- guan_tibble |>
     pivot_wider(names_from = key, values_from = value) |>
-    rename(location = `Loc Position`)
+    rename(location = `Loc Position`) |>
+    select(-`NA`) |>
+    distinct() |>
+    transmute(location = sub("_\\d{8}.*", "", `Original Filename`),
+              recording_date_time = as.POSIXct(sub("[-+]\\d{2}:\\d{2}$", "", Timestamp), format = "%Y-%m-%dT%H:%M:%S", tz = "UTC"),
+              task_duration = round(as.numeric(Length),1),
+              task_method = "None",
+              observer = "Not Assigned",
+              species_code = `WA|Kaleidoscope|Auto ID`,
+              individual_number = 1,
+              vocalization = "Call",
+              abundance = 1,
+              detection_time = 0.1,
+              tag_duration = as.numeric(Length),
+              min_tag_freq = as.numeric(sub('.*"Fmin":([0-9.]+).*', "\\1", `WA|Kaleidoscope|Classifier|Statistics`)) * 1000,
+              max_tag_freq = as.numeric(sub('.*"Fmax":([0-9.]+).*', "\\1", `WA|Kaleidoscope|Classifier|Statistics`)) * 1,
+              species_individual_comments = paste0("Source: Kaleidoscope ",`WA|Kaleidoscope|Classifier|Version`, " ALTERNATIVE TAGS Sonobat ", sub("-.*", "", `SB|Classifier`), ":", `SB|Leaning Species Auto ID`),
+              tag_is_hidden_for_verification = FALSE,
+              recording_sample_frequency = as.numeric(Samplerate),
+              tag_id = NA_real_)
 
   guan_extra <- guan_tibble |>
     pivot_wider(names_from = key, values_from = value) |>
     rename(guano_version = `GUANO|Version`)
 
-  return(list(guan_tags, guan_extra))
+  return(guan_tags)
 
 }
 
