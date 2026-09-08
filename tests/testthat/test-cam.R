@@ -54,6 +54,10 @@ test_that("Megadetector stuff", {
   expect_true(nrow(md_test) > 1)
 })
 
+test_that("out of range", {
+expect_no_error(wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "day", output_format = "wide", exclude_out_of_range = TRUE))
+})
+
 # test_that("valid time intervals are handled", {
 #
 #   result_day <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "day", output_format = "long")

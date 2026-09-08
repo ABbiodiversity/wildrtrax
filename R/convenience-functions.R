@@ -749,7 +749,7 @@ wt_qpad_offsets <- function(data, species = c("all"), version = 3, together=FALS
   if ("survey_url" %in% colnames(data)) {
     data <- data |>
       rename(task_id = survey_id,
-             recording_date_time = survey_date,
+             recording_date_time = survey_date_time,
              observer_id = observer) |>
       rowwise() |>
       mutate(durationMethod = ifelse(substr(survey_duration_method, nchar(survey_duration_method), nchar(survey_duration_method)) == "+",
@@ -804,7 +804,7 @@ wt_qpad_offsets <- function(data, species = c("all"), version = 3, together=FALS
     if("survey_url" %in% colnames(data)){
       out <- out |>
         rename(survey_id=task_id,
-               survey_date = recording_date_time,
+               survey_date_time = recording_date_time,
                observer = observer_id) |>
         select(-durationMethod, -chardur, -chardurmax, -task_duration, -chardis, -chardismax, -distance1, -task_distance)
     }

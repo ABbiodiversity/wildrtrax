@@ -227,3 +227,30 @@ missing_names <- all_names[!(all_names %in% col_names_wt_col_types)]
 expect_true(length(missing_names) == 0)
 
 })
+
+test_that("Test get views", {
+
+sync_view_endpoints <- list(
+  list(api="organization_locations", org=5986),
+  list(api="organization_visits", org=5986),
+  list(api="organization_equipment", org=5986),
+  list(api="organization_deployments", org=5986),
+  list(api="organization_recordings", org=5986),
+  list(api="organization_image_sets", org=5986),
+  list(api="organization_usage_report", org=5986),
+  list(api="project_aru_tasks", project=4867),
+  list(api="project_camera_tasks", project=4868),
+  list(api="project_point_counts", project=4869)
+)
+
+expect_no_error(sync_view_endpoints %>%
+  map_df(~ {
+    args <- if (!is.null(.x$org)) list(api=.x$api, organization=.x$org) else list(api=.x$api, project=.x$project)
+    tibble(sync_name = names(do.call(wt_get_view, args)), source_api = .x$api)
+  }))
+
+})
+
+test_that("Location photos", {
+expect_no_error(wt_location_photos(organization = "TESTORGAPI", output = NULL))
+})

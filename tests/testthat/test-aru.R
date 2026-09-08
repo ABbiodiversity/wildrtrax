@@ -208,3 +208,27 @@ test_that('Getting QPAD offsets', {
   cypress_hills_qpad <- wt_qpad_offsets(cypress_hills_wide, species = "all", version = 3, together = F)
   expect_true(ncol(cypress_hills_qpad) > 1)
 })
+
+test_that('QPAD for PC', {
+  library(QPAD)
+  cypress_hills <- wt_download_report(881, 'PC', 'main')
+  cypress_hills_tidy <- wt_tidy_species(cypress_hills, remove = c("mammal", "abiotic", "amphibian", "unknown"), zerofill = T)
+  cypress_hills_wide <- wt_make_wide(cypress_hills_tidy, sound = "all")
+  cypress_hills_qpad <- wt_qpad_offsets(cypress_hills_wide, species = "all", version = 3, together = F)
+  expect_true(ncol(cypress_hills_qpad) > 1)
+})
+
+test_that('QPAD for PC', {
+  library(QPAD)
+  cypress_hills <- wt_download_report(881, 'PC', 'main')
+  cypress_hills_tidy <- wt_tidy_species(cypress_hills, remove = c("mammal", "abiotic", "amphibian", "unknown"), zerofill = T)
+  cypress_hills_wide <- wt_make_wide(cypress_hills_tidy, sound = "all")
+  cypress_hills_qpad <- wt_qpad_offsets(cypress_hills_wide, species = "all", version = 3, together = T)
+  expect_true(ncol(cypress_hills_qpad) > 1)
+})
+
+test_that('Format FWMIS lookups', {
+  expect_no_error(wt_download_report(620, 'ARU', "main") |>
+    wt_format_data(format = 'FWMIS'))
+})
+

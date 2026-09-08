@@ -817,16 +817,17 @@ wt_location_photos <- function(organization, output = NULL) {
 
   r <- request("https://www-api.wildtrax.ca") |>
     req_url_path_append("bis/get-location-image-summary") |>
-    req_url_query(
-      limit = 500,
-      page = 1,
-      organizationId = organization
-    ) |>
     req_headers(
-      Authorization = paste("Bearer", ._wt_auth_env_$access_token)
+      Authorization = paste("Bearer", ._wt_auth_env_$access_token),
+      "Content-Type" = "application/json"
     ) |>
     req_user_agent(.gen_ua()) |>
-    req_method("GET") |>
+    req_body_json(list(
+      limit = 500,
+      organizationId = org_numeric,
+      page = 1
+    )) |>
+    req_method("POST") |>
     req_perform()
 
   photos <- resp_body_string(r)
