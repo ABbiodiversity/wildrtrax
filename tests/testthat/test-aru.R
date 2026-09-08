@@ -232,3 +232,4 @@ test_that('Format FWMIS lookups', {
     wt_format_data(format = 'FWMIS'))
 })
 
+wt_guano_tags()
