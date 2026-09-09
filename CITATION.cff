@@ -1,7 +1,7 @@
-# --------------------------------------------
-# CITATION file created with {cffr} R package
+# ------------------------------------------------
+# CITATION.cff file created with {cffr} R package
 # See also: https://docs.ropensci.org/cffr/
-# --------------------------------------------
+# ------------------------------------------------
  
 cff-version: 1.2.0
 message: 'To cite package "wildrtrax" in publications use:'
@@ -9,7 +9,7 @@ type: software
 license: MIT
 title: 'wildrtrax: Environmental Sensor Data Management and Analytics to and from
   WildTrax'
-version: 1.5.0
+version: 1.6.0
 abstract: This R package contains functions to help manage and analyze environmental
   sensor data to and from WildTrax.
 authors:
@@ -34,10 +34,13 @@ references:
   url: https://www.R-project.org/
   authors:
   - name: R Core Team
+    website: https://ror.org/02zz1nj61
   institution:
     name: R Foundation for Statistical Computing
+    website: https://ror.org/05qewa988
     address: Vienna, Austria
   year: '2026'
+  doi: 10.32614/R.manuals
   version: '>= 4.5.0'
 - type: software
   title: dplyr
@@ -76,10 +79,8 @@ references:
     given-names: Jim
   - family-names: Wickham
     given-names: Hadley
-    email: hadley@posit.co
   - family-names: Csárdi
     given-names: Gábor
-    email: csardi.gabor@gmail.com
   year: '2026'
   doi: 10.32614/CRAN.package.fs
 - type: software
@@ -211,34 +212,6 @@ references:
   year: '2026'
   doi: 10.32614/CRAN.package.sf
 - type: software
-  title: suntools
-  abstract: 'suntools: Calculate Sun Position, Sunrise, Sunset, Solar Noon and Twilight'
-  notes: Imports
-  url: https://github.com/adokter/suntools/
-  repository: https://CRAN.R-project.org/package=suntools
-  authors:
-  - family-names: Bivand
-    given-names: Roger
-    email: Roger.Bivand@nhh.no
-    orcid: https://orcid.org/0000-0003-2392-6140
-  - family-names: Luque
-    given-names: Sebastian
-  year: '2026'
-  doi: 10.32614/CRAN.package.suntools
-- type: software
-  title: terra
-  abstract: 'terra: Spatial Data Analysis'
-  notes: Imports
-  url: https://rspatial.org/
-  repository: https://CRAN.R-project.org/package=terra
-  authors:
-  - family-names: Hijmans
-    given-names: Robert J.
-    email: r.hijmans@gmail.com
-    orcid: https://orcid.org/0000-0001-5872-2872
-  year: '2026'
-  doi: 10.32614/CRAN.package.terra
-- type: software
   title: tibble
   abstract: 'tibble: Simple Data Frames'
   notes: Imports
@@ -324,6 +297,18 @@ references:
     given-names: Lea
   year: '2026'
   doi: 10.32614/CRAN.package.unmarked
+- type: software
+  title: zip
+  abstract: 'zip: Cross-Platform ''zip'' Compression'
+  notes: Imports
+  url: https://r-lib.github.io/zip/
+  repository: https://CRAN.R-project.org/package=zip
+  authors:
+  - family-names: Csárdi
+    given-names: Gábor
+    email: csardi.gabor@gmail.com
+  year: '2026'
+  doi: 10.32614/CRAN.package.zip
 - type: software
   title: knitr
   abstract: 'knitr: A General-Purpose Package for Dynamic Report Generation in R'
