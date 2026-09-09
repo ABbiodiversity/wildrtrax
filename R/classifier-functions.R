@@ -14,7 +14,7 @@
 #' @examples
 #' \dontrun{
 #' data <- wt_download_report(project_id = 1144, sensor_id = "ARU",
-#' reports = c("main", "ai"), weather_cols = FALSE)
+#' reports = c("main", "ai"))
 #'
 #' eval <- wt_evaluate_classifier(data, resolution = "recording",
 #' remove_species = TRUE, thresholds = c(0.1, 0.99))
@@ -29,7 +29,7 @@ wt_evaluate_classifier <- function(data, resolution = NULL, remove_species = TRU
     stop("The input should be the output of the `wt_download_report()` function with the argument `reports=c('main', 'ai')`")
   }
 
-  #Check if the project has the correct transcription method for evaluation method chosen
+  # Check if the project has the correct transcription method for evaluation method chosen
   method <- data[[2]]$task_method[1]
   if(method=="NONE"){
     stop("The `wt_evaluate_classifier()` function only works on recordings processed with the '1SPT' or '1SPM' methods")
@@ -38,7 +38,7 @@ wt_evaluate_classifier <- function(data, resolution = NULL, remove_species = TRU
     stop("You can only evaluate at the minute resolution for recordings that have been processed with the '1SPM' method")
   }
 
-  #Get the classifier report and filter species as requested
+  # Get the classifier report and filter species as requested
   if(remove_species==TRUE){
     class <- data[[1]] |>
       filter(is_species_allowed_in_project==TRUE)
@@ -46,7 +46,7 @@ wt_evaluate_classifier <- function(data, resolution = NULL, remove_species = TRU
     class <- data[[1]]
   }
 
-  #Summarize the classifier report to the requested resolution
+  # Summarize the classifier report to the requested resolution
   if(resolution=="task"){
 
     class <- class |>
@@ -75,7 +75,7 @@ wt_evaluate_classifier <- function(data, resolution = NULL, remove_species = TRU
       mutate(classifier = 1)
   } else { stop("A resolution was not specified.")}
 
-  #Tidy up the main report
+  # Tidy up the main report
   if(resolution=="task"){
     main <- wt_tidy_species(data[[2]], remove=c("mammal", "amphibian", "abiotic", "insect", "human", "unknown")) |>
       select(location_id, recording_id, task_id, species_common_name) |>
@@ -94,29 +94,38 @@ wt_evaluate_classifier <- function(data, resolution = NULL, remove_species = TRU
       mutate(human = 1)
   } else {stop("A resolution was not specified.")}
 
-  #Join together
-  both <- full_join(detections, main, by=c("location_id", "recording_id", "species_common_name")) |>
-    mutate(human = ifelse(is.na(human), 0, 1),
-           classifier = ifelse(is.na(classifier), 0, 1),
-           tp = ifelse(classifier==1 & human==1, 1, 0),
-           fp = ifelse(classifier==1 & human==0, 1, 0),
-           fn = ifelse(classifier==0 & human==1, 1, 0))
+  # Join together
+  if (resolution == "minute") {
+    both <- full_join(detections, main, by=c("location_id", "recording_id", "species_common_name", "minute")) |>
+      mutate(human = ifelse(is.na(human), 0, 1),
+             classifier = ifelse(is.na(classifier), 0, 1),
+             tp = ifelse(classifier==1 & human==1, 1, 0),
+             fp = ifelse(classifier==1 & human==0, 1, 0),
+             fn = ifelse(classifier==0 & human==1, 1, 0))
+  } else {
+    both <- full_join(detections, main, by=c("location_id", "recording_id", "species_common_name")) |>
+      mutate(human = ifelse(is.na(human), 0, 1),
+             classifier = ifelse(is.na(classifier), 0, 1),
+             tp = ifelse(classifier==1 & human==1, 1, 0),
+             fp = ifelse(classifier==1 & human==0, 1, 0),
+             fn = ifelse(classifier==0 & human==1, 1, 0))
+  }
 
-  #Filter to just species of interest if requested
+  # Filter to just species of interest if requested
   if(!is.null(species)){
     both <- filter(both, species_common_name %in% species)
   }
 
-  #Total number of human detections
+  # Total number of human detections
   human_totals <- both |>
     group_by(version) |>
-    summarise(human_total = sum(human, na.rm = TRUE), .groups = "drop")
+    summarise(human_total = sum(human, na.rm = TRUE)) |>
+    ungroup()
 
-  #Make threshold vector
+  # Make threshold vector
   thresholds_vec <- seq(thresholds[1], thresholds[2], 0.01)
 
-  #Calculate metrics
-
+  # Calculate metrics
   prf_combined <- both |>
     left_join(human_totals, by = "version") |>
     filter(!is.na(version)) |>
@@ -141,7 +150,7 @@ wt_evaluate_classifier <- function(data, resolution = NULL, remove_species = TRU
 #' @examples
 #' \dontrun{
 #' data <- wt_download_report(project_id = 1144, sensor_id = "ARU",
-#' reports = c("main", "ai"), weather_cols = FALSE)
+#' reports = c("main", "ai"))
 #'
 #' eval <- wt_evaluate_classifier(data, resolution = "recording",
 #' remove_species = TRUE, thresholds = c(10, 99))
@@ -169,7 +178,7 @@ wt_classifier_threshold <- function(data){
 #'
 #' @description Check for species reported by BirdNET and HawkEars that the human listeners did not detect in our project.
 #'
-#' @param data Output from the `wt_download_report()` function when you request the `main` and `birdnet` reports
+#' @param data Output from the `wt_download_report()` function when you request the `main` and `ai` reports
 #' @param remove_species Logical; indicates whether species that are not allowed in the WildTrax project should be removed from the AI report
 #' @param threshold Numeric; the desired score threshold
 #' @param resolution Character; either "recording" to identify any new species for each recording or "location" to identify new species for each location
@@ -183,7 +192,7 @@ wt_classifier_threshold <- function(data){
 #' @examples
 #' \dontrun{
 #' data <- wt_download_report(project_id = 1144, sensor_id = "ARU",
-#' reports = c("main", "ai"), weather_cols = FALSE)
+#' reports = c("main", "ai"))
 #'
 #' new <- wt_additional_species(data, remove_species = TRUE,
 #' threshold = 80, resolution="location")
@@ -195,7 +204,7 @@ wt_additional_species <- function(data, remove_species = TRUE, threshold = 0.5, 
 
   # Check if the data object is in the right format
   if (!inherits(data, "list") && !grepl("ai", names(data)[[2]]) && !grepl("main", names(data))[[1]]) {
-    stop("The input should be the output of the `wt_download_report()` function with the argument `reports=c('main', 'birdnet')`")
+    stop("The input should be the output of the `wt_download_report()` function with the argument `reports=c('main', 'ai')`")
   }
 
   #Get the classifier report and filter species as requested

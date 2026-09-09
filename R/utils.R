@@ -227,127 +227,341 @@
 
 }
 
-#' Column assignments
+#' Column switch assignments
 #'
-#' @description Assign correct column types for reports
-#'
-#' @importFrom readr col_character col_double col_logical col_date col_datetime col_integer
+#' @description Assign correct column names
 #'
 #' @keywords internal
 #'
 
-.wt_col_types <- list(
-  abundance = col_character(),
-  age_class = col_character(),
-  behaviours = col_character(),
-  bounding_box_number = col_double(),
-  category = col_character(),
-  clip_channel_used = col_character(),
-  classifier_confidence = col_double(),
-  classifier_version = col_character(),
-  coat_attributes = col_character(),
-  coat_colours = col_character(),
-  confidence = col_double(),
-  date_deployed = col_date(),
-  date_retrieved = col_date(),
-  daylight_hours = col_double(),
-  direction_travel = col_character(),
-  detection_time = col_double(),
-  disabled_for_autotag = col_logical(),
-  elevation = col_double(),
-  equipment = col_character(),
-  equipment_make = col_character(),
-  equipment_model = col_character(),
-  equipment_serial = col_character(),
-  has_collar = col_logical(),
-  has_eartag = col_logical(),
-  health_diseases = col_character(),
-  height = col_double(),
-  ihf = col_character(),
-  image_comments = col_character(),
-  image_date_time = col_datetime(),
-  image_exif_sequence = col_character(),
-  image_exif_temperature = col_double(),
-  image_fire = col_logical(),
-  image_fov = col_character(),
-  image_id = col_integer(),
-  image_in_wildtrax = col_logical(),
-  image_is_blurred = col_logical(),
-  image_malfunction = col_logical(),
-  image_nice = col_logical(),
-  image_set_count_motion = col_integer(),
-  image_set_count_timelapse = col_integer(),
-  image_set_count_total = col_integer(),
-  image_set_start_date_time = col_datetime(),
-  image_set_status = col_character(),
-  image_set_url = col_character(),
-  image_snow = col_logical(),
-  image_snow_depth_m = col_double(),
-  image_trigger_mode = col_character(),
-  image_url = col_character(),
-  image_water_depth_m = col_double(),
-  individual_count = col_character(),
-  individual_order = col_integer(),
-  is_complete = col_logical(),
-  is_enabled_project_species = col_logical(),
-  is_species_allowed_in_project = col_logical(),
-  latitude = col_double(),
-  location = col_character(),
-  location_buffer_m = col_double(),
-  location_comments = col_character(),
-  location_id = col_integer(),
-  location_visibility = col_character(),
-  longitude = col_double(),
-  media_url = col_character(),
-  min_tag_freq = col_double(),
-  max_tag_freq = col_double(),
-  `name/region/country` = col_character(),
-  needs_review = col_logical(),
-  observer = col_character(),
-  observer_id = col_integer(),
-  organization = col_character(),
-  project = col_character(),
-  project_description = col_character(),
-  project_id = col_integer(),
-  project_results = col_character(),
-  project_status = col_character(),
-  project_creation_date = col_date(),
-  project_due_date = col_date(),
-  recording_date_time = col_datetime(),
-  recording_id = col_double(),
-  recording_length = col_double(),
-  rms_peak_dbfs = col_double(),
-  source_file_name = col_character(),
-  species_class = col_character(),
-  species_code = col_character(),
-  species_common_name = col_character(),
-  species_health = col_character(),
-  species_individual_comments = col_character(),
-  species_scientific_name = col_character(),
-  sunrise_utc = col_datetime(),
-  sunset_utc = col_datetime(),
-  start_s = col_double(),
-  end_s = col_double(),
-  tag_comments = col_character(),
-  tag_duration = col_double(),
-  tag_id = col_integer(),
-  tag_is_verified = col_logical(),
-  tag_needs_review = col_logical(),
-  tag_rating = col_character(),
-  tagged_in_wildtrax = col_logical(),
-  task_comments = col_character(),
-  task_duration = col_double(),
-  task_id = col_double(),
-  task_method = col_character(),
-  task_url = col_character(),
-  task_status = col_character(),
-  tine_attributes = col_character(),
-  version = col_character(),
-  vocalization = col_character(),
-  width = col_double(),
-  x_loc = col_double(),
-  y_loc = col_double()
+.wt_col_switch <- list(
+  "abundance" = "individual_count",
+  "survey_date" = "survey_date_time",
+  "buffer_m" = "location_buffer_m",
+  "name/region/country" = "name_region_country",
+  "surveyDateTime" = "survey_date_time",
+  "distanceBand" = "detection_distance",
+  "distanceMethod" = "survey_distance_method",
+  "durationInterval" = "detection_time",
+  "durationMethod" = "survey_duration_method",
+  "species" = "species_code",
+  "isHeard" = "detection_heard",
+  "isSeen" = "detection_seen",
+  "comments" = "survey_comments"
 )
+
+#' Column assignments
+#'
+#' @description Assign correct column types for reports, varying by sensor
+#'
+#' @param sensor_id Character. Sensor type (e.g. "PC", "ARU"). Determines
+#'   type overrides for columns that differ between sensors.
+#'
+#' @importFrom readr col_character col_double col_logical col_date col_datetime col_integer col_guess
+#'
+#' @keywords internal
+
+.wt_col_types <- function(sensor_id = NULL) {
+
+  base_types <- list(
+    abundance = col_character(),
+    access_method = col_character(),
+    age_class = col_character(),
+    ai_version = col_character(),
+    bait = col_character(),
+    behaviours = col_character(),
+    bounding_box_number = col_double(),
+    category = col_character(),
+    chance_of_rain = col_double(),
+    classifier_confidence = col_double(),
+    classifier_version = col_character(),
+    clip_channel_used = col_character(),
+    clip_url = col_character(),
+    cloudcover = col_double(),
+    clutter_percent = col_double(),
+    coat_attributes = col_character(),
+    coat_colours = col_character(),
+    confidence = col_double(),
+    contains_human_feature = col_logical(),
+    crew = col_character(),
+    daily_avg_temp = col_double(),
+    daily_max_temp = col_double(),
+    daily_min_temp = col_double(),
+    daily_precipitation_mm = col_double(),
+    daily_snow_on_ground_cm = col_double(),
+    daily_total_rain_mm = col_double(),
+    daily_total_snow_cm = col_double(),
+    daily_uv_index = col_double(),
+    date_deployed = col_date(),
+    date_retrieved = col_date(),
+    daylight_hours = col_double(),
+    deployment_date = col_date(),
+    detection_comments = col_character(),
+    detection_distance = col_double(),
+    detection_heard = col_logical(),
+    detection_seen = col_logical(),
+    detection_time = col_double(),
+    dewpoint = col_double(),
+    direction_degrees = col_double(),
+    direction_travel = col_character(),
+    disabled_for_autotag = col_logical(),
+    distance_to_clutter_m = col_double(),
+    distance_to_water_m = col_double(),
+    elevation = col_double(),
+    elevation_m = col_double(),
+    end_s = col_double(),
+    equipment = col_character(),
+    equipment_code = col_character(),
+    equipment_comments = col_character(),
+    equipment_condition = col_character(),
+    equipment_height_m = col_double(),
+    equipment_make = col_character(),
+    equipment_model = col_character(),
+    equipment_mount = col_character(),
+    equipment_purchase_date = col_date(),
+    equipment_serial = col_character(),
+    equipment_serial_number = col_character(),
+    equipment_status = col_character(),
+    equipment_target = col_character(),
+    equipment_target_description = col_character(),
+    equipment_target_distance_m = col_double(),
+    equipment_type = col_character(),
+    exact_deploy_time = col_character(),
+    exact_retrieve_time = col_character(),
+    feels_like = col_double(),
+    has_collar = col_logical(),
+    has_eartag = col_logical(),
+    health_diseases = col_character(),
+    heatindex = col_double(),
+    height = col_double(),
+    hourly_dew_point = col_double(),
+    hourly_humidex = col_double(),
+    hourly_precipitation_mm = col_double(),
+    hourly_rel_humidity = col_double(),
+    hourly_station_pressure = col_double(),
+    hourly_temp = col_double(),
+    hourly_visibility_km = col_double(),
+    hourly_weather_attributes = col_character(),
+    hourly_wind_chill = col_double(),
+    hourly_wind_direction = col_character(),
+    hourly_wind_speed = col_double(),
+    humidity = col_double(),
+    ihf = col_character(),
+    image_comments = col_character(),
+    image_date_time = col_datetime(),
+    image_exif_sequence = col_character(),
+    image_exif_temperature = col_double(),
+    image_fire = col_logical(),
+    image_fov = col_character(),
+    image_id = col_integer(),
+    image_in_wildtrax = col_logical(),
+    image_is_blurred = col_logical(),
+    image_malfunction = col_logical(),
+    image_nice = col_logical(),
+    image_set_count_motion = col_integer(),
+    image_set_count_timelapse = col_integer(),
+    image_set_count_total = col_integer(),
+    image_set_end_date = col_date(),
+    image_set_end_date_time = col_datetime(),
+    image_set_id = col_integer(),
+    image_set_start_date = col_date(),
+    image_set_start_date_time = col_datetime(),
+    image_set_status = col_character(),
+    image_set_url = col_character(),
+    image_snow = col_logical(),
+    image_snow_depth_m = col_double(),
+    image_trigger_mode = col_character(),
+    image_url = col_character(),
+    image_water_depth_m = col_double(),
+    in_range = col_logical(),
+    individual_count = col_character(),
+    individual_number = col_integer(),
+    individual_order = col_integer(),
+    internal_id = col_integer(),
+    internal_pud_id = col_integer(),
+    is_complete = col_logical(),
+    is_enabled_project_species = col_logical(),
+    is_species_allowed_in_project = col_logical(),
+    land_features = col_character(),
+    latitude = col_double(),
+    left_dc_offset = col_double(),
+    left_freq_filter_tag_dc_offset = col_double(),
+    left_freq_filter_tag_max_level = col_double(),
+    left_freq_filter_tag_min_level = col_double(),
+    left_freq_filter_tag_peak_level_dbfs = col_double(),
+    left_freq_filter_tag_pk_count = col_integer(),
+    left_freq_filter_tag_rms_peak_dbfs = col_double(),
+    left_freq_filter_tag_rms_trough_dbfs = col_double(),
+    left_full_freq_tag_dc_offset = col_double(),
+    left_full_freq_tag_max_level = col_double(),
+    left_full_freq_tag_min_level = col_double(),
+    left_full_freq_tag_peak_level_dbfs = col_double(),
+    left_full_freq_tag_pk_count = col_integer(),
+    left_full_freq_tag_rms_peak_dbfs = col_double(),
+    left_full_freq_tag_rms_trough_dbfs = col_double(),
+    left_max_level = col_double(),
+    left_min_level = col_double(),
+    left_pk_count = col_integer(),
+    left_rms_peak_dbfs = col_double(),
+    left_rms_peak_level_dbfs = col_double(),
+    left_rms_trough_dbfs = col_double(),
+    location = col_character(),
+    location_buffer_m = col_double(),
+    location_comments = col_character(),
+    location_id = col_integer(),
+    location_true_coordinates = col_character(),
+    location_visibility = col_character(),
+    longitude = col_double(),
+    max_noise_channel = col_character(),
+    max_noise_density = col_character(),
+    max_noise_type = col_character(),
+    max_noise_volume = col_character(),
+    max_tag_freq = col_double(),
+    media_url = col_character(),
+    microphone_channel = col_character(),
+    min_tag_freq = col_double(),
+    moon_illumination = col_double(),
+    moon_phase_name = col_character(),
+    moonrise = col_datetime(),
+    moonset = col_datetime(),
+    name_region_country = col_character(),
+    needs_review = col_logical(),
+    observer = col_character(),
+    observer_id = col_integer(),
+    organization = col_character(),
+    parent_equipment_code = col_character(),
+    parent_equipment_deployment_date = col_date(),
+    parent_equipment_type = col_character(),
+    precipitation = col_double(),
+    pressure = col_double(),
+    project = col_character(),
+    project_creation_date = col_date(),
+    project_description = col_character(),
+    project_due_date = col_date(),
+    project_id = col_integer(),
+    project_results = col_character(),
+    project_status = col_character(),
+    quiet_period = col_double(),
+    recording_date_time = col_datetime(),
+    recording_duration = col_double(),
+    recording_id = col_double(),
+    recording_length = col_double(),
+    recording_sample_frequency = col_double(),
+    recording_url = col_character(),
+    retrieval_battery_percent = col_double(),
+    retrieval_date = col_date(),
+    right_dc_offset = col_double(),
+    right_freq_filter_tag_dc_offset = col_double(),
+    right_freq_filter_tag_max_level = col_double(),
+    right_freq_filter_tag_min_level = col_double(),
+    right_freq_filter_tag_peak_level_dbfs = col_double(),
+    right_freq_filter_tag_pk_count = col_integer(),
+    right_freq_filter_tag_rms_peak_dbfs = col_double(),
+    right_freq_filter_tag_rms_trough_dbfs = col_double(),
+    right_full_freq_tag_dc_offset = col_double(),
+    right_full_freq_tag_max_level = col_double(),
+    right_full_freq_tag_min_level = col_double(),
+    right_full_freq_tag_peak_level_dbfs = col_double(),
+    right_full_freq_tag_pk_count = col_integer(),
+    right_full_freq_tag_rms_peak_dbfs = col_double(),
+    right_full_freq_tag_rms_trough_dbfs = col_double(),
+    right_max_level = col_double(),
+    right_min_level = col_double(),
+    right_peak_level_dbfs = col_double(),
+    right_pk_count = col_integer(),
+    right_rms_peak_dbfs = col_double(),
+    right_rms_trough_dbfs = col_double(),
+    rms_peak_dbfs = col_double(),
+    series_no_at_gap = col_integer(),
+    sex_class = col_character(),
+    snow_depth_m = col_double(),
+    source_file_name = col_character(),
+    species_class = col_character(),
+    species_code = col_character(),
+    species_common_name = col_character(),
+    species_health = col_character(),
+    species_individual_comments = col_character(),
+    species_scientific_name = col_character(),
+    spectrogram_url = col_character(),
+    stake_distance = col_double(),
+    start_s = col_double(),
+    sunrise = col_datetime(),
+    sunrise_utc = col_datetime(),
+    sunset = col_datetime(),
+    sunset_utc = col_datetime(),
+    survey_date_time = col_datetime(),
+    survey_distance_method = col_character(),
+    survey_duration_method = col_character(),
+    survey_id = col_integer(),
+    survey_url = col_character(),
+    tag_comments = col_character(),
+    tag_duration = col_double(),
+    tag_id = col_integer(),
+    tag_is_hidden_for_verification = col_logical(),
+    tag_is_verified = col_logical(),
+    tag_needs_review = col_logical(),
+    tag_rating = col_character(),
+    tagged_in_wildtrax = col_logical(),
+    task_comments = col_character(),
+    task_duration = col_double(),
+    task_id = col_double(),
+    task_is_complete = col_logical(),
+    task_method = col_character(),
+    task_noise = col_character(),
+    task_status = col_character(),
+    task_url = col_character(),
+    temperature = col_double(),
+    timelapse_enabled = col_logical(),
+    timezone = col_character(),
+    tine_attributes = col_character(),
+    trigger_time_seconds = col_double(),
+    triggers_enabled = col_logical(),
+    uv_index = col_double(),
+    verifier_id = col_integer(),
+    version = col_character(),
+    vertical_angle_degrees = col_double(),
+    visibility = col_double(),
+    visit_comments = col_character(),
+    visit_date = col_date(),
+    vocalization = col_character(),
+    walk_test_distance_m = col_double(),
+    walk_test_height_m = col_double(),
+    water_depth_m = col_double(),
+    weather = col_character(),
+    width = col_double(),
+    wildtrax_deployment_id = col_integer(),
+    wildtrax_equipment_id = col_integer(),
+    wildtrax_visit_id = col_integer(),
+    wind_degree = col_double(),
+    wind_direction = col_character(),
+    wind_speed = col_double(),
+    windchill = col_double(),
+    windgust = col_double(),
+    working_test_complete = col_logical(),
+    x_loc = col_double(),
+    y_loc = col_double()
+  )
+
+  # Sensor-specific overrides
+  overrides <- if (is.null(sensor_id)) {
+    list()
+  } else {
+    switch(
+      sensor_id,
+      "PC"  = list(detection_time = col_character()),
+      "ARU" = list(detection_time = col_double()),
+      list()
+    )
+  }
+
+  merged <- c(
+    base_types[!names(base_types) %in% names(overrides)],
+    overrides
+  )
+
+  do.call(cols, merged)
+
+}
 
 #' Internal evaluation function for acoustic classifiers
 #'
@@ -429,276 +643,4 @@
              pull(org_id))
   }
   stop("Organization must be either numeric or character")
-}
-
-#' Internal function for QPAD offsets
-#'
-#' QPAD offsets, wrapped by the `wt_qpad_offsets` function.
-#'
-#' @description Functions to format reports for qpad offset calculation.
-#'
-#' @param data Dataframe output from the `wt_make_wide` function.
-#' @param tz Character; whether or not the data is in local or UTC time ("local", or "utc"). Defaults to "local".
-#' @param check_xy Logical; check whether coordinates are within the range that QPAD offsets are valid for.
-#'
-#' @keywords internal
-#'
-#' @import dplyr httr2
-#' @importFrom terra extract rast vect project
-#' @importFrom suntools sunriset
-#'
-
-.make_x <- function(data, tz="local", check_xy=TRUE) {
-
-  # if(!requireNamespace("QPAD")) {
-  #   stop("The QPAD package is required for this function. Please install it using remotes::install_github('borealbirds/QPAD')")
-  # }
-
-  # Download message
-  message("Downloading geospatial assets. This may take a moment.")
-
-  # Function to download and read a raster file using httr2
-  download_and_read_raster <- function(url, filename) {
-    req <- request(url) |>
-      req_perform()  # Perform the request
-
-    # Save the response content to a file
-    writeBin(req$body, filename)
-
-    return(rast(filename))  # Read the raster file
-  }
-
-  # Download and read TIFF files
-  .rlcc <- download_and_read_raster("https://raw.githubusercontent.com/ABbiodiversity/wildRtrax-assets/main/lcc.tif", "lcc.tif")
-  .rtree <- download_and_read_raster("https://raw.githubusercontent.com/ABbiodiversity/wildRtrax-assets/main/tree.tif", "tree.tif")
-  .rd1 <- download_and_read_raster("https://raw.githubusercontent.com/ABbiodiversity/wildRtrax-assets/main/seedgrow.tif", "seedgrow.tif")
-  .rtz <- download_and_read_raster("https://raw.githubusercontent.com/ABbiodiversity/wildRtrax-assets/main/utcoffset.tif", "utcoffset.tif")
-
-  crs <- terra::crs(.rtree)
-
-  #get vars
-  date <- substr(data$recording_date_time, 1, 10)
-  time <- substr(data$recording_date_time, 12, 19)
-  lon <- as.numeric(data$longitude)
-  lat <- as.numeric(data$latitude)
-  dur <- as.numeric(data$task_duration)
-  dis <- Inf
-
-  #parse date+time into POSIXlt
-  if(tz=="local"){
-    dtm <- strptime(paste0(date, " ", time, ":00"),
-                    format="%Y-%m-%d %H:%M:%S", tz="America/Edmonton")
-  }
-  if(tz=="utc"){
-    dtm <- strptime(paste0(date, " ", time, ":00"),
-                    format="%Y-%m-%d %H:%M:%S", tz="GMT")
-  }
-  day <- as.integer(dtm$yday)
-  hour <- as.numeric(round(dtm$hour + dtm$min/60, 2))
-
-  #checks
-  checkfun <- function(x, name="", range=c(-Inf, Inf)) {
-    if (any(x[!is.na(x)] < range[1] | x[!is.na(x)] > range[2])) {
-      stop(sprintf("Parameter %s is out of range [%.0f, %.0f]", name, range[1], range[2]))
-    }
-    invisible(NULL)
-  }
-
-  #Coordinates
-  if (check_xy) {
-    checkfun(lon, "lon", c(-164, -52))
-    checkfun(lat, "lat", c(39, 69))
-  }
-
-  if (any(is.infinite(lon)))
-    stop("Parameter lon must be finite")
-  if (any(is.infinite(lat)))
-    stop("Parameter lat must be finite")
-
-  #handling missing values
-  ok_xy <- !is.na(lon) & !is.na(lat)
-  #Other fields
-  checkfun(day, "day", c(0, 365))
-  checkfun(hour, "hour", c(0, 24))
-  checkfun(dur, "dur", c(0, Inf))
-
-  #intersect here
-  xydf <- data.frame(x=lon, y=lat)
-  xydf$x[is.na(xydf$x)] <- mean(xydf$x, na.rm=TRUE)
-  xydf$y[is.na(xydf$y)] <- mean(xydf$y, na.rm=TRUE)
-  xy <- vect(xydf, geom=c("x", "y"), crs="+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0")
-  xy <- project(xy, crs)
-
-  #LCC4 and LCC2
-  vlcc <- extract(.rlcc, xy)$lcc
-  lcclevs <- c("0"="", "1"="Conif", "2"="Conif", "3"="", "4"="",
-               "5"="DecidMixed", "6"="DecidMixed", "7"="", "8"="Open", "9"="",
-               "10"="Open", "11"="Open", "12"="Open", "13"="Open", "14"="Wet",
-               "15"="Open", "16"="Open", "17"="Open", "18"="", "19"="")
-  lcc4 <- factor(lcclevs[vlcc+1], c("DecidMixed", "Conif", "Open", "Wet"))
-  lcc2 <- lcc4
-  levels(lcc2) <- c("Forest", "Forest", "OpenWet", "OpenWet")
-
-  #TREE
-  vtree <- extract(.rtree, xy)$tree
-  TREE <- vtree / 100
-  TREE[TREE < 0 | TREE > 1] <- 0
-
-  #raster::extract seedgrow value (this is rounded)
-  d1 <- extract(.rd1, xy)$seedgrow
-
-  #UTC offset + 7 makes Alberta 0 (MDT offset) for local times
-  if(tz=="local"){
-    ltz <- extract(.rtz, xy)$utcoffset + 7
-  }
-  if(tz=="utc"){
-    ltz <- 0
-  }
-
-  message("Removing geospatial assets from local")
-
-  # Remove once downloaded and read
-  file.remove(list.files(pattern = "*.tif$"))
-
-  #sunrise time adjusted by offset
-  ok_dt <- !is.na(dtm)
-  dtm[is.na(dtm)] <- mean(dtm, na.rm=TRUE)
-  if(tz=="local"){
-    sr <- sunriset(cbind("X"=xydf$x, "Y"=xydf$y),
-                   as.POSIXct(dtm, tz="America/Edmonton"),
-                   direction="sunrise", POSIXct.out=FALSE) * 24
-  }
-  if(tz=="utc"){
-    sr <- sunriset(cbind("X"=xydf$x, "Y"=xydf$y),
-                   as.POSIXct(dtm, tz="GMT"),
-                   direction="sunrise", POSIXct.out=FALSE) * 24
-  }
-  TSSR <- round(unname((hour - sr - ltz) / 24), 4)
-
-  #days since local spring
-  DSLS <- (day - d1) / 365
-
-  #transform the rest
-  JDAY <- round(day / 365, 4) # 0-365
-  TREE <- round(vtree / 100, 4)
-  MAXDIS <- round(dis / 100, 4)
-  MAXDUR <- round(dur, 4)
-
-  out <- data.frame(
-    TSSR=TSSR,
-    JDAY=JDAY,
-    DSLS=DSLS,
-    LCC2=lcc2,
-    LCC4=lcc4,
-    TREE=TREE,
-    MAXDUR=MAXDUR,
-    MAXDIS=MAXDIS)
-  out$TSSR[!ok_xy | !ok_dt] <- NA
-  out$DSLS[!ok_xy] <- NA
-  out$LCC2[!ok_xy] <- NA
-  out$LCC4[!ok_xy] <- NA
-  out$TREE[!ok_xy] <- NA
-
-  return(out)
-
-}
-
-#' QPAD offsets, wrapped by the `wt_qpad_offsets` function.
-#'
-#' @description Functions to get the offsets.
-#'
-#' @param spp species for offset calculation.
-#' @param x Dataframe out from the `.make_x` function.
-#'
-#' @keywords internal
-
-.make_off <- function(spp, x){
-
-  if(!requireNamespace("QPAD", quietly = T)) {
-    stop("The QPAD package is required for this function. Please install it using remotes::install_github('borealbirds/QPAD')")
-  }
-
-  if (length(spp) > 1L)
-    stop("spp argument must be length 1. Use a loop or map for multiple species.")
-  spp <- as.character(spp)
-
-  getBAMspecieslist <- get("getBAMspecieslist", envir = asNamespace("QPAD"))
-  coefBAMspecies <- get("coefBAMspecies", envir = asNamespace("QPAD"))
-  bestmodelBAMspecies <- get("bestmodelBAMspecies",  envir = asNamespace("QPAD"))
-  sra_fun <- get("sra_fun",  envir = asNamespace("QPAD"))
-  edr_fun <- get("edr_fun",  envir = asNamespace("QPAD"))
-
-  #checks
-  if (!(spp %in% getBAMspecieslist()))
-    stop(sprintf("Species %s has no QPAD estimate available", spp))
-
-  #constant for NA cases
-  cf0 <- exp(unlist(coefBAMspecies(spp, 0, 0)))
-
-  #best model
-  mi <- bestmodelBAMspecies(spp, type="BIC")
-  cfi <- coefBAMspecies(spp, mi$sra, mi$edr)
-
-  TSSR <- x$TSSR
-  DSLS <- x$DSLS
-  JDAY <- x$JDAY
-  lcc2 <- x$LCC2
-  lcc4 <- x$LCC4
-  TREE <- x$TREE
-  MAXDUR <- x$MAXDUR
-  MAXDIS <- x$MAXDIS
-  n <- nrow(x)
-
-  #Design matrices for singing rates (`Xp`) and for EDR (`Xq`)
-  Xp <- cbind(
-    "(Intercept)"=1,
-    "TSSR"=TSSR,
-    "JDAY"=JDAY,
-    "TSSR2"=TSSR^2,
-    "JDAY2"=JDAY^2,
-    "DSLS"=DSLS,
-    "DSLS2"=DSLS^2)
-
-  Xq <- cbind("(Intercept)"=1,
-              "TREE"=TREE,
-              "LCC2OpenWet"=ifelse(lcc4 %in% c("Open", "Wet"), 1, 0),
-              "LCC4Conif"=ifelse(lcc4=="Conif", 1, 0),
-              "LCC4Open"=ifelse(lcc4=="Open", 1, 0),
-              "LCC4Wet"=ifelse(lcc4=="Wet", 1, 0))
-
-  p <- rep(NA, n)
-  A <- q <- p
-
-  #design matrices matching the coefs
-  Xp2 <- Xp[,names(cfi$sra),drop=FALSE]
-  OKp <- rowSums(is.na(Xp2)) == 0
-  Xq2 <- Xq[,names(cfi$edr),drop=FALSE]
-  OKq <- rowSums(is.na(Xq2)) == 0
-
-  #calculate p, q, and A based on constant phi and tau for the respective NAs
-  p[!OKp] <- sra_fun(MAXDUR[!OKp], cf0[1])
-  unlim <- ifelse(MAXDIS[!OKq] == Inf, TRUE, FALSE)
-  A[!OKq] <- ifelse(unlim, pi * cf0[2]^2, pi * MAXDIS[!OKq]^2)
-  q[!OKq] <- ifelse(unlim, 1, edr_fun(MAXDIS[!OKq], cf0[2]))
-
-  #calculate time/lcc varying phi and tau for non-NA cases
-  phi1 <- exp(drop(Xp2[OKp,,drop=FALSE] %*% cfi$sra))
-  tau1 <- exp(drop(Xq2[OKq,,drop=FALSE] %*% cfi$edr))
-  p[OKp] <- sra_fun(MAXDUR[OKp], phi1)
-  unlim <- ifelse(MAXDIS[OKq] == Inf, TRUE, FALSE)
-  A[OKq] <- ifelse(unlim, pi * tau1^2, pi * MAXDIS[OKq]^2)
-  q[OKq] <- ifelse(unlim, 1, edr_fun(MAXDIS[OKq], tau1))
-
-  #log(0) is not a good thing, apply constant instead
-  ii <- which(p == 0)
-  p[ii] <- sra_fun(MAXDUR[ii], cf0[1])
-
-  #package output
-  data.frame(
-    p=p,
-    q=q,
-    A=A,
-    correction=p*A*q,
-    offset=log(p) + log(A) + log(q))
-
 }

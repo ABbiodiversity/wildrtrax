@@ -2,7 +2,7 @@
 % Please edit documentation in R/analyze-data.R
 \name{wt_summarise_cam}
 \alias{wt_summarise_cam}
-\title{Set of analysis functions}
+\title{Summarise camera data}
 \usage{
 wt_summarise_cam(
   detect_data,
@@ -62,10 +62,6 @@ A dataframe summarising your camera data by location, time interval, and species
 \description{
 This function takes your independent detection data and summarises it by location, specified time interval, and species.
 }
-\section{Summarise camera data by location, time interval, and species.}{
-NA
-}
-
 \examples{
 \dontrun{
 summary <- wt_summarise_cam(

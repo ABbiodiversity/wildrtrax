@@ -18,7 +18,7 @@ Retrieves the score threshold that maximizes F-score, which is a trade-off betwe
 \examples{
 \dontrun{
 data <- wt_download_report(project_id = 1144, sensor_id = "ARU",
-reports = c("main", "ai"), weather_cols = FALSE)
+reports = c("main", "ai"))
 
 eval <- wt_evaluate_classifier(data, resolution = "recording",
 remove_species = TRUE, thresholds = c(10, 99))

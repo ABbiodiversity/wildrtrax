@@ -4,7 +4,13 @@
 \alias{wt_get_view}
 \title{Get data from WildTrax views}
 \usage{
-wt_get_view(api, project = NULL, organization = NULL, max_seconds = 300)
+wt_get_view(
+  api,
+  project = NULL,
+  organization = NULL,
+  max_seconds = 300,
+  ai_threshold = 0.5
+)
 }
 \arguments{
 \item{api}{A string specifying the API to query. Must be one of:
@@ -25,7 +31,9 @@ wt_get_view(api, project = NULL, organization = NULL, max_seconds = 300)
 
 \item{organization}{Numeric; The organization id}
 
-\item{max_seconds}{Numeric; Number of seconds to force to wait for downloads.}
+\item{max_seconds}{Numeric; Number of seconds to force to wait for downloads}
+
+\item{ai_threshold}{Numeric; Minimum threshold set for AI classifier detections}
 }
 \value{
 A tibble with column headers for the specified API call.

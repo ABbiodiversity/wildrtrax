@@ -1,6 +1,6 @@
 Package: wildrtrax
 Title: Environmental Sensor Data Management and Analytics to and from WildTrax
-Version: 1.5.0
+Version: 1.6.0
 Language: en-CA
 Authors@R: 
     c(person(given = "Alex",
@@ -29,22 +29,20 @@ Imports:
     readr,
     seewave,
     sf,
-    suntools,
-    terra,
     tibble,
     tidyr (>= 1.0.2),
     tuneR,
-    unmarked
+    unmarked,
+    zip
 Suggests: 
     knitr,
     rmarkdown,
     testthat (>= 3.0.0),
     usethis,
     withr
-Remotes: borealbirds/QPAD
 VignetteBuilder: knitr, rmarkdown
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.3
+RoxygenNote: 8.0.0
 Config/testthat/edition: 3
 URL: https://abbiodiversity.github.io/wildrtrax/

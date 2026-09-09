@@ -2,7 +2,7 @@
 % Please edit documentation in R/convenience-functions.R
 \name{wt_replace_tmtt}
 \alias{wt_replace_tmtt}
-\title{Replace 'TMTT' abundance with model-predicted values}
+\title{Replace 'TMTT' individual count with model-predicted values}
 \usage{
 wt_replace_tmtt(data, calc = "round")
 }
@@ -12,10 +12,10 @@ wt_replace_tmtt(data, calc = "round")
 \item{calc}{Character; method to convert model predictions to integer ("round", "ceiling", or "floor"). See \code{?round()} for details.}
 }
 \value{
-A dataframe identical to input with 'TMTT' entries in the abundance column replaced by integer values.
+A dataframe identical to input with 'TMTT' entries in the individual count column replaced by integer values.
 }
 \description{
-This function uses a lookup table of model-predicted values to replace 'TMTT' entries in listener-processed ARU data from WildTrax. The model-predicted values were produced using estimated abundances for 'TMTT' entries in mixed effects model with a Poisson distribution and random effects for species and observer.
+This function uses a lookup table of model-predicted values to replace 'TMTT' entries in listener-processed ARU data from WildTrax. The model-predicted values were produced using estimated individual counts for 'TMTT' entries in mixed effects model with a Poisson distribution and random effects for species and observer.
 }
 \examples{
 \dontrun{

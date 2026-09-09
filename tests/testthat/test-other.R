@@ -37,3 +37,4 @@ test_that("Language", {
   expect_no_error(.language("en"))
   expect_no_error(.language("fr"))
 })
+

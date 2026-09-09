@@ -1,7 +1,13 @@
 url: https://abbiodiversity.github.io/wildrtrax/
 template:
   bootstrap: 5
-  bootswatch: flatly
+  bslib:
+    primary: "#BA4F27"
+    base_font: {google: "Roboto"}
+    heading_font: {google: "Roboto"}
+navbar:
+  bg: primary
+  type: dark
 articles:
 - title: Articles
   navbar: ~
@@ -45,7 +51,6 @@ reference:
   - wt_location_photos
   - wt_make_aru_tasks
   - wt_make_wide
-  - wt_qpad_offsets
   - wt_replace_tmtt
   - wt_run_ap
   - wt_signal_level
@@ -55,6 +60,7 @@ reference:
   - wt_wac_info
 news:
   releases:
+  - text: wildrtrax 1.6.0
   - text: wildrtrax 1.5.0
   - text: wildrtrax 1.4.0
   - text: wildrtrax 1.3.3

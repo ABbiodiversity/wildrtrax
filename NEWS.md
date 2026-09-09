@@ -1,6 +1,17 @@
-# wildrtrax 
+# wildrtrax 1.6.0
 
-# wildrtrax 1.5
+## Major changes 
+
+* Support for changes to recent report and sync column name updates (17-08-2026)
+* `wt_get_sync()` and `wt_get_view()` more flexible with Organization acronyms and Project names now both being accepted along with ids.
+* Deprecated `wt_qpad_offsets()`; removed the `QPAD` remote dependency for CRAN compatibility
+
+## Minor changes
+
+* Bug fixes on ARU convenience functions
+* Additional columns supported in `.wt_col_types()`
+
+# wildrtrax 1.5.0
 
 ## Major changes
 
@@ -18,7 +29,7 @@
 * Queries benchmarked as 2-3x on new production server at the University of Alberta in Edmonton, Canada
 * Continued code coverage and testing improvements
 
-# wildrtrax 1.4
+# wildrtrax 1.4.0
 
 ## Major changes
 
@@ -91,8 +102,6 @@
 * Switched `wt_download_report()` to POST requests
 * Lowercase package name
 
----
-
 # wildrtrax 1.2.0
 
 ## Major changes
@@ -105,8 +114,6 @@
 * Improvements to APIs and acoustic convenience functions to resolve issues and PRs
 * Improvements to test suite, testing dependencies, code coverage
 * Addition of [Camera data wrangling vignette](https://abbiodiversity.github.io/wildrtrax/articles/camera-data-wrangling.html) and additional [tutorials](https://abbiodiversity.github.io/wildrtrax/articles/tutorials.html)
-
----
 
 # wildrtrax 1.1.0
 
@@ -123,14 +130,10 @@
 * Work flow repairs to `wt_get_species()` and `wt_tidy_species()` (#21)
 * Replaced `utils::read.csv()` to `readr::read_csv()` in `wt_download_report()` (#20)
 
----
-
 # wildrtrax 1.0.1
 
 * Patching API errors in `wt_download_report()`
 * Adding additional articles on [Acoustic data wrangling](https://abbiodiversity.github.io/wildrtrax/articles/acoustic-data-wrangling.html)
-
----
 
 # wildrtrax 1.0.0
 
@@ -161,8 +164,6 @@
 ## Deprecated 
 
 * `wt_prob_det()`
-
----
 
 # wildrtrax 0.1.0
 

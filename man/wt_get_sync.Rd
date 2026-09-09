@@ -18,7 +18,8 @@ wt_get_sync(api, project = NULL, organization = NULL, max_seconds = 300)
 \item \code{"project_aru_tasks"}
 \item \code{"project_aru_tags"}
 \item \code{"project_image_metadata"}
-\item \code{"project_camera_tags"}
+\item \code{"project_image_sets"}
+\item \code{"project_image_tags"}
 \item \code{"project_point_counts"}
 }}
 

@@ -12,8 +12,9 @@
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/Roboto-0.4.10/font.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Acoustic classifiers">
 </head>
@@ -25,7 +26,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">wildrtrax</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,6 +53,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-news" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">News</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-news">
 <li><h6 class="dropdown-header" data-toc-skip>Releases</h6></li>
+    <li><h6 class="dropdown-header" data-toc-skip>wildrtrax 1.6.0</h6></li>
     <li><h6 class="dropdown-header" data-toc-skip>wildrtrax 1.5.0</h6></li>
     <li><h6 class="dropdown-header" data-toc-skip>wildrtrax 1.4.0</h6></li>
     <li><h6 class="dropdown-header" data-toc-skip>wildrtrax 1.3.3</h6></li>
@@ -143,13 +145,12 @@ observer is still necessary.</p>
 <p>Choosing a score threshold will depend on the goals of the project;
 however, threshold choice is a trade-off between false positives (i.e.,
 incorrect classifications) and false negatives (i.e., missed detections;
-see <span class="citation">Priyadarshani, Marsland, and Castro
-(2018)</span>, <span class="citation">Knight et al. (2017)</span>).
-Choosing a high score threshold will minimize false positives, but will
-also result in false negatives. Choosing a low score threshold will
-minimize false negatives but will result in many false positives. The
-proportion of false positives at a given score threshold is typically
-measured by precision:</p>
+see <span class="citation">Priyadarshani et al. (2018)</span>, <span class="citation">Knight et al. (2017)</span>). Choosing a high score
+threshold will minimize false positives, but will also result in false
+negatives. Choosing a low score threshold will minimize false negatives
+but will result in many false positives. The proportion of false
+positives at a given score threshold is typically measured by
+precision:</p>
 <p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mi>r</mi><mi>e</mi><mi>c</mi><mi>i</mi><mi>s</mi><mi>i</mi><mi>o</mi><mi>n</mi><mo>=</mo><mfrac><mrow><mi>t</mi><mi>p</mi></mrow><mrow><mi>t</mi><mi>p</mi><mo>+</mo><mi>f</mi><mi>p</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex">precision = \frac{tp}{tp + fp}</annotation></semantics></math></p>
 <p>While the proportion of false negatives is measured as recall:</p>
 <p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mi>e</mi><mi>c</mi><mi>a</mi><mi>l</mi><mi>l</mi><mo>=</mo><mfrac><mrow><mi>t</mi><mi>p</mi></mrow><mrow><mi>t</mi><mi>p</mi><mo>+</mo><mi>f</mi><mi>n</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex">recall = \frac{tp}{tp + fn}</annotation></semantics></math></p>
@@ -216,7 +217,7 @@ classifier is performing:</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/lims.html" class="external-link">xlim</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/lims.html" class="external-link">ylim</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="classifiers-tutorial_files/figure-html/unnamed-chunk-3-1.png" width="700"></p>
+<p><img src="classifiers-tutorial_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="700"></p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">eval</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html" class="external-link">geom_smooth</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">threshold</span>, y<span class="op">=</span><span class="va">recall</span>, colour<span class="op">=</span><span class="va">classifier</span><span class="op">)</span>, linewidth<span class="op">=</span><span class="fl">1.5</span><span class="op">)</span> <span class="op">+</span></span>
@@ -225,7 +226,7 @@ classifier is performing:</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/lims.html" class="external-link">xlim</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/lims.html" class="external-link">ylim</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="classifiers-tutorial_files/figure-html/unnamed-chunk-3-2.png" width="700"></p>
+<p><img src="classifiers-tutorial_files/figure-html/unnamed-chunk-3-2.png" class="r-plt" alt="" width="700"></p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">eval</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html" class="external-link">geom_smooth</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">threshold</span>, y<span class="op">=</span><span class="va">fscore</span>, colour<span class="op">=</span><span class="va">classifier</span><span class="op">)</span>, linewidth<span class="op">=</span><span class="fl">1.5</span><span class="op">)</span> <span class="op">+</span></span>
@@ -234,7 +235,7 @@ classifier is performing:</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/lims.html" class="external-link">xlim</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/lims.html" class="external-link">ylim</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="classifiers-tutorial_files/figure-html/unnamed-chunk-3-3.png" width="700"></p>
+<p><img src="classifiers-tutorial_files/figure-html/unnamed-chunk-3-3.png" class="r-plt" alt="" width="700"></p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">eval</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html" class="external-link">geom_smooth</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">recall</span>, y<span class="op">=</span><span class="va">precision</span>, colour<span class="op">=</span><span class="va">classifier</span><span class="op">)</span>, linewidth<span class="op">=</span><span class="fl">1.5</span><span class="op">)</span> <span class="op">+</span></span>
@@ -243,7 +244,7 @@ classifier is performing:</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/lims.html" class="external-link">xlim</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/lims.html" class="external-link">ylim</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="classifiers-tutorial_files/figure-html/unnamed-chunk-3-4.png" width="700"></p>
+<p><img src="classifiers-tutorial_files/figure-html/unnamed-chunk-3-4.png" class="r-plt" alt="" width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="selecting-and-filtering-a-threshold">Selecting and filtering a threshold<a class="anchor" aria-label="anchor" href="#selecting-and-filtering-a-threshold"></a>
@@ -327,8 +328,8 @@ site-specific species richness and use the task argument.</p>
 <span><span class="co">## <span style="color: #BCBCBC;">10</span>       <span style="text-decoration: underline;">89</span>972       <span style="text-decoration: underline;">211</span>642  <span style="text-decoration: underline;">180</span>881 Northern House Wren       0.977 BU          </span></span>
 <span><span class="co">## <span style="color: #949494;"># ℹ 88 more rows</span></span></span>
 <span><span class="co">## <span style="color: #949494;"># ℹ 8 more variables: version &lt;chr&gt;, location &lt;chr&gt;,</span></span></span>
-<span><span class="co">## <span style="color: #949494;">#   recording_date_time &lt;dttm&gt;, recording_length &lt;dbl&gt;, scientific_name &lt;chr&gt;,</span></span></span>
-<span><span class="co">## <span style="color: #949494;">#   species_code &lt;chr&gt;, ai_detection_time &lt;dbl&gt;,</span></span></span>
+<span><span class="co">## <span style="color: #949494;">#   recording_date_time &lt;dttm&gt;, recording_duration &lt;dbl&gt;,</span></span></span>
+<span><span class="co">## <span style="color: #949494;">#   species_scientific_name &lt;chr&gt;, species_code &lt;chr&gt;, ai_detection_time &lt;dbl&gt;,</span></span></span>
 <span><span class="co">## <span style="color: #949494;">#   is_species_allowed_in_project &lt;lgl&gt;</span></span></span></code></pre>
 <p>There are potentially 98 new species detections in our dataset. In
 this case, you can then format the output of these results to fit with
@@ -426,7 +427,7 @@ would expect:</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Day of year"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"Rate of White-crowned Sparrow detections per minute"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="classifiers-tutorial_files/figure-html/unnamed-chunk-9-1.png" width="700"></p>
+<p><img src="classifiers-tutorial_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" alt="" width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="other-applications">Other applications<a class="anchor" aria-label="anchor" href="#other-applications"></a>
@@ -441,16 +442,16 @@ the effect of a classifier’s low recall rate in mind:</p>
 reliably to confirm absences due to the low recall.</p></li>
 <li><p>Classifier data can be used for occupancy modelling (<span class="citation">(<strong>wood_2023?</strong>)</span>), and there are
 approaches that can accommodate false positive error rates to preclude
-verification of all detections (<span class="citation">Rhinehart, Turek,
-and Kitzes (2022)</span>). However, users should keep in mind that
-occupancy modelling is recommended only for detection probabilities
-&gt;30% and that recall from BirdNET may be too low for reliable
-occupancy estimates for many species (<span class="citation">Knight et
-al. (2017)</span>).</p></li>
+verification of all detections (<span class="citation">Rhinehart et al.
+(2022)</span>). However, users should keep in mind that occupancy
+modelling is recommended only for detection probabilities &gt;30% and
+that recall from BirdNET may be too low for reliable occupancy estimates
+for many species (<span class="citation">Knight et al.
+(2017)</span>).</p></li>
 </ol>
 <p>See <span class="citation">Pérez-Granados (2023)</span> for a full
 review of some classifier applications and performance.</p>
-<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-huus2025hawkears" class="csl-entry">
 Huus, Jan, Kevin G Kelly, Erin M Bayne, and Elly C Knight. 2025.
 <span>“HawkEars: A Regional, High-Performance Avian Acoustic
@@ -509,7 +510,7 @@ Ornithology</em> 165 (3): 777–82.
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

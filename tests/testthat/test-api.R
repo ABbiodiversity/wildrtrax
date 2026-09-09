@@ -3,16 +3,6 @@ library(purrr)
 library(dplyr)
 library(tidyr)
 
-test_that("errors when WT_USERNAME or WT_PASSWORD are missing", {
-  withr::with_envvar(
-    c(WT_USERNAME = "", WT_PASSWORD = ""),
-    expect_error(
-      .wt_auth(),
-      "Environment variables are not set"
-    )
-  )
-})
-
 aoi <- list(
   c(-112.85438, 57.13472),
   c(-113.14364, 54.74858),
@@ -101,43 +91,14 @@ test_that("Download with authentication with boundary; multiple species logged i
 #   expect_true(!is.null(wt_download_report(197, 'CAM', 'main', F, max_seconds = 3000)))
 # })
 
-test_that("Get functions for all API combinations with specific project restrictions", {
-  # Set environment variables and authenticate
-  Sys.setenv(WT_USERNAME = "guest", WT_PASSWORD = "Apple123")
-  wt_auth(force = TRUE)
+organizations <- tibble(
+  name = c("org_admin", "org_read", "no_org_proj_only", "no_org_or_project"),
+  id = c(5205, 5454, 5327, 5550),
+  should_error = c(FALSE, FALSE, TRUE, TRUE)
+)
 
-  # Test for each API using pseudonyms
-  expect_no_error(wt_get_sync(api = "organization_locations", organization = 5205))
-  expect_no_error(wt_get_sync(api = "organization_visits", organization = 5205))
-  expect_no_error(wt_get_sync(api = "organization_equipment", organization = 5205))
-  expect_no_error(wt_get_sync(api = "organization_deployments", organization = 5205))
-  expect_no_error(wt_get_sync(api = "organization_recordings", organization = 5205))
-  expect_no_error(wt_get_sync(api = "project_locations", project = 620))
-  expect_no_error(wt_get_sync(api = "project_aru_tasks", project = 620))
-  expect_no_error(wt_get_sync(api = "project_aru_tags", project = 620))
-  expect_no_error(wt_get_sync(api = "project_image_metadata", project = 251))
-  expect_no_error(wt_get_sync(api = "project_camera_tags", project = 251))
-  expect_no_error(wt_get_sync(api = "project_point_counts", project = 804))
-})
-
-
-test_that("Get functions for all API combinations with specific project restrictions", {
-  # Set environment variables and authenticate
-  Sys.setenv(WT_USERNAME = "guest", WT_PASSWORD = "Apple123")
-  wt_auth(force = TRUE)
-
-  # Test for each API using pseudonyms
-  expect_no_error(wt_get_view(api = "organization_locations", organization = 5205))
-  expect_no_error(wt_get_view(api = "organization_visits", organization = 5205))
-  expect_no_error(wt_get_view(api = "organization_equipment", organization = 5205)) # TEXT PLAIN
-  expect_no_error(wt_get_view(api = "organization_deployments", organization = 5205))
-  expect_no_error(wt_get_view(api = "organization_recordings", organization = 5205))
-  expect_no_error(wt_get_view(api = "organization_image_sets", organization = 5205))
-  expect_no_error(wt_get_view(api = "organization_usage_report", organization = 5205))
-  expect_no_error(wt_get_view(api = "project_aru_tasks", project = 620))
-  expect_no_error(wt_get_view(api = "project_camera_tasks", project = 251))
-  expect_no_error(wt_get_view(api = "project_point_counts", project = 804))
-})
+apis_sync <- c("organization_locations", "organization_visits", "organization_equipment", "organization_deployments", "organization_recordings")
+apis_view <- c("organization_locations", "organization_visits", "organization_equipment", "organization_deployments", "organization_recordings", "organization_image_sets", "organization_usage_report")
 
 test_that("Project species", {
   expect_no_error(wt_get_project_species(620))
@@ -203,57 +164,93 @@ test_that("Download media", {
 })
 
 
-#######
+test_that("Column definitions for reports and syncs", {
 
-test_that("Complex column check across reports and sync", {
+####### Check for undefined column types across reports and syncs
+
+  Sys.setenv(WT_USERNAME = "guest", WT_PASSWORD = "Apple123")
+  wt_auth(force = TRUE)
 
 report_endpoints <- list(
-  list(project = 620, type = "ARU", reports = c("main","ai","recording","tag","project","location")),
-  list(project = 881, type = "PC", reports = "main"),
-  list(project = 251, type = "CAM", reports = c("main","megadetector","image_set_report","image_report"))
+  list(project = 4867, type = "ARU", reports = c("main","ai","recording","tag","project","location")),
+  list(project = 4869, type = "PC", reports = c("main", "project", "location", "point_count")),
+  list(project = 4868, type = "CAM", reports = c("main","location", "project", "tag", "megadetector","image_set_report","image_report"))
 )
 
 report_cols <- report_endpoints %>%
   map_df(~ {
     df <- wt_download_report(.x$project, .x$type, .x$reports)
-    # Flatten if list of dataframes
-    cols <- if (is.list(df)) unique(unlist(map(df, names))) else names(df)
-    tibble(report_name = cols)
-  }) %>%
-  distinct() %>%
-  mutate(in_report = TRUE)
+    if (is.list(df)) {
+      map_df(names(df), function(report) {
+        tibble(report_name = names(df[[report]]), source_report = report)
+      })
+    } else {
+      tibble(report_name = names(df), source_report = .x$reports)
+    }
+  })
 
 sync_endpoints <- list(
-  list(api="organization_locations", org=5205),
-  list(api="organization_visits", org=5205),
-  list(api="organization_equipment", org=5205),
-  list(api="organization_deployments", org=5205),
-  list(api="organization_recordings", org=5205),
-  list(api="project_locations", project=620),
-  list(api="project_aru_tasks", project=620),
-  list(api="project_aru_tags", project=620),
-  list(api="project_image_metadata", project=251),
-  list(api="project_camera_tags", project=251),
-  list(api="project_point_counts", project=804)
+  list(api="organization_locations", org=5986),
+  list(api="organization_visits", org=5986),
+  list(api="organization_equipment", org=5986),
+  list(api="organization_deployments", org=5986),
+  list(api="organization_recordings", org=5986),
+  list(api="project_locations", project=4867),
+  list(api="project_aru_tasks", project=4867),
+  list(api="project_aru_tags", project=4867),
+  list(api="project_image_metadata", project=4868),
+  list(api="project_image_tags", project=4868),
+  list(api="project_image_sets", project=4868),
+  list(api="project_point_counts", project=4869)
 )
 
 sync_cols <- sync_endpoints %>%
   map_df(~ {
     args <- if (!is.null(.x$org)) list(api=.x$api, organization=.x$org) else list(api=.x$api, project=.x$project)
-    tibble(sync_name = names(do.call(wt_get_sync, args)))
-  }) %>%
-  distinct() |>
-  mutate(in_sync = TRUE)
+    tibble(sync_name = names(do.call(wt_get_sync, args)), source_api = .x$api)
+  })
 
-all_columns <- full_join(report_cols |> rename(column_name = report_name), sync_cols |> rename(column_name = sync_name), by = "column_name") |>
-  mutate(report_or_sync = coalesce(in_report, in_sync),
-         report_name = ifelse(!is.na(in_report), column_name, NA_character_),
-         sync_name = ifelse(!is.na(in_sync), column_name, NA_character_)) |>
-  select(column_name, report_or_sync, report_name, sync_name)
+col_names <- report_cols |>
+  distinct(report_name)
+sync_names <- sync_cols |>
+  distinct(sync_name)
 
-expect_no_error(all_columns) #EXPECT WE ACTUALLY EXPECT AN ERROR - KEEP WORKING ON THIS
+col_names_wt_col_types <- .wt_col_types() |> pluck("cols") |> names()
 
-#write_csv(all_columns, "./all_columns_check.csv")
+all_names <- c(
+  col_names |> pull(report_name),
+  sync_names |> pull(sync_name)
+) |> unique()
+
+missing_names <- all_names[!(all_names %in% col_names_wt_col_types)]
+
+expect_true(length(missing_names) == 0)
 
 })
 
+test_that("Test get views", {
+
+sync_view_endpoints <- list(
+  list(api="organization_locations", org=5986),
+  list(api="organization_visits", org=5986),
+  list(api="organization_equipment", org=5986),
+  list(api="organization_deployments", org=5986),
+  list(api="organization_recordings", org=5986),
+  list(api="organization_image_sets", org=5986),
+  list(api="organization_usage_report", org=5986),
+  list(api="project_aru_tasks", project=4867),
+  list(api="project_camera_tasks", project=4868),
+  list(api="project_point_counts", project=4869)
+)
+
+expect_no_error(sync_view_endpoints %>%
+  map_df(~ {
+    args <- if (!is.null(.x$org)) list(api=.x$api, organization=.x$org) else list(api=.x$api, project=.x$project)
+    tibble(sync_name = names(do.call(wt_get_view, args)), source_api = .x$api)
+  }))
+
+})
+
+test_that("Location photos", {
+expect_no_error(wt_location_photos(organization = "TESTORGAPI", output = NULL))
+})

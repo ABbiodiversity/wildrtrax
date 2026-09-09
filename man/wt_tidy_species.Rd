@@ -21,6 +21,14 @@ This function filters the species provided in WildTrax reports to only the group
 }
 \examples{
 \dontrun{
-dat.tidy <- wt_tidy_species(dat, remove=c("mammal", "unknown"), zerofill = T)
+#Example with ARU report.
+dat <- wt_download_report(
+  project_id = 47, sensor_id = "ARU", reports = c("main"))
+dat.tidy.aru <- wt_tidy_species(dat, remove=c("mammal", "unknown"), zerofill = T)
+
+#Example with PC report.
+dat <- wt_download_report(
+  project_id = 897, sensor_id = "PC", reports = c("main"))
+dat.tidy.pc <- wt_tidy_species(dat, remove=c("mammal", "unknown"), zerofill = T)
 }
 }

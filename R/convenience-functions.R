@@ -94,7 +94,15 @@ wt_location_distances <- function(input_from_tibble = NULL, input_from_file = NU
 #'
 #' @examples
 #' \dontrun{
-#' dat.tidy <- wt_tidy_species(dat, remove=c("mammal", "unknown"), zerofill = T)
+#' #Example with ARU report.
+#' dat <- wt_download_report(
+#'   project_id = 47, sensor_id = "ARU", reports = c("main"))
+#' dat.tidy.aru <- wt_tidy_species(dat, remove=c("mammal", "unknown"), zerofill = T)
+#'
+#' #Example with PC report.
+#' dat <- wt_download_report(
+#'   project_id = 897, sensor_id = "PC", reports = c("main"))
+#' dat.tidy.pc <- wt_tidy_species(dat, remove=c("mammal", "unknown"), zerofill = T)
 #' }
 #' @return A dataframe identical to input with observations of the specified groups removed.
 
@@ -114,7 +122,7 @@ wt_tidy_species <- function(data,
   if("survey_url" %in% colnames(data)){
     data <- data |>
       rename(task_id=survey_id,
-             recording_date_time=survey_date)
+             recording_date_time=survey_date_time)
   }
 
   if('bird' %in% remove){
@@ -140,7 +148,8 @@ wt_tidy_species <- function(data,
   #Add the unknowns if requested
   if("unknown" %in% remove){
     species.remove <- .species %>%
-      filter(substr(species_common_name, 1, 12) == "Unidentified") %>%
+      filter(substr(species_common_name, 1, 12) == "Unidentified" |
+               substr(species_common_name, 1, 7) == "Unknown") %>%
       rbind(species.remove)
   }
 
@@ -157,7 +166,7 @@ wt_tidy_species <- function(data,
     if("survey_url" %in% colnames(data)){
       filtered.sp <- filtered.sp |>
         rename(survey_id=task_id,
-               survey_date = recording_date_time)
+               survey_date_time = recording_date_time)
     }
 
     return(filtered.sp)
@@ -166,16 +175,30 @@ wt_tidy_species <- function(data,
   #if you do need nones, add them
   if(zerofill==TRUE){
 
-    #first identify the unique visits (task_id) ensure locations are included for proper join
+    #first identify the unique visits (task_id) ensure locations are included for proper join.
+    #The process is robust to different report types which have different column names,
+    #and is designed to maintain all task-related metadata.
+    # Define grouping column as task_id
+    group_col <- data$task_id
+
+    # Identify columns that only have one value per level of task_id. These columns are
+    # to be retained, so no task-level information is lost.
+    matching_cols <- names(data)[sapply(data, function(col) {
+      nrow(unique(data.frame(group_col, col))) == length(unique(group_col))
+    })]
+
+    #Select unique visits, while retaining all visit-level (task-level) metadata.
     visit <- data |>
-      select(organization, project_id, location, latitude, longitude, location_id, recording_date_time, task_id) |>
+      select(all_of(matching_cols)) |>
       distinct()
 
-    #see if there are any that have been removed
+    #see if there are any visits that have been removed.
+    #Setting species_code to NONE, species_common_name to NONE, and species_scientific_name to NA
+    #aligns with the way NONE is handled elsewhere.
     none <- suppressMessages(anti_join(visit, filtered)) |>
       mutate(species_code = "NONE",
              species_common_name = "NONE",
-             species_scientific_name = "NONE")
+             species_scientific_name = NA_character_)
 
     #add to the filtered data
     filtered.none <- suppressMessages(full_join(filtered, none)) |>
@@ -185,7 +208,7 @@ wt_tidy_species <- function(data,
     if("survey_url" %in% colnames(data)){
       filtered.none <- filtered.none |>
         rename(survey_id=task_id,
-               survey_date = recording_date_time)
+               survey_date_time = recording_date_time)
     }
 
     #return the filtered object with nones added
@@ -195,9 +218,9 @@ wt_tidy_species <- function(data,
 
 }
 
-#' Replace 'TMTT' abundance with model-predicted values
+#' Replace 'TMTT' individual count with model-predicted values
 #'
-#' @description This function uses a lookup table of model-predicted values to replace 'TMTT' entries in listener-processed ARU data from WildTrax. The model-predicted values were produced using estimated abundances for 'TMTT' entries in mixed effects model with a Poisson distribution and random effects for species and observer.
+#' @description This function uses a lookup table of model-predicted values to replace 'TMTT' entries in listener-processed ARU data from WildTrax. The model-predicted values were produced using estimated individual counts for 'TMTT' entries in mixed effects model with a Poisson distribution and random effects for species and observer.
 #'
 #' @param data Dataframe of WildTrax observations, for example the summary report.
 #' @param calc Character; method to convert model predictions to integer ("round", "ceiling", or "floor"). See `?round()` for details.
@@ -209,7 +232,7 @@ wt_tidy_species <- function(data,
 #' \dontrun{
 #' dat.tmtt <- wt_replace_tmtt(dat, calc="round")
 #' }
-#' @return A dataframe identical to input with 'TMTT' entries in the abundance column replaced by integer values.
+#' @return A dataframe identical to input with 'TMTT' entries in the individual count column replaced by integer values.
 
 wt_replace_tmtt <- function(data, calc="round"){
 
@@ -228,39 +251,33 @@ wt_replace_tmtt <- function(data, calc="round"){
 
   .tmtt <- readRDS(system.file("extdata", "tmtt_predictions.rds", package="wildrtrax"))
 
-  dat.tmtt <- data |>
-    rename(individual_count = abundance) |>
-    mutate(id = row_number())
+  dat.tmtt <- mutate(data, id = row_number())
 
   # only TMTT rows for replacement
-  dat.tmt <- dat.tmtt |> filter(individual_count == "TMTT")
+  dat.tmt <- dat.tmtt |> filter(abundance %in% c("TMTT", "TNPE"))
 
-  if(nrow(dat.tmt) > 0){
+  if(nrow(dat.tmt) > 0) {
     dat.tmt <- dat.tmt |>
-      mutate(
-        species_code = ifelse(species_code %in% .tmtt$species_code, species_code, "species"),
-        observer_id = as.integer(ifelse(observer_id %in% .tmtt$observer_id, observer_id, 0))
-      ) |>
-      inner_join(.tmtt |> select(species_code, observer_id, pred),
-                 by = c("species_code", "observer_id")) |>
-      mutate(
-        individual_count = case_when(
-          calc == "round"   ~ round(pred),
-          calc == "ceiling" ~ ceiling(pred),
-          calc == "floor"   ~ floor(pred),
-          TRUE ~ NA_real_
-        )
-      ) |>
+      mutate(species_code = case_when(species_code %in% .tmtt$species_code ~ species_code, TRUE ~ "species"),
+             observer_id = as.integer(case_when(observer_id %in% .tmtt$observer_id ~ observer_id, TRUE ~ 0))) |>
+      inner_join(.tmtt |> select(species_code, observer_id, pred), by = c("species_code", "observer_id")) |>
+      mutate(abundance = switch(calc,
+                                round = round(pred),
+                                ceiling = ceiling(pred),
+                                floor = floor(pred),
+                                NA_real_)) |>
       select(-pred)
   }
 
   # replace TMTT rows with predictions
+  dat.tmt <- dat.tmt |>
+    mutate(abundance = as.numeric(abundance))
 
-  dat.tmtt <- dat.tmtt |>
-    mutate(individual_count = case_when(individual_count == "TMTT" ~ NA_real_, TRUE ~ as.numeric(individual_count))) |>
-    rows_update(dat.tmt, by = c("id")) |>
-    select(-id)
-
+  dat.tmtt <- suppressWarnings(dat.tmtt |>
+                                 mutate(abundance = case_when(abundance %in% c("TMTT", "TNPE") ~ NA_real_,
+                                                              TRUE ~ as.numeric(abundance))) |>
+                                 rows_update(dat.tmt, by = "id") |>
+                                 select(-id))
   return(dat.tmtt)
 }
 
@@ -303,10 +320,10 @@ wt_make_wide <- function(data, sound="all"){
 
     #Make it wide
     wide <- summed |>
-      mutate(individual_count = case_when(is.na(individual_count) & species_code == "NONE" ~ "0", grepl("^C",  individual_count) ~ NA_character_, TRUE ~ as.character(individual_count)) |> as.numeric()) |>
+      mutate(abundance = case_when(is.na(abundance) & species_code == "NONE" ~ "0", grepl("^C",  abundance) ~ NA_character_, TRUE ~ as.character(abundance)) |> as.numeric()) |>
       pivot_wider(id_cols = organization:task_method,
                   names_from = "species_code",
-                  values_from = "individual_count",
+                  values_from = "abundance",
                   values_fn = sum,
                   values_fill = 0,
                   names_sort = TRUE)
@@ -318,10 +335,10 @@ wt_make_wide <- function(data, sound="all"){
 
     #Make it wide and return field names to point count format
     wide <- data |>
-      mutate(individual_count = case_when(is.na(individual_count) & species_code == "NONE" ~ "0", grepl("^C",  individual_count) ~ NA_character_, TRUE ~ as.character(individual_count)) |> as.numeric()) |>
+      mutate(abundance = case_when(is.na(abundance) & species_code == "NONE" ~ "0", grepl("^C",  abundance) ~ NA_character_, TRUE ~ as.character(abundance)) |> as.numeric()) |>
       pivot_wider(id_cols = organization:survey_duration_method,
                          names_from = "species_code",
-                         values_from = "individual_count",
+                         values_from = "abundance",
                          values_fn = sum,
                          values_fill = 0,
                          names_sort = TRUE)
@@ -359,7 +376,7 @@ wt_format_occupancy <- function(data,
   if("survey_url" %in% colnames(data)){
     data <- data |>
       rename(task_id=survey_id,
-             recording_date_time = survey_date,
+             recording_date_time = survey_date_time,
              observer_id = observer,
              task_method = survey_duration_method)
   }
@@ -522,16 +539,19 @@ wt_add_grts <- function(data, group_locations_in_cell = FALSE) {
 
   # Check for intersection eventually
   if (nrow(data) > 0) {
-    grts_list[[length(grts_list) + 1]] <- readr::read_csv('https://code.usgs.gov/fort/nabat/nabatr/-/raw/dffbf6afda4d390dbe4d2bf8c51e854b960a33dd/data/GRTS_coords_Canada.csv', show_col_types = FALSE)
+    grts_list[[length(grts_list) + 1]] <- readr::read_csv('https://code.usgs.gov/fort/nabat/nabatr/-/raw/dffbf6afda4d390dbe4d2bf8c51e854b960a33dd/data/GRTS_coords_Canada.csv', show_col_types = FALSE) |>
+      suppressMessages()
   }
 
   if (nrow(data) > 0) {
-    grts_list[[length(grts_list) + 1]] <- readr::read_csv('https://code.usgs.gov/fort/nabat/nabatr/-/raw/dffbf6afda4d390dbe4d2bf8c51e854b960a33dd/data/GRTS_coords_Alaska.csv', show_col_types = FALSE)
+    grts_list[[length(grts_list) + 1]] <- readr::read_csv('https://code.usgs.gov/fort/nabat/nabatr/-/raw/dffbf6afda4d390dbe4d2bf8c51e854b960a33dd/data/GRTS_coords_Alaska.csv', show_col_types = FALSE) |>
+      suppressMessages()
   }
 
   # Check for intersection with contiguous US
   if (nrow(data) > 0) {
-    grts_list[[length(grts_list) + 1]] <- readr::read_csv('https://code.usgs.gov/fort/nabat/nabatr/-/raw/dffbf6afda4d390dbe4d2bf8c51e854b960a33dd/data/GRTS_coords_CONUS.csv', show_col_types = FALSE)
+    grts_list[[length(grts_list) + 1]] <- readr::read_csv('https://code.usgs.gov/fort/nabat/nabatr/-/raw/dffbf6afda4d390dbe4d2bf8c51e854b960a33dd/data/GRTS_coords_CONUS.csv', show_col_types = FALSE) |>
+      suppressMessages()
   }
 
   # If any datasets were downloaded, bind them together
@@ -691,107 +711,5 @@ wt_get_exif <- function(data) {
     #tidyr::unnest_wider(exif)
 
   return(all_images)
-
-}
-
-#' Get QPAD offsets
-#'
-#' @description This function calculates statistical offsets that account for survey-specific and species-specific variation in availability for detection and perceptibility of birds. This function requires download of the `QPAD` R package and should be used on the output of the `wt_make_wide()` function
-#'
-#' @param data Dataframe output from the `wt_make_wide()` function.
-#' @param species Character; species for offset calculation. Can be a list of 4-letter AOU codes (e.g., c("TEWA", "OSFL", "OVEN")) or "all" to calculate offsets for every species in the input dataframe for which offsets are available. Defaults to "all".
-#' @param version Numeric; version of QPAD offsets to use (2, or 3). Defaults to 3.
-#' @param together Logical; whether or not offsets should be bound to the input dataframe or returned as a separate object.
-#'
-#' @references Solymos et al. 2013. Calibrating indices of avian density from non-standardized survey data: making the most of a messy situation. Methods in Ecology and Evolution, 4, 1047-1058.
-#'
-#' @import dplyr
-#' @export
-#'
-#' @examples
-#' \dontrun{
-#' remotes::install_github("borealbirds/QPAD")
-#'
-#' dat.clean <- wt_tidy_species(dat)
-#' dat.tmtt <- wt_replace_tmtt(dat.clean)
-#' dat.wide <- wt_make_wide(dat.tmtt, sound="all")
-#' dat.qpad <- wt_qpad_offsets(dat.wide, species="all", version=3, together = TRUE)
-#' }
-#' @return A dataframe containing the QPAD values either by themselves or with the original wide data if `together = TRUE`
-
-wt_qpad_offsets <- function(data, species = c("all"), version = 3, together=FALSE) {
-
-  if(!requireNamespace("QPAD")) {
-    stop("The QPAD package is required for this function. Please install it using remotes::install_github('borealbirds/QPAD')")
-  }
-
-  # Rename fields if PC
-  if ("survey_url" %in% colnames(data)) {
-    data <- data |>
-      rename(task_id = survey_id,
-             recording_date_time = survey_date,
-             observer_id = observer) |>
-      rowwise() |>
-      mutate(durationMethod = ifelse(substr(survey_duration_method, nchar(survey_duration_method), nchar(survey_duration_method)) == "+",
-                                     substr(survey_duration_method, 1, nchar(survey_duration_method) - 2),
-                                     survey_duration_method),
-             chardur = gregexpr("-", durationMethod, fixed = TRUE),
-             chardurmax = max(unlist(chardur)),
-             task_duration = as.numeric(substr(durationMethod, chardurmax + 1, nchar(durationMethod) - 3)) * 60,
-             chardis = gregexpr("-", survey_distance_method, fixed = TRUE),
-             chardismax = max(unlist(chardis)),
-             distance1 = substr(survey_distance_method, chardismax + 1, nchar(survey_distance_method) - 1),
-             task_distance = ifelse(distance1 %in% c("AR", "IN"), Inf, as.numeric(distance1))) |>
-      ungroup()
-  }
-
-  #Load QPAD estimates
-  cat("\nLoading QPAD estimates... ")
-  load_BAM_QPAD <- get("load_BAM_QPAD",  envir = asNamespace("QPAD"))
-  load_BAM_QPAD(version)
-
-  #Make prediction object
-  cat("Extracting covariates for offset calculation. This may take a moment.")
-  x <- .make_x(data)
-
-  #Make the species list
-  if("all" %in% species) spp <- sort(intersect(getBAMspecieslist(), colnames(data))) else spp <- species
-
-  #Set up the offset loop
-  cat("\nCalculating offsets...")
-  off <- matrix(0, nrow(x), length(spp))
-  colnames(off) <- spp
-
-  #Make the offsets
-  for (i in 1:length(spp)){
-    cat("\n", spp[i])
-    o <- .make_off(spp[i], x)
-    off[,i] <- o$offset
-  }
-
-  #Return output as dataframe if separate output requested
-  if(together==FALSE){
-    return(data.frame(off))
-  }
-
-  #Put together if requested
-  if(together==TRUE){
-    out <- cbind(data,
-                 data.frame(off) |>
-                   rename_with(.fn=~paste0(.x, ".off")))
-
-    #Translate point count field names back
-    if("survey_url" %in% colnames(data)){
-      out <- out |>
-        rename(survey_id=task_id,
-               survey_date = recording_date_time,
-               observer = observer_id) |>
-        select(-durationMethod, -chardur, -chardurmax, -task_duration, -chardis, -chardismax, -distance1, -task_distance)
-    }
-
-    return(out)
-  }
-
-  cat("\nDone!")
 
 }

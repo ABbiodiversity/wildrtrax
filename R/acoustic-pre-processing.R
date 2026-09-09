@@ -61,11 +61,10 @@ wt_audio_scanner <- function(path, file_type, extra_cols = FALSE) {
     mutate(size_Mb = round(map_dbl(.x = file_path, .f = ~file_size(.x)) / 10e5, digits = 2), # Convert file sizes to megabytes
                   file_path = as.character(file_path)) |>
     select(file_path, size_Mb) |>
-    filter(!size_Mb < 1) |>
+    filter(!size_Mb < 0.1) |>
     mutate(file_name = sub("\\..*", "", basename(file_path)), file_type = sub('.*\\.(\\w+)$', '\\1', basename(file_path))) |>
-    # Parse location, recording date time and other temporal columns
-    separate(file_name, into = c("location", "recording_date_time"), sep = "(?:_0\\+1_|_|__0__|__1__)", extra = "merge", remove = FALSE) |>
-    mutate(recording_date_time = sub('.+?(?:__)', '', recording_date_time)) |>
+    separate(file_name, into = c("location", "recording_date_time"), sep = "_(?=\\d{8}_)", extra = "merge", remove = FALSE) |>
+    mutate(recording_date_time = sub("_000$", "", recording_date_time)) |>
     mutate(recording_date_time = as.POSIXct(strptime(recording_date_time, format = "%Y%m%d_%H%M%S"))) |>
     mutate(julian = as.POSIXlt(recording_date_time)$yday,
            year = as.numeric(format(recording_date_time,"%Y")),
@@ -290,7 +289,7 @@ wt_run_ap <- function(x = NULL, fp_col = file_path, audio_dir = NULL, output_dir
 #' @importFrom tidyr pivot_longer
 #' @importFrom purrr reduce map_dfr map
 #' @importFrom readr read_csv
-#' @importFrom magick image_read image_append image_border
+#' @importFrom magick image_read image_append image_border image_info image_crop
 #' @export
 #'
 #' @examples
@@ -487,7 +486,7 @@ wt_signal_level <- function(path, fmin = 500, fmax = NA, threshold, channel = "l
 
   # Aggregate (if desired)
   if (!is.null(aggregate)) {
-    if (!is.na(sl)) {
+    if (!identical(sl, NA)) {
       sl <- sl |>
         mutate(time_lag = lag(time),
                new_detection = ifelse((time - time_lag) >= aggregate, 1, 0),
@@ -500,16 +499,13 @@ wt_signal_level <- function(path, fmin = 500, fmax = NA, threshold, channel = "l
         mutate(detection_length = end_time_s - start_time_s)
       aggregated <- TRUE
     } else {
-      sl
       aggregated <- FALSE
       warning("No signals met the threshold criteria. Output not aggregated.")
     }
   } else {
-    if (!is.na(sl)) {
-      sl
+    if (!identical(sl, NA)) {
       aggregated <- FALSE
     } else {
-      sl
       aggregated <- FALSE
       warning("No signals met the threshold critera.")
     }
@@ -560,11 +556,6 @@ wt_chop <- function(input = NULL, segment_length = NULL, output_folder = NULL) {
   # Validate segment length
   if (is.null(segment_length) || !is.numeric(segment_length) || segment_length <= 0) {
     stop("Segment length must be a positive numeric value.")
-  }
-
-  # Check for input and output folder overlap
-  if (any(grepl(normalizePath(output_folder), normalizePath(input$file_path)))) {
-    stop("The output folder cannot be the same as the input file directory to prevent overwriting.")
   }
 
   # Prepare input data
@@ -752,7 +743,7 @@ wt_make_aru_tasks <- function(input, output=NULL, task_method = c("1SPM","1SPT",
 
 wt_kaleidoscope_tags <- function (input, output = NULL, freq_bump = TRUE) {
 
-  #Check to see if the input exists and reading it in
+  # Check to see if the input exists and reading it in
   if (file.exists(input)) {
     in_tbl <- read_csv(input, col_names = TRUE, na = c("", "NA"), col_types = cols())
   } else {
@@ -807,8 +798,8 @@ wt_kaleidoscope_tags <- function (input, output = NULL, freq_bump = TRUE) {
            max_tag_freq = case_when(is.na(max_tag_freq) ~ 96000, TRUE ~ max_tag_freq * 1000)) |>
     ungroup() |>
     mutate_at(vars(task_duration, min_tag_freq, max_tag_freq), ~round(.,2)) |>
-    mutate(min_tag_freq = case_when(freq_bump == TRUE ~ min_tag_freq - 10000, TRUE ~ min_tag_freq),
-           max_tag_freq = case_when(freq_bump == TRUE ~ max_tag_freq + 10000, TRUE ~ max_tag_freq)) |>
+    mutate(min_tag_freq = if_else(rep(freq_bump, n()), min_tag_freq - 10000, min_tag_freq),
+           max_tag_freq = if_else(rep(freq_bump, n()), max_tag_freq + 10000, max_tag_freq)) |>
     relocate(task_duration, .after = task_method) |>
     relocate(tag_start_time, .after = abundance) |>
     relocate(tag_duration, .after = tag_start_time) |>
@@ -965,12 +956,18 @@ wt_songscope_tags <- function (input, output = c("env","csv"), output_file=NULL,
 #'
 #' @examples
 #' \dontrun{
-#' wt_guano_tags(path = my_audio_file.csv, output = NULL, output_file = NULL)
+#' # Process a single audio file
+#' wt_guano_tags("/path/to/audio_file.wav")
+#'
+#' # Process audio files from a directory
+#' wt_audio_scanner("/path/to/audio", file_type = "wav", extra_cols = TRUE) |>
+#'   purrr::map(.x = .$file_path, .f = ~wt_guano_tags(.x)) |>
+#'   bind_rows()
 #' }
 #'
 #' @return A csv formatted as a WildTrax tag template
 
-wt_guano_tags <- function(path, output = NULL, output_file = NULL) {
+wt_guano_tags <- function(path, output = FALSE, output_file = NULL) {
 
   wav_path <- path
   con <- file(wav_path, "rb")
@@ -1014,13 +1011,39 @@ wt_guano_tags <- function(path, output = NULL, output_file = NULL) {
   # Convert to WildTrax tags and metadata
   guan_tags <- guan_tibble |>
     pivot_wider(names_from = key, values_from = value) |>
-    rename(location = `Loc Position`)
+    rename(location = `Loc Position`) |>
+    select(-`NA`) |>
+    distinct() |>
+    transmute(location = sub("_\\d{8}.*", "", `Original Filename`),
+              recording_date_time = as.POSIXct(sub("[-+]\\d{2}:\\d{2}$", "", Timestamp), format = "%Y-%m-%dT%H:%M:%S", tz = "UTC"),
+              task_duration = round(as.numeric(Length),1),
+              task_method = "None",
+              observer = "Not Assigned",
+              species_code = `WA|Kaleidoscope|Auto ID`,
+              individual_number = 1,
+              vocalization = "Call",
+              abundance = 1,
+              detection_time = 0.1,
+              tag_duration = as.numeric(Length),
+              min_tag_freq = as.numeric(sub('.*"Fmin":([0-9.]+).*', "\\1", `WA|Kaleidoscope|Classifier|Statistics`)) * 1000,
+              max_tag_freq = as.numeric(sub('.*"Fmax":([0-9.]+).*', "\\1", `WA|Kaleidoscope|Classifier|Statistics`)) * 1,
+              species_individual_comments = paste0("Source: Kaleidoscope ",`WA|Kaleidoscope|Classifier|Version`, " ALTERNATIVE TAGS Sonobat ", sub("-.*", "", `SB|Classifier`), ":", `SB|Leaning Species Auto ID`),
+              tag_is_hidden_for_verification = FALSE,
+              recording_sample_frequency = as.numeric(Samplerate),
+              tag_id = NA_real_)
 
   guan_extra <- guan_tibble |>
     pivot_wider(names_from = key, values_from = value) |>
     rename(guano_version = `GUANO|Version`)
 
-  return(list(guan_tags, guan_extra))
+  if (output) {
+    if (is.null(output_file)) stop("Please provide output_file when output = TRUE.")
+    write.csv(guan_tags, output_file, row.names = FALSE)
+    return(invisible(guan_tags))
+  }
+
+  return(guan_tags)
+
 
 }
 
