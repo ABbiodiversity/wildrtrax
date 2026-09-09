@@ -12,8 +12,8 @@
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="WildTrax APIs: Authentication, Endpoints, and Usage">
 </head>
@@ -155,8 +155,8 @@ you can download data for.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>            <span style="text-decoration: underline;">5</span>350 CWS-PAC           ARU                  <span style="text-decoration: underline;">2</span>187 Boreal Monitoring…</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>            <span style="text-decoration: underline;">5</span>351 CWS-ATL           ARU                   935 Newfoundland Bree…</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>            <span style="text-decoration: underline;">5</span>351 CWS-ATL           ARU                   924 Boreal Monitoring…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>            <span style="text-decoration: underline;">5</span>350 CWS-PAC           ARU                  <span style="text-decoration: underline;">2</span>186 Boreal Monitoring…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span>            <span style="text-decoration: underline;">5</span>396 Gov-QC            ARU                  <span style="text-decoration: underline;">1</span>191 Suivi-BdQc 2021   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>            <span style="text-decoration: underline;">5</span>462 PUNP              ARU                  <span style="text-decoration: underline;">4</span>091 Pukaskwa National…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span>            <span style="text-decoration: underline;">5</span>350 CWS-PAC           ARU                  <span style="text-decoration: underline;">2</span>186 Boreal Monitoring…</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 5 more variables: project_status &lt;chr&gt;, project_creation_date &lt;date&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   project_due_date &lt;date&gt;, task_count &lt;int&gt;, tasks_completed &lt;int&gt;</span></span></span></code></pre></div>
 <p>Using the project_id number in the download summary you can then use
@@ -170,7 +170,7 @@ illustrated below.</p>
 <span><span class="va">my_report</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/wt_download_report.html">wt_download_report</a></span><span class="op">(</span>project_id <span class="op">=</span> <span class="fl">620</span>, sensor_id <span class="op">=</span> <span class="st">'ARU'</span>, reports <span class="op">=</span> <span class="st">"main"</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">my_report</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 31</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 36</span></span></span>
 <span><span class="co">#&gt;   organization project_id location  location_id location_buffer_m longitude</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> BU                  620 CHPP-WP-1       <span style="text-decoration: underline;">94</span>515                <span style="color: #BB0000;">NA</span>     -<span style="color: #BB0000;">110.</span></span></span>
@@ -179,7 +179,7 @@ illustrated below.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> BU                  620 CHPP-WP-1       <span style="text-decoration: underline;">94</span>515                <span style="color: #BB0000;">NA</span>     -<span style="color: #BB0000;">110.</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> BU                  620 CHPP-WP-1       <span style="text-decoration: underline;">94</span>515                <span style="color: #BB0000;">NA</span>     -<span style="color: #BB0000;">110.</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> BU                  620 CHPP-WP-1       <span style="text-decoration: underline;">94</span>515                <span style="color: #BB0000;">NA</span>     -<span style="color: #BB0000;">110.</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 25 more variables: latitude &lt;dbl&gt;, equipment_make &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 30 more variables: latitude &lt;dbl&gt;, equipment_make &lt;chr&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   equipment_model &lt;chr&gt;, recording_id &lt;dbl&gt;, recording_date_time &lt;dttm&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   task_id &lt;dbl&gt;, task_is_complete &lt;lgl&gt;, task_duration &lt;dbl&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   task_method &lt;chr&gt;, species_code &lt;chr&gt;, species_common_name &lt;chr&gt;,</span></span></span>
@@ -195,7 +195,7 @@ to get the project ids to download the data.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Download all of the published Ecosystem Health ARU data to a single object</span></span>
 <span><span class="fu"><a href="../reference/wt_get_projects.html">wt_get_projects</a></span><span class="op">(</span><span class="st">"ARU"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"^Ecosystem Health"</span>,<span class="va">project</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"^Ecosystem Health"</span>,<span class="va">project</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span>.x <span class="op">=</span> <span class="va">project_id</span>, .f <span class="op">=</span> <span class="op">~</span><span class="fu"><a href="../reference/wt_download_report.html">wt_download_report</a></span><span class="op">(</span>project_id <span class="op">=</span> <span class="va">.x</span>, sensor_id <span class="op">=</span> <span class="st">"ARU"</span>, reports <span class="op">=</span> <span class="st">"main"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>WildTrax also pre-formats ARU to point count (PC) data depending on
 the type of analysis you wish to perform. See the <a href="https://borealbirds.ca/" class="external-link">Boreal Avian Modelling project</a>
@@ -204,7 +204,7 @@ on integration of avian point count and ARU data.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># As ARU format</span></span>
 <span><span class="va">my_report</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 388 × 31</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 388 × 36</span></span></span>
 <span><span class="co">#&gt;    organization project_id location  location_id location_buffer_m longitude</span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> BU                  620 CHPP-WP-1       <span style="text-decoration: underline;">94</span>515                <span style="color: #BB0000;">NA</span>     -<span style="color: #BB0000;">110.</span></span></span>
@@ -218,7 +218,7 @@ on integration of avian point count and ARU data.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> BU                  620 CHPP-WP-1       <span style="text-decoration: underline;">94</span>515                <span style="color: #BB0000;">NA</span>     -<span style="color: #BB0000;">110.</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> BU                  620 CHPP-WP-1       <span style="text-decoration: underline;">94</span>515                <span style="color: #BB0000;">NA</span>     -<span style="color: #BB0000;">110.</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 378 more rows</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 25 more variables: latitude &lt;dbl&gt;, equipment_make &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 30 more variables: latitude &lt;dbl&gt;, equipment_make &lt;chr&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   equipment_model &lt;chr&gt;, recording_id &lt;dbl&gt;, recording_date_time &lt;dttm&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   task_id &lt;dbl&gt;, task_is_complete &lt;lgl&gt;, task_duration &lt;dbl&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   task_method &lt;chr&gt;, species_code &lt;chr&gt;, species_common_name &lt;chr&gt;,</span></span></span>
@@ -237,12 +237,11 @@ on integration of avian point count and ARU data.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> BU           Community - Co…        620 CHPP-WP…       <span style="text-decoration: underline;">89</span>972                <span style="color: #BB0000;">NA</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> BU           Community - Co…        620 CHPP-WP…       <span style="text-decoration: underline;">89</span>972                <span style="color: #BB0000;">NA</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 17 more variables: latitude &lt;dbl&gt;, longitude &lt;dbl&gt;, survey_id &lt;chr&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   survey_date &lt;dttm&gt;, survey_url &lt;chr&gt;, observer &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   survey_date_time &lt;dttm&gt;, survey_url &lt;chr&gt;, observer &lt;chr&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   survey_distance_method &lt;chr&gt;, survey_duration_method &lt;chr&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   detection_distance &lt;chr&gt;, detection_time &lt;dbl&gt;, species_code &lt;chr&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   species_common_name &lt;chr&gt;, species_scientific_name &lt;chr&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   individual_count &lt;chr&gt;, detection_heard &lt;lgl&gt;, detection_seen &lt;lgl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   detection_comments &lt;chr&gt;</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;">#   species_common_name &lt;chr&gt;, species_scientific_name &lt;chr&gt;, abundance &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   detection_heard &lt;lgl&gt;, detection_seen &lt;lgl&gt;, detection_comments &lt;chr&gt;</span></span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="species">Species<a class="anchor" aria-label="anchor" href="#species"></a>
@@ -383,7 +382,7 @@ Organization locations</div>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

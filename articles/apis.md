@@ -33,6 +33,7 @@ WildTrax](auth.png)
 Ensure you use your Auth0 credentials used to login to WildTrax
 
 ``` r
+
 # Note that you need to use 'WT_USERNAME' and 'WT_PASSWORD'
 Sys.setenv(WT_USERNAME = 'guest', WT_PASSWORD = 'Apple123')
 ```
@@ -42,6 +43,7 @@ Next, you use the
 function to authenticate.
 
 ``` r
+
 # Authenticate
 wt_auth()
 #> Authentication into WildTrax successful.
@@ -58,6 +60,7 @@ WildTrax APIs. For instance, you can use
 to see basic metadata about projects that you can download data for.
 
 ``` r
+
 # Download the project summary you have access to
 my_projects <- wt_get_projects('ARU')
 
@@ -69,8 +72,8 @@ head(my_projects)
 #> 2            5350 CWS-PAC           ARU                  2187 Boreal Monitoring…
 #> 3            5351 CWS-ATL           ARU                   935 Newfoundland Bree…
 #> 4            5351 CWS-ATL           ARU                   924 Boreal Monitoring…
-#> 5            5350 CWS-PAC           ARU                  2186 Boreal Monitoring…
-#> 6            5396 Gov-QC            ARU                  1191 Suivi-BdQc 2021   
+#> 5            5462 PUNP              ARU                  4091 Pukaskwa National…
+#> 6            5350 CWS-PAC           ARU                  2186 Boreal Monitoring…
 #> # ℹ 5 more variables: project_status <chr>, project_creation_date <date>,
 #> #   project_due_date <date>, task_count <int>, tasks_completed <int>
 ```
@@ -84,13 +87,15 @@ Corresponds to downloading the data from the Project dashboard like
 illustrated below.
 
 ``` r
+
 # Download the project report
 my_report <- wt_download_report(project_id = 620, sensor_id = 'ARU', reports = "main")
 ```
 
 ``` r
+
 head(my_report)
-#> # A tibble: 6 × 31
+#> # A tibble: 6 × 36
 #>   organization project_id location  location_id location_buffer_m longitude
 #>   <chr>             <int> <chr>           <int>             <dbl>     <dbl>
 #> 1 BU                  620 CHPP-WP-1       94515                NA     -110.
@@ -99,7 +104,7 @@ head(my_report)
 #> 4 BU                  620 CHPP-WP-1       94515                NA     -110.
 #> 5 BU                  620 CHPP-WP-1       94515                NA     -110.
 #> 6 BU                  620 CHPP-WP-1       94515                NA     -110.
-#> # ℹ 25 more variables: latitude <dbl>, equipment_make <chr>,
+#> # ℹ 30 more variables: latitude <dbl>, equipment_make <chr>,
 #> #   equipment_model <chr>, recording_id <dbl>, recording_date_time <dttm>,
 #> #   task_id <dbl>, task_is_complete <lgl>, task_duration <dbl>,
 #> #   task_method <chr>, species_code <chr>, species_common_name <chr>,
@@ -118,6 +123,7 @@ and then filter by a substring in order to get the project ids to
 download the data.
 
 ``` r
+
 # Download all of the published Ecosystem Health ARU data to a single object
 wt_get_projects("ARU") |>
   dplyr::filter(grepl("^Ecosystem Health",project)) %>%
@@ -131,9 +137,10 @@ project](https://borealbirds.ca/) website and GitHub
 integration of avian point count and ARU data.
 
 ``` r
+
 # As ARU format
 my_report
-#> # A tibble: 388 × 31
+#> # A tibble: 388 × 36
 #>    organization project_id location  location_id location_buffer_m longitude
 #>    <chr>             <int> <chr>           <int>             <dbl>     <dbl>
 #>  1 BU                  620 CHPP-WP-1       94515                NA     -110.
@@ -147,7 +154,7 @@ my_report
 #>  9 BU                  620 CHPP-WP-1       94515                NA     -110.
 #> 10 BU                  620 CHPP-WP-1       94515                NA     -110.
 #> # ℹ 378 more rows
-#> # ℹ 25 more variables: latitude <dbl>, equipment_make <chr>,
+#> # ℹ 30 more variables: latitude <dbl>, equipment_make <chr>,
 #> #   equipment_model <chr>, recording_id <dbl>, recording_date_time <dttm>,
 #> #   task_id <dbl>, task_is_complete <lgl>, task_duration <dbl>,
 #> #   task_method <chr>, species_code <chr>, species_common_name <chr>,
@@ -156,6 +163,7 @@ my_report
 ```
 
 ``` r
+
 # As point count format
 head(aru_as_pc)
 #> # A tibble: 6 × 23
@@ -168,12 +176,11 @@ head(aru_as_pc)
 #> 5 BU           Community - Co…        620 CHPP-WP…       89972                NA
 #> 6 BU           Community - Co…        620 CHPP-WP…       89972                NA
 #> # ℹ 17 more variables: latitude <dbl>, longitude <dbl>, survey_id <chr>,
-#> #   survey_date <dttm>, survey_url <chr>, observer <chr>,
+#> #   survey_date_time <dttm>, survey_url <chr>, observer <chr>,
 #> #   survey_distance_method <chr>, survey_duration_method <chr>,
 #> #   detection_distance <chr>, detection_time <dbl>, species_code <chr>,
-#> #   species_common_name <chr>, species_scientific_name <chr>,
-#> #   individual_count <chr>, detection_heard <lgl>, detection_seen <lgl>,
-#> #   detection_comments <chr>
+#> #   species_common_name <chr>, species_scientific_name <chr>, abundance <chr>,
+#> #   detection_heard <lgl>, detection_seen <lgl>, detection_comments <chr>
 ```
 
 ## Species
@@ -184,6 +191,7 @@ also grants you access to other valuable columns or provides a complete
 list of the species currently supported by WildTrax.
 
 ``` r
+
 # Download the WildTrax species table
 wt_get_species() |> arrange(species_code)
 ```
@@ -195,6 +203,7 @@ function. The `included` column will expose which species have been
 currently tagged in the Project.
 
 ``` r
+
 my_project_species <- wt_get_project_species(620)
 
 my_project_species |>
@@ -218,10 +227,12 @@ to uncover data pertinent to your account or those publicly available on
 WildTrax.
 
 ``` r
+
 discover <- wt_dd_summary(sensor = "ARU", species = "White-throated Sparrow", boundary = NULL)
 ```
 
 ``` r
+
 head(discover)
 #> $`lat-long-summary`
 #> # A tibble: 11 × 5
@@ -260,6 +271,7 @@ head(discover)
 Use custom bounding areas:
 
 ``` r
+
 # Define a polygon
 my_aoi <- list(
   c(-113.96068, 56.23817),
@@ -274,6 +286,7 @@ head(discover_with_aoi)
 ```
 
 ``` r
+
 library(sf)
 # Alberta bounding box
 abbox <- read_sf("...shp") |> # Shapefile of Alberta
@@ -315,6 +328,7 @@ locations](syncs.png)
 How wt_get_sync() and wt_get_view() relate to Organization locations
 
 ``` r
+
 # Extracting location information from all API functions
 
 # All location information from Organization location sync

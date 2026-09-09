@@ -49,18 +49,18 @@ often verification by a human observer is still necessary.
 Choosing a score threshold will depend on the goals of the project;
 however, threshold choice is a trade-off between false positives (i.e.,
 incorrect classifications) and false negatives (i.e., missed detections;
-see Priyadarshani, Marsland, and Castro (2018), Knight et al. (2017)).
-Choosing a high score threshold will minimize false positives, but will
-also result in false negatives. Choosing a low score threshold will
-minimize false negatives but will result in many false positives. The
-proportion of false positives at a given score threshold is typically
-measured by precision:
+see Priyadarshani et al. (2018), Knight et al. (2017)). Choosing a high
+score threshold will minimize false positives, but will also result in
+false negatives. Choosing a low score threshold will minimize false
+negatives but will result in many false positives. The proportion of
+false positives at a given score threshold is typically measured by
+precision:
 
-$precision = \frac{tp}{tp + fp}$
+$`precision = \frac{tp}{tp + fp}`$
 
 While the proportion of false negatives is measured as recall:
 
-$recall = \frac{tp}{tp + fn}$
+$`recall = \frac{tp}{tp + fn}`$
 
 Where *tp* is the number of true positives, *fp* is the number of false
 positives, and *fn* is the number of false negatives.
@@ -73,7 +73,7 @@ threshold.
 F-score is a combination of precision and recall and can also used to
 select a score threshold by selecting the peak value.
 
-$Fscore = \frac{2*precision*recall}{precision + recall}$
+$`Fscore = \frac{2 * precision* recall}{precision + recall}`$
 
 ## Evaluating
 
@@ -91,6 +91,7 @@ species per minute method (1SPM). You can also exclude species that are
 not allowed in the project from the BirdNET results before evaluation.
 
 ``` r
+
 Sys.setenv(WT_USERNAME = 'guest', WT_PASSWORD = 'Apple123')
 wt_auth()
 
@@ -125,6 +126,7 @@ We can plot the results of our evaluation to get an idea of how each
 classifier is performing:
 
 ``` r
+
 ggplot(eval) +
   geom_smooth(aes(x=threshold, y=precision, colour=classifier), linewidth=1.5) +
   xlab("Score threshold") +
@@ -137,6 +139,7 @@ ggplot(eval) +
 ![](classifiers-tutorial_files/figure-html/unnamed-chunk-3-1.png)
 
 ``` r
+
 ggplot(eval) +
   geom_smooth(aes(x=threshold, y=recall, colour=classifier), linewidth=1.5) +
   xlab("Score threshold") +
@@ -149,6 +152,7 @@ ggplot(eval) +
 ![](classifiers-tutorial_files/figure-html/unnamed-chunk-3-2.png)
 
 ``` r
+
 ggplot(eval) +
   geom_smooth(aes(x=threshold, y=fscore, colour=classifier), linewidth=1.5) +
   xlab("Score threshold") +
@@ -161,6 +165,7 @@ ggplot(eval) +
 ![](classifiers-tutorial_files/figure-html/unnamed-chunk-3-3.png)
 
 ``` r
+
 ggplot(eval) +
   geom_smooth(aes(x=recall, y=precision, colour=classifier), linewidth=1.5) +
   xlab("Recall") +
@@ -181,6 +186,7 @@ function to select a score threshold manually, or you can use the
 function to select the highest threshold that maximizes F-score.
 
 ``` r
+
 wt_classifier_threshold(eval)
 ```
 
@@ -197,6 +203,7 @@ mistakes. But we can select a score threshold that maximizes the
 F-score. Let’s look at what our precision is:
 
 ``` r
+
 eval[eval$threshold==0.75,]
 ```
 
@@ -245,6 +252,7 @@ location, or in the entire project. Let’s pretend we’re interested in
 site-specific species richness and use the task argument.
 
 ``` r
+
 new <- wt_additional_species(data, remove_species = TRUE, threshold = 0.8, resolution="task")
 
 new
@@ -265,8 +273,8 @@ new
     ## 10       89972       211642  180881 Northern House Wren       0.977 BU          
     ## # ℹ 88 more rows
     ## # ℹ 8 more variables: version <chr>, location <chr>,
-    ## #   recording_date_time <dttm>, recording_length <dbl>, scientific_name <chr>,
-    ## #   species_code <chr>, ai_detection_time <dbl>,
+    ## #   recording_date_time <dttm>, recording_duration <dbl>,
+    ## #   species_scientific_name <chr>, species_code <chr>, ai_detection_time <dbl>,
     ## #   is_species_allowed_in_project <lgl>
 
 There are potentially 98 new species detections in our dataset. In this
@@ -275,6 +283,7 @@ sync and either check the tasks individually, or synchronize the tags
 and check them via species verification.
 
 ``` r
+
 wt_additional_species(data, remove_species = TRUE, threshold = 0.8, resolution="task", format_to_tags = T)
 ```
 
@@ -318,6 +327,7 @@ for tool development like distance estimation or building a focal
 species recognizer. Let’s try it for White-crowned Sparrow (WCSP):
 
 ``` r
+
 #Evaluate classifier performance
 
 eval_wcsp <- wt_evaluate_classifier(data,
@@ -345,6 +355,7 @@ call rate to see if it’s higher at the beginning of the season, as we
 would expect:
 
 ``` r
+
 #Calculate detections per second and mean confidence in each recording
 rate_wcsp <- detections_wcsp |> 
   group_by(location_id, recording_date_time, recording_length, version) |>
@@ -390,11 +401,11 @@ recall rate in mind:
 2.  Classifier data can be used for occupancy modelling
     ((**wood_2023?**)), and there are approaches that can accommodate
     false positive error rates to preclude verification of all
-    detections (Rhinehart, Turek, and Kitzes (2022)). However, users
-    should keep in mind that occupancy modelling is recommended only for
-    detection probabilities \>30% and that recall from BirdNET may be
-    too low for reliable occupancy estimates for many species (Knight et
-    al. (2017)).
+    detections (Rhinehart et al. (2022)). However, users should keep in
+    mind that occupancy modelling is recommended only for detection
+    probabilities \>30% and that recall from BirdNET may be too low for
+    reliable occupancy estimates for many species (Knight et al.
+    (2017)).
 
 See Pérez-Granados (2023) for a full review of some classifier
 applications and performance.

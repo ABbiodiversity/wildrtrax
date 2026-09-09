@@ -12,6 +12,7 @@ function reads in audio files (either wac, wav or flac format) from a
 local directory and outputs useful metadata.
 
 ``` r
+
 wt_audio_scanner(path = ".", file_type = "wav", extra_cols = T)
 ```
 
@@ -19,11 +20,13 @@ You might want to select recordings between certain times of day or
 year, or filter recordings based on some criteria.
 
 ``` r
+
 files |>
   dplyr::select(-file_path)
 ```
 
 ``` r
+
 files |>
   dplyr::mutate(hour = as.numeric(format(recording_date_time, "%H"))) |>
   dplyr::filter(julian == 176, 
@@ -41,6 +44,7 @@ audio minute of data. Note that you must have the AP program installed
 on your computer. See more with Towsey et al. (2018).
 
 ``` r
+
 # Use the wt_* tibble to execute the AP on the files
 
 wt_run_ap(x = my_files, output_dir = paste0(root, 'ap_outputs'), path_to_ap = '/where/you/store/AP')
@@ -81,6 +85,7 @@ We can use the
 function to search for sounds that exceed a certain amplitude threshold.
 
 ``` r
+
 if (dir.exists(".")) {
   signal_file <- wt_audio_scanner(path = ".", file_type = "wav", extra_cols = T)
 } else {
@@ -95,6 +100,7 @@ wt_signal_level(path = signal_file$file_path,
 ```
 
 ``` r
+
 # Run
 s
 # Return a list object, with parameters stored
@@ -111,6 +117,7 @@ Make tasks at any time using a `wt_*` standard data set with
 [`wt_make_aru_tasks()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_make_aru_tasks.md).
 
 ``` r
+
 wt_make_aru_tasks(input = files |>
                     select(-file_path), task_method = "1SPT", task_length = 180)
 ```
@@ -120,12 +127,14 @@ If you’ve already uploaded recordings to WildTrax, scan your media using
 and a relative folder path.
 
 ``` r
+
 my_files <- wt_audio_scanner(path = '/my/BigGrid/files', file_type = 'all', extra_cols = F)
 ```
 
 And then download the project data you wish to compare it to:
 
 ``` r
+
 my_projects <- wt_get_projects("ARU") |>
   dplyr::filter(grepl("Cypress", project)) |>
   dplyr::pull(project_id) |>
@@ -158,6 +167,7 @@ WildTrax for further review and analysis.
 Here is some raw Songscope output:
 
 ``` r
+
 # Convert Songscope output into WildTrax tags
 
 readr::read_table("./CONI.txt")
@@ -184,6 +194,7 @@ And here’s in the transformation with
 [`wt_songscope_tags()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_songscope_tags.md):
 
 ``` r
+
 wt_songscope_tags(
   input = "./CONI.txt",
   output = "env",
@@ -200,6 +211,7 @@ wt_songscope_tags(
 Similarly, a Kaleidoscope output can be converted similarly:
 
 ``` r
+
 wt_kaleidoscope_tags(
   input = "./id.csv",
   output = NULL,
@@ -207,8 +219,6 @@ wt_kaleidoscope_tags(
 ```
 
 Towsey, Michael Towsey, Elizabeth Znidersic Znidersic, Julie Broken-Brow
-Broken-Brow, Karlina Indraswari Indraswari, David M. Watson Watson,
-Yvonne Phillips Phillips, Anthony Truskinger Truskinger, and Paul Roe
-Roe. 2018. “Long-Duration, False-Colour Spectrograms for Detecting
-Species in Large Audio Data-Sets.” *Journal of Ecoacoustics* 2 (1): 1–1.
-<https://doi.org/10.22261/JEA.IUSWUI>.
+Broken-Brow, et al. 2018. “Long-Duration, False-Colour Spectrograms for
+Detecting Species in Large Audio Data-Sets.” *Journal of Ecoacoustics* 2
+(1): 1–1. <https://doi.org/10.22261/JEA.IUSWUI>.

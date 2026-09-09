@@ -14,6 +14,7 @@ function to retrieve the main report for the CAM sensor in the Ecosystem
 Health 2014 project:
 
 ``` r
+
 eh14_raw <- wt_download_report(
   project_id = 205, 
   sensor_id = "CAM",
@@ -22,6 +23,7 @@ eh14_raw <- wt_download_report(
 ```
 
 ``` r
+
 head(eh14_raw)
 ```
 
@@ -79,6 +81,7 @@ Evaluate **independent detections** with
 [`wt_ind_detect()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_ind_detect.md):
 
 ``` r
+
 # Back to the Ecosystem Health 2014 data.
 
 eh14_detections <- wt_ind_detect(
@@ -91,6 +94,7 @@ eh14_detections <- wt_ind_detect(
 ```
 
 ``` r
+
 head(eh14_detections, width = 75) 
 ```
 
@@ -142,6 +146,7 @@ you can get:
 - The desired output format (‘wide’ or ‘long’)
 
 ``` r
+
 # A call to `wt_summarise_cam()`:
 
 eh14_summarised <- wt_summarise_cam(
@@ -159,6 +164,7 @@ eh14_summarised <- wt_summarise_cam(
 ```
 
 ``` r
+
 head(eh14_summarised)
 ```
 

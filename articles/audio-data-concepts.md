@@ -25,6 +25,7 @@ You might also be working with *mp3* which is a lossy compressed audio
 file format.
 
 ``` r
+
 file <- fs::dir_ls(path = ".", regexp = "*.wav")
 
 wave_t <- tuneR::readWave(file, header = T) #True header format
@@ -39,6 +40,7 @@ normal list. When `header = FALSE` and you are reading in the entire wav
 file, you can access *slots* of the `S4` object using `@`.
 
 ``` r
+
 sound_length_S4 <- round((wave_f@left / wave_f@samp.rate), 2)
 
 #Is equivalent to:
@@ -70,6 +72,7 @@ Let’s create a spectrogram to get a better look at some of those audio
 files. Here’s one way to do it using `ggspectro` in `seewave`.
 
 ``` r
+
 #Plot a spectrogram
 v <- seewave::ggspectro(tuneR::readWave(file, from = 0, to = 60, units = "seconds"), ovlp = 50) + ggplot2::geom_tile(aes(fill=amplitude)) + theme_bw()
 ```

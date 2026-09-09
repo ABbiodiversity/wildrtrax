@@ -14,6 +14,7 @@ You can install the most recent version of `wildrtrax` directly from
 this repository with:
 
 ``` r
+
 # install.packages("remotes")
 remotes::install_github("ABbiodiversity/wildrtrax")
 ```
@@ -24,6 +25,7 @@ version of this package contains experimental features and recent fixes.
 It can be installed with:
 
 ``` r
+
 remotes::install_github("ABbiodiversity/wildrtrax@development")
 ```
 
@@ -45,6 +47,7 @@ login required to access public data! Use
 to login to see data you have privileges and membership to.
 
 ``` r
+
 library(wildrtrax)
 library(sf)
 
@@ -78,6 +81,7 @@ analysis. Consult
 and Acoustic data wrangling for more information.
 
 ``` r
+
 library(wildrtrax)
 library(tidyverse)
 
@@ -105,6 +109,7 @@ in [Acoustic
 pre-processing](https://abbiodiversity.github.io/wildrtrax/articles/acoustic-pre-processing.html).
 
 ``` r
+
 library(wildrtrax)
 library(tidyverse)
 
@@ -125,6 +130,7 @@ Tutorial](https://abbiodiversity.github.io/wildrtrax/articles/classifiers-tutori
 for more information.
 
 ``` r
+
 library(wildrtrax)
 library(tidyverse)
 
@@ -151,6 +157,7 @@ wrangling](https://abbiodiversity.github.io/wildrtrax/articles/camera-data-wrang
 for more information.
 
 ``` r
+
 library(wildrtrax)
 library(tidyverse)
 
@@ -178,6 +185,7 @@ for a WildTrax project. Download data from a project into an
 [NABAT](https://www.nabatmonitoring.org/) acceptable format.
 
 ``` r
+
 library(wildrtrax)
 library(tidyverse)
 
@@ -202,6 +210,7 @@ Download combined and formatted acoustic and point count data sets
 together.
 
 ``` r
+
 library(wildrtrax)
 library(tidyverse)
 

@@ -12,6 +12,7 @@ The recommended workflow to wrangle together data for analysis in
   [`wt_make_wide()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_make_wide.md)
 
 ``` r
+
 # Start by getting everything you need
 Sys.setenv(WT_USERNAME = 'guest', WT_PASSWORD = 'Apple123')
 wt_auth()
@@ -26,6 +27,7 @@ codes so let’s remove those with
 [`wt_tidy_species()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_tidy_species.md),
 
 ``` r
+
 my_tidy_data <- wt_tidy_species(my_report, remove = c("mammal"), zerofill = F)
 
 # Difference in rows
@@ -37,12 +39,14 @@ So about 15% of detections were mammals. Next, convert TMTT (too many to
 tag) counts to numeric:
 
 ``` r
+
 my_tmtt_data <- wt_replace_tmtt(data = my_tidy_data, calc = "round")
 ```
 
 and finally, widen the data into a species matrix.
 
 ``` r
+
 my_wide_data <- wt_make_wide(data = my_tmtt_data, sound = "all")
 
 head(my_wide_data)
@@ -72,6 +76,7 @@ using
 once the data is downloaded.
 
 ``` r
+
 dat.occu <- wt_format_occupancy(my_report, species="WCSP", siteCovs=NULL)
 mod <- unmarked::occu(~ 1 ~ 1, dat.occu)
 mod
