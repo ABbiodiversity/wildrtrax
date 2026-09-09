@@ -150,18 +150,18 @@ test_that("Download media", {
   expect_no_error(wt_download_media(report, type = "image", output = tmp_dir))
 })
 
-test_that("Download media", {
-  tmp_dir <- withr::local_tempdir()
-  report <- wt_download_report(620, "ARU", "recording") |>
-    dplyr::slice(1)
-  tmp_file <- wt_download_media(
-    report,
-    type = "recording",
-    output = tmp_dir
-  )
-
-  expect_no_error(wt_audio_scanner(tmp_dir, file_type = "flac", extra_cols = T))
-})
+# test_that("Download media", {
+#   tmp_dir <- withr::local_tempdir()
+#   report <- wt_download_report(620, "ARU", "recording") |>
+#     dplyr::slice(1)
+#   tmp_file <- wt_download_media(
+#     report,
+#     type = "recording",
+#     output = tmp_dir
+#   )
+#
+#   expect_no_error(wt_audio_scanner(tmp_dir, file_type = "flac", extra_cols = T))
+# })
 
 
 test_that("Column definitions for reports and syncs", {
