@@ -7,10 +7,10 @@ ind_detections <- wt_ind_detect(test_data_set, threshold = 60, units = "minutes"
 md_test <- wt_download_report(project_id = 625, sensor_id = 'CAM', reports = 'megadetector')
 
 eff_data <- tibble(
-  project_col = c(625),
-  station_col = c("1081-NE"),
-  start_col = as.Date(c("2021-03-16")),
-  end_col = as.Date(c("2021-07-20"))
+  project_id = c(625),
+  location = c("1081-NE"),
+  start_date = as.Date(c("2021-03-16")),
+  end_date = as.Date(c("2021-07-20"))
 )
 
 ################################### Camera Test suite
@@ -58,10 +58,30 @@ test_that("out of range", {
 expect_no_error(wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "day", output_format = "wide", exclude_out_of_range = TRUE))
 })
 
+test_that("weekly summaries", {
+expect_no_error(result_week <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "week", output_format = "long"))
+})
+
+test_that("full summaries", {
+  expect_no_error(result_week <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "full", output_format = "long"))
+})
+
+test_that("effort data supplied", {
+  expect_no_error(result_week <- wt_summarise_cam(detect_data = ind_detections, time_interval = "day", output_format = "long", effort_data = eff_data))
+})
+
+test_that("error ind detect", {
+  expect_error(wt_ind_detect(test_data_set, threshold = 60, units = "blah", datetime_col = image_date_time, remove_human = TRUE, remove_domestic = TRUE))
+})
+
+test_that("error ind detect2", {
+  expect_error(wt_ind_detect(threshold = 60, units = "minutes", datetime_col = image_date_time, remove_human = TRUE, remove_domestic = TRUE))
+})
+
 # test_that("valid time intervals are handled", {
 #
 #   result_day <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "day", output_format = "long")
-#   result_week <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "week", output_format = "long")
+#
 #   result_month <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "month", output_format = "long")
 #   #result_full <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "full", output_format = "long")
 #   result_day_w <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "day", output_format = "wide")

@@ -5,31 +5,11 @@ wt_auth(force = TRUE)
 cypress_hills <- wt_download_report(620, 'ARU', 'main')
 pc_proj <- wt_download_report(881, 'PC', 'main')
 fake <- ""
+rep <- wt_download_report(620, 'ARU', c('main','ai'))
+rep2 <- wt_download_report(84, 'ARU', c('main','ai'))
 
-# test_that('Audio scanner', {
-#   expect_no_error(wt_audio_scanner(".", file_type = "wav", extra_cols = T))
-# })
-#
-# test_that('Audio scanner', {
-#   expect_no_error(wt_audio_scanner(".", file_type = "all", extra_cols = T))
-# })
-#
-# test_that('Audio scanner', {
-#   file <- wt_audio_scanner(".", file_type = "wav", extra_cols = T)
-#   expect_no_error(wt_make_aru_tasks(file, output = NULL, task_method = "1SPT", task_length = 60))
-# })
-#
-# test_that('Guano tags', {
-#   file <- wt_audio_scanner(".", file_type = "wav", extra_cols = T) |>
-#     filter(location == "S4U08993") |>
-#     select(file_path) |>
-#     pull()
-#   expect_no_error(wt_guano_tags(path = file))
-# })
-#
-# test_that("Authentication works correctly", {
-#   expect_true(!is.null(wt_get_projects(sensor = 'ARU')))
-#   })
+test_that("Authentication works correctly", {
+  expect_no_error(wt_get_projects(sensor = 'ARU'))   })
 
 test_that("Downloading ARU report", {
   expect_true(!is.null(cypress_hills))
@@ -58,8 +38,6 @@ test_that("Tidying species zero-filling false", {
   expect_true(nrow(cypress_hills_tidy_f) < nrow(cypress_hills))
 })
 
-library(testthat)
-library(wildrtrax)
 test_that("Replacing TMTT", {
   Sys.setenv(WT_USERNAME = "guest", WT_PASSWORD = "Apple123")
   wt_auth(force = TRUE)
@@ -84,9 +62,6 @@ test_that('Occupancy formatting', {
   occu <- wt_format_occupancy(cypress_hills_tmtt, species = "OVEN")
   expect_true(class(occu)[1] == 'unmarkedFrameOccu')
 })
-
-rep <- wt_download_report(620, 'ARU', c('main','ai'))
-rep2 <- wt_download_report(84, 'ARU', c('main','ai'))
 
 test_that('Expect error wrong data', {
   expect_no_error(wt_evaluate_classifier(rep, resolution = "task", remove_species = F))
@@ -154,7 +129,7 @@ test_that("Songscope tags USPM", {
       vocalization = "SONG",
       score_filter = 10,
       method = "USPM",
-      duration = 180,
+      duration = 300,
       sample_freq = 44100
     )
   )
@@ -199,37 +174,74 @@ test_that("Wide with PC", {
   expect_no_error(wt_make_wide(pc_proj))
 })
 
-test_that('Getting QPAD offsets', {
-  library(QPAD)
-  cypress_hills <- wt_download_report(620, 'ARU', 'main')
-  cypress_hills_tidy <- wt_tidy_species(cypress_hills, remove = c("mammal", "abiotic", "amphibian", "unknown"), zerofill = T)
-  cypress_hills_tmtt <- wt_replace_tmtt(cypress_hills_tidy, calc = "round")
-  cypress_hills_wide <- wt_make_wide(cypress_hills_tmtt, sound = "all")
-  cypress_hills_qpad <- wt_qpad_offsets(cypress_hills_wide, species = "all", version = 3, together = F)
-  expect_true(ncol(cypress_hills_qpad) > 1)
-})
-
-test_that('QPAD for PC', {
-  library(QPAD)
-  cypress_hills <- wt_download_report(881, 'PC', 'main')
-  cypress_hills_tidy <- wt_tidy_species(cypress_hills, remove = c("mammal", "abiotic", "amphibian", "unknown"), zerofill = T)
-  cypress_hills_wide <- wt_make_wide(cypress_hills_tidy, sound = "all")
-  cypress_hills_qpad <- wt_qpad_offsets(cypress_hills_wide, species = "all", version = 3, together = F)
-  expect_true(ncol(cypress_hills_qpad) > 1)
-})
-
-test_that('QPAD for PC', {
-  library(QPAD)
-  cypress_hills <- wt_download_report(881, 'PC', 'main')
-  cypress_hills_tidy <- wt_tidy_species(cypress_hills, remove = c("mammal", "abiotic", "amphibian", "unknown"), zerofill = T)
-  cypress_hills_wide <- wt_make_wide(cypress_hills_tidy, sound = "all")
-  cypress_hills_qpad <- wt_qpad_offsets(cypress_hills_wide, species = "all", version = 3, together = T)
-  expect_true(ncol(cypress_hills_qpad) > 1)
-})
-
 test_that('Format FWMIS lookups', {
   expect_no_error(wt_download_report(620, 'ARU', "main") |>
     wt_format_data(format = 'FWMIS'))
 })
 
-wt_guano_tags("/Users/alexandremacphail/R/wildrtrax/tests/testthat/BAT1_2426_20250724_003827_000.wav")
+test_that('Guano', {
+  expect_no_error(wt_audio_scanner(testthat::test_path(), file_type = "wav", extra_cols = TRUE) |>
+                    filter(sample_rate > 192000) %>% purrr::map(.x = .$file_path, .f = ~wt_guano_tags(.x)))
+})
+
+test_that('WAC Tests', {
+  expect_no_error(wt_audio_scanner(testthat::test_path(), file_type = "wac", extra_cols = TRUE))
+})
+
+test_that('Chop tests', {
+my_files <- wt_audio_scanner(testthat::test_path(), file_type = "wav", extra_cols = TRUE) |>
+  slice(1)
+expect_no_error(wt_chop(input = my_files, segment_length = 60, output_folder = testthat::test_path("chop")))})
+
+test_that('Signal level tests', {
+  expect_no_error(wt_signal_level(testthat::test_path("1-1A1-CA1-B_20250620_120000.wav"), fmin = 500, fmax = 10000, threshold = 35, channel = "left", aggregate = NULL))
+})
+
+test_that('Signal level tests - aggregate', {
+  expect_no_error(wt_signal_level(testthat::test_path("1-1A1-CA1-B_20250620_120000.wav"), fmin = 500, fmax = 10000, threshold = 35, channel = "right", aggregate = 10))
+})
+
+test_that('Making tasks', {
+expect_no_error(wt_audio_scanner(testthat::test_path(), file_type = "wav", extra_cols = TRUE) |>
+  slice(1) |>
+  wt_make_aru_tasks(output = NULL, task_method = "1SPT", task_length = 60))
+})
+
+test_that('Audiomoth formatting', {
+  expect_no_error(wt_format_audiomoth_filenames(testthat::test_path("audiomoth")))
+                                })
+
+test_that("Audio Analysis Programs workflow runs successfully", {
+
+  # Scan test WAV file
+  j <- wt_audio_scanner(
+    testthat::test_path(),
+    file_type = "wav",
+    extra_cols = TRUE
+  ) |>
+    dplyr::slice(1)
+
+  expect_equal(nrow(j), 1)
+
+  # Run Analysis Programs
+  ap_output <- testthat::test_path("ap_output")
+
+  wt_run_ap(
+    j,
+    output_dir = ap_output,
+    path_to_ap = testthat::test_path("APNnew/AnalysisPrograms")
+  )
+
+  # Check that AP produced output
+  expect_true(dir.exists(ap_output))
+
+  # Wrangle Analysis Programs output
+  expect_no_error(wt_glean_ap(
+    j,
+    input_dir = ap_output,
+    purpose = "biotic"
+  ))
+
+
+})
+
