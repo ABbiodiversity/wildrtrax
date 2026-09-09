@@ -12,3 +12,7 @@ beta/
 .quarto
 .secrets
 docs
+tests/testthat/APNnew
+tests/testthat/ap_output
+tests/testthat/audiomoth
+tests/testthat/chop
