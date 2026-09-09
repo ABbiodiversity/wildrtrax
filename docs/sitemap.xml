@@ -21,13 +21,12 @@
 <url><loc>https://abbiodiversity.github.io/wildrtrax/reference/dot-gen_ua.html</loc></url>
 <url><loc>https://abbiodiversity.github.io/wildrtrax/reference/dot-get_org_id.html</loc></url>
 <url><loc>https://abbiodiversity.github.io/wildrtrax/reference/dot-language.html</loc></url>
-<url><loc>https://abbiodiversity.github.io/wildrtrax/reference/dot-make_off.html</loc></url>
-<url><loc>https://abbiodiversity.github.io/wildrtrax/reference/dot-make_x.html</loc></url>
 <url><loc>https://abbiodiversity.github.io/wildrtrax/reference/dot-wt_api_gr.html</loc></url>
 <url><loc>https://abbiodiversity.github.io/wildrtrax/reference/dot-wt_api_pr.html</loc></url>
 <url><loc>https://abbiodiversity.github.io/wildrtrax/reference/dot-wt_auth.html</loc></url>
 <url><loc>https://abbiodiversity.github.io/wildrtrax/reference/dot-wt_auth_expired.html</loc></url>
 <url><loc>https://abbiodiversity.github.io/wildrtrax/reference/dot-wt_calculate_prf.html</loc></url>
+<url><loc>https://abbiodiversity.github.io/wildrtrax/reference/dot-wt_col_switch.html</loc></url>
 <url><loc>https://abbiodiversity.github.io/wildrtrax/reference/dot-wt_col_types.html</loc></url>
 <url><loc>https://abbiodiversity.github.io/wildrtrax/reference/index.html</loc></url>
 <url><loc>https://abbiodiversity.github.io/wildrtrax/reference/wildrtrax.html</loc></url>
@@ -59,7 +58,6 @@
 <url><loc>https://abbiodiversity.github.io/wildrtrax/reference/wt_location_photos.html</loc></url>
 <url><loc>https://abbiodiversity.github.io/wildrtrax/reference/wt_make_aru_tasks.html</loc></url>
 <url><loc>https://abbiodiversity.github.io/wildrtrax/reference/wt_make_wide.html</loc></url>
-<url><loc>https://abbiodiversity.github.io/wildrtrax/reference/wt_qpad_offsets.html</loc></url>
 <url><loc>https://abbiodiversity.github.io/wildrtrax/reference/wt_replace_tmtt.html</loc></url>
 <url><loc>https://abbiodiversity.github.io/wildrtrax/reference/wt_run_ap.html</loc></url>
 <url><loc>https://abbiodiversity.github.io/wildrtrax/reference/wt_signal_level.html</loc></url>
