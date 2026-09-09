@@ -309,10 +309,8 @@ By contributing to this project, you agree to abide by its terms.
   : Linking media to WildTrax
 - [`wt_make_wide()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_make_wide.md)
   : Convert to a wide survey by species dataframe
-- [`wt_qpad_offsets()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_qpad_offsets.md)
-  : Get QPAD offsets
 - [`wt_replace_tmtt()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_replace_tmtt.md)
-  : Replace 'TMTT' abundance with model-predicted values
+  : Replace 'TMTT' individual count with model-predicted values
 - [`wt_run_ap()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_run_ap.md)
   : Get acoustic index values from audio
 - [`wt_signal_level()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_signal_level.md)
@@ -320,7 +318,7 @@ By contributing to this project, you agree to abide by its terms.
 - [`wt_songscope_tags()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_songscope_tags.md)
   : Convert Songscope output to tags
 - [`wt_summarise_cam()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_summarise_cam.md)
-  : Set of analysis functions
+  : Summarise camera data
 - [`wt_tidy_species()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_tidy_species.md)
   : Filter species from a report
 - [`wt_wac_info()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_wac_info.md)

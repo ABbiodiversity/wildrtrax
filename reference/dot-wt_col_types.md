@@ -1,13 +1,16 @@
 # Column assignments
 
-Assign correct column types for reports
+Assign correct column types for reports, varying by sensor
 
 ## Usage
 
 ``` r
-.wt_col_types
+.wt_col_types(sensor_id = NULL)
 ```
 
-## Format
+## Arguments
 
-An object of class `list` of length 110.
+- sensor_id:
+
+  Character. Sensor type (e.g. "PC", "ARU"). Determines type overrides
+  for columns that differ between sensors.

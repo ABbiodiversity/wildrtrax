@@ -33,7 +33,9 @@ wt_get_sync(api, project = NULL, organization = NULL, max_seconds = 300)
 
   - `"project_image_metadata"`
 
-  - `"project_camera_tags"`
+  - `"project_image_sets"`
+
+  - `"project_image_tags"`
 
   - `"project_point_counts"`
 

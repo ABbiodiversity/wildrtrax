@@ -56,7 +56,7 @@ of the requested thresholds.
 ``` r
 if (FALSE) { # \dontrun{
 data <- wt_download_report(project_id = 1144, sensor_id = "ARU",
-reports = c("main", "ai"), weather_cols = FALSE)
+reports = c("main", "ai"))
 
 eval <- wt_evaluate_classifier(data, resolution = "recording",
 remove_species = TRUE, thresholds = c(0.1, 0.99))

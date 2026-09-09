@@ -1,6 +1,26 @@
 # Changelog
 
-## wildrtrax 1.5
+## wildrtrax 1.6.0
+
+### Major changes
+
+- Support for changes to recent report and sync column name updates
+  (17-08-2026)
+- [`wt_get_sync()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_get_sync.md)
+  and
+  [`wt_get_view()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_get_view.md)
+  more flexible with Organization acronyms and Project names now both
+  being accepted along with ids.
+- Deprecated `wt_qpad_offsets()`; removed the `QPAD` remote dependency
+  for CRAN compatibility
+
+### Minor changes
+
+- Bug fixes on ARU convenience functions
+- Additional columns supported in
+  [`.wt_col_types()`](https://abbiodiversity.github.io/wildrtrax/reference/dot-wt_col_types.md)
+
+## wildrtrax 1.5.0
 
 ### Major changes
 
@@ -37,7 +57,7 @@
   of Alberta in Edmonton, Canada
 - Continued code coverage and testing improvements
 
-## wildrtrax 1.4
+## wildrtrax 1.4.0
 
 ### Major changes
 
@@ -49,9 +69,8 @@
   `wt_get_image_sets()` in one smooth function relevant to the
   Organization or Project needed.
 - Fixed a bug that incorrectly adjusted time zones in
-  [`wt_qpad_offsets()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_qpad_offsets.md).
-  This bug affected QPAD offsets used for [species with time since
-  sunrise in the top
+  `wt_qpad_offsets()`. This bug affected QPAD offsets used for [species
+  with time since sunrise in the top
   model](https://github.com/borealbirds/QPAD-offsets-correction/blob/main/qpad_tssr_species.csv)
   and in areas outside the Mountain Time Zone (MST/MDT). For more
   information, please see the [BAM QPAD correction
@@ -179,8 +198,6 @@
   to POST requests
 - Lowercase package name
 
-------------------------------------------------------------------------
-
 ## wildrtrax 1.2.0
 
 ### Major changes
@@ -188,8 +205,7 @@
 - [`wt_chop()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_chop.md)
   now recurses across all input files
 - Moving geospatial assets to new repository to lighten package size.
-  Asset requests are now made only through usage of
-  [`wt_qpad_offsets()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_qpad_offsets.md).
+  Asset requests are now made only through usage of `wt_qpad_offsets()`.
 
 ### Minor changes
 
@@ -200,8 +216,6 @@
   vignette](https://abbiodiversity.github.io/wildrtrax/articles/camera-data-wrangling.html)
   and additional
   [tutorials](https://abbiodiversity.github.io/wildrtrax/articles/tutorials.html)
-
-------------------------------------------------------------------------
 
 ## wildrtrax 1.1.0
 
@@ -235,16 +249,12 @@
   [`wt_download_report()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_download_report.md)
   (#20)
 
-------------------------------------------------------------------------
-
 ## wildrtrax 1.0.1
 
 - Patching API errors in
   [`wt_download_report()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_download_report.md)
 - Adding additional articles on [Acoustic data
   wrangling](https://abbiodiversity.github.io/wildrtrax/articles/acoustic-data-wrangling.html)
-
-------------------------------------------------------------------------
 
 ## wildrtrax 1.0.0
 
@@ -284,7 +294,7 @@
   [`wt_replace_tmtt()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_replace_tmtt.md),
   [`wt_make_wide()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_make_wide.md),
   [`wt_format_occupancy()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_format_occupancy.md),
-  [`wt_qpad_offsets()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_qpad_offsets.md)
+  `wt_qpad_offsets()`
 - Addition of
   [`wt_get_species()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_get_species.md)
   to download the WildTrax species table and
@@ -314,8 +324,6 @@
 ### Deprecated
 
 - `wt_prob_det()`
-
-------------------------------------------------------------------------
 
 ## wildrtrax 0.1.0
 

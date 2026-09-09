@@ -7,7 +7,13 @@ one of `project` or `organization` depending on the API
 ## Usage
 
 ``` r
-wt_get_view(api, project = NULL, organization = NULL, max_seconds = 300)
+wt_get_view(
+  api,
+  project = NULL,
+  organization = NULL,
+  max_seconds = 300,
+  ai_threshold = 0.5
+)
 ```
 
 ## Arguments
@@ -46,7 +52,11 @@ wt_get_view(api, project = NULL, organization = NULL, max_seconds = 300)
 
 - max_seconds:
 
-  Numeric; Number of seconds to force to wait for downloads.
+  Numeric; Number of seconds to force to wait for downloads
+
+- ai_threshold:
+
+  Numeric; Minimum threshold set for AI classifier detections
 
 ## Value
 

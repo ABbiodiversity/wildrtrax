@@ -29,9 +29,7 @@ wt_download_media(
 
 ## Value
 
-An organized folder of media. Assigning wt_download_tags to an object
-will return the table form of the data with the functions returning the
-after effects in the output directory
+An organized folder of media.
 
 ## Examples
 

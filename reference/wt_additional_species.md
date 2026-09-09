@@ -22,7 +22,7 @@ wt_additional_species(
 
   Output from the
   [`wt_download_report()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_download_report.md)
-  function when you request the `main` and `birdnet` reports
+  function when you request the `main` and `ai` reports
 
 - remove_species:
 
@@ -58,7 +58,7 @@ scoring detection for each new species detection in each recording.
 ``` r
 if (FALSE) { # \dontrun{
 data <- wt_download_report(project_id = 1144, sensor_id = "ARU",
-reports = c("main", "ai"), weather_cols = FALSE)
+reports = c("main", "ai"))
 
 new <- wt_additional_species(data, remove_species = TRUE,
 threshold = 80, resolution="location")

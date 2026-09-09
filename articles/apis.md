@@ -175,10 +175,10 @@ head(aru_as_pc)
 #> 4 BU           Community - Co…        620 CHPP-WP…       89972                NA
 #> 5 BU           Community - Co…        620 CHPP-WP…       89972                NA
 #> 6 BU           Community - Co…        620 CHPP-WP…       89972                NA
-#> # ℹ 17 more variables: latitude <dbl>, longitude <dbl>, survey_id <chr>,
+#> # ℹ 17 more variables: latitude <dbl>, longitude <dbl>, survey_id <int>,
 #> #   survey_date_time <dttm>, survey_url <chr>, observer <chr>,
 #> #   survey_distance_method <chr>, survey_duration_method <chr>,
-#> #   detection_distance <chr>, detection_time <dbl>, species_code <chr>,
+#> #   detection_distance <dbl>, detection_time <chr>, species_code <chr>,
 #> #   species_common_name <chr>, species_scientific_name <chr>, abundance <chr>,
 #> #   detection_heard <lgl>, detection_seen <lgl>, detection_comments <chr>
 ```

@@ -1,10 +1,10 @@
-# Replace 'TMTT' abundance with model-predicted values
+# Replace 'TMTT' individual count with model-predicted values
 
 This function uses a lookup table of model-predicted values to replace
 'TMTT' entries in listener-processed ARU data from WildTrax. The
-model-predicted values were produced using estimated abundances for
-'TMTT' entries in mixed effects model with a Poisson distribution and
-random effects for species and observer.
+model-predicted values were produced using estimated individual counts
+for 'TMTT' entries in mixed effects model with a Poisson distribution
+and random effects for species and observer.
 
 ## Usage
 
@@ -25,8 +25,8 @@ wt_replace_tmtt(data, calc = "round")
 
 ## Value
 
-A dataframe identical to input with 'TMTT' entries in the abundance
-column replaced by integer values.
+A dataframe identical to input with 'TMTT' entries in the individual
+count column replaced by integer values.
 
 ## Examples
 

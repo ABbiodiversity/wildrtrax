@@ -6,7 +6,7 @@ into a WildTrax tag template for upload **\[experimental\]**
 ## Usage
 
 ``` r
-wt_guano_tags(path, output = NULL, output_file = NULL)
+wt_guano_tags(path, output = FALSE, output_file = NULL)
 ```
 
 ## Arguments
@@ -31,6 +31,12 @@ A csv formatted as a WildTrax tag template
 
 ``` r
 if (FALSE) { # \dontrun{
-wt_guano_tags(path = my_audio_file.csv, output = NULL, output_file = NULL)
+# Process a single audio file
+wt_guano_tags("/path/to/audio_file.wav")
+
+# Process audio files from a directory
+wt_audio_scanner("/path/to/audio", file_type = "wav", extra_cols = TRUE) |>
+  purrr::map(.x = .$file_path, .f = ~wt_guano_tags(.x)) |>
+  bind_rows()
 } # }
 ```

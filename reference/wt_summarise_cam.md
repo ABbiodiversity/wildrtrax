@@ -1,4 +1,4 @@
-# Set of analysis functions
+# Summarise camera data
 
 This function takes your independent detection data and summarises it by
 location, specified time interval, and species.
@@ -109,10 +109,6 @@ wt_summarise_cam(
 
 A dataframe summarising your camera data by location, time interval, and
 species.
-
-## Summarise camera data by location, time interval, and species.
-
-NA
 
 ## Examples
 

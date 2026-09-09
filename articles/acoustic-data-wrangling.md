@@ -16,13 +16,13 @@ The recommended workflow to wrangle together data for analysis in
 # Start by getting everything you need
 Sys.setenv(WT_USERNAME = 'guest', WT_PASSWORD = 'Apple123')
 wt_auth()
-my_report <- wt_download_report(project_id = 620, sensor_id = 'ARU', reports = "main")
+my_report <- wt_download_report(project_id = 620, sensor_id = 'ARU', reports = "main") 
 ```
 
 ## Data wrangling
 
-Let’s use some of the functins that are available to start cleaning up a
-data set. For this question, we don’t need certain abiotic and mammal
+Let’s use some of the functions that are available to start cleaning up
+a data set. For this question, we don’t need certain abiotic and mammal
 codes so let’s remove those with
 [`wt_tidy_species()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_tidy_species.md),
 
@@ -77,21 +77,19 @@ once the data is downloaded.
 
 ``` r
 
-dat.occu <- wt_format_occupancy(my_report, species="WCSP", siteCovs=NULL)
+dat.occu <- wt_format_occupancy(my_report, species="WTSP", siteCovs=NULL)
 mod <- unmarked::occu(~ 1 ~ 1, dat.occu)
 mod
 #> 
 #> Call:
 #> unmarked::occu(formula = ~1 ~ 1, data = dat.occu)
-#> 
 #> Occupancy (logit-scale):
-#>  Estimate    SE    z P(>|z|)
-#>      1.22 0.893 1.36   0.172
-#> 
+#>  Estimate  SE   z P(>|z|)
+#>     -16.7 NaN NaN     NaN
 #> Detection (logit-scale):
-#>  Estimate    SE      z P(>|z|)
-#>    -0.297 0.333 -0.891   0.373
+#>  Estimate  SE   z P(>|z|)
+#>     -6.46 NaN NaN     NaN
 #> 
-#> AIC: 66.07266 
+#> AIC: 4 
 #> Number of sites: 8
 ```
