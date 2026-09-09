@@ -78,38 +78,86 @@ test_that("error ind detect2", {
   expect_error(wt_ind_detect(threshold = 60, units = "minutes", datetime_col = image_date_time, remove_human = TRUE, remove_domestic = TRUE))
 })
 
-# test_that("valid time intervals are handled", {
-#
-#   result_day <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "day", output_format = "long")
-#
-#   result_month <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "month", output_format = "long")
-#   #result_full <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "full", output_format = "long")
-#   result_day_w <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "day", output_format = "wide")
-#   result_week_w <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "week", output_format = "wide")
-#   result_month_w <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "month", output_format = "wide")
-#   #result_full_w <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "full", output_format = "wide")
-#
-#   expect_equal(nrow(result_day), 657968)  # Adjust this based on the actual expected number of rows for each case
-#   expect_equal(nrow(result_week), 98646)
-#   expect_equal(nrow(result_month), 25584)
-#   expect_true(nrow(result_day_w) == 16048)
-#   expect_true(nrow(result_week_w) == 2406)
-#   expect_true(nrow(result_month_w) == 624)
-#
-# })
+test_that("test 94", {
 
-# test_that("all specified variables are included in the summarised output", {
-#   result <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, variable = "all", time_interval = "day", output_format = "long")
-#   expect_true(!is.null(result))
-# })
+  dates <- as.POSIXct(
+    c(
+      "2025-12-28 12:00:00", # ISO 2025 week 52
+      "2025-12-29 12:00:00", # ISO 2026 week 1
+      "2025-12-31 12:00:00", # ISO 2026 week 1
+      "2026-01-01 12:00:00", # ISO 2026 week 1
+      "2026-01-04 12:00:00", # ISO 2026 week 1
+      "2026-01-05 12:00:00"  # ISO 2026 week 2
+    ),
+    tz = "UTC"
+  )
 
+  result <- tibble::tibble(day = dates) |>
+    dplyr::mutate(
+      year = as.integer(strftime(day, "%G")),
+      week = as.integer(strftime(day, "%V"))
+    )
 
-# Set for issue 81 testing out of range images
-#test_that("exclude_out_of_range removes data outside of the camera's field of view", {
-  #expect_error(wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, exclude_out_of_range = TRUE, time_interval = "day", output_format = "long", variable = "counts"))
-  #result_out <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, exclude_out_of_range = FALSE, time_interval = "day", output_format = "long", variable = "counts")
-  #expect_true(nrow(result_out) > nrow(result))
-#})
+  # Dec 29, 2025 through Jan 4, 2026 are ISO week 1 of 2026
+  expect_equal(
+    result |>
+      dplyr::filter(day >= as.POSIXct("2025-12-29", tz = "UTC"),
+                    day <= as.POSIXct("2026-01-04 23:59:59", tz = "UTC")) |>
+      dplyr::distinct(year, week),
+    tibble::tibble(year = 2026L, week = 1L)
+  )
 
+  # Dec 28 is still ISO week 52 of 2025
+  expect_equal(
+    result$year[result$day == as.POSIXct("2025-12-28 12:00:00", tz = "UTC")],
+    2025L
+  )
 
+  expect_equal(
+    result$week[result$day == as.POSIXct("2025-12-28 12:00:00", tz = "UTC")],
+    52L
+  )
 
+  # Jan 5 starts ISO week 2 of 2026
+  expect_equal(
+    result$year[result$day == as.POSIXct("2026-01-05 12:00:00", tz = "UTC")],
+    2026L
+  )
+
+  expect_equal(
+    result$week[result$day == as.POSIXct("2026-01-05 12:00:00", tz = "UTC")],
+    2L
+  )
+})
+
+test_that("test 82 - NA and non-species labels are excluded from detection summaries", {
+
+  test_data <- tibble::tribble(
+    ~project_id, ~location, ~image_id, ~image_date_time, ~species_common_name, ~individual_count,
+    2626, "A", 1, as.POSIXct("2026-01-01 10:00:00"), NA_character_,       1,
+    2626, "A", 2, as.POSIXct("2026-01-01 10:01:00"), "NONE",              1,
+    2626, "A", 3, as.POSIXct("2026-01-01 10:02:00"), "STAFF/SETUP",       1,
+    2626, "A", 4, as.POSIXct("2026-01-01 10:03:00"), "UNKNOWN",            1,
+    2626, "A", 5, as.POSIXct("2026-01-01 10:04:00"), "White-tailed Deer",  1
+  )
+
+  result <- wt_ind_detect(
+    test_data,
+    threshold = 60,
+    units = "minutes",
+    datetime_col = image_date_time,
+    remove_human = TRUE,
+    remove_domestic = TRUE
+  )
+
+  expect_false(any(is.na(result$species_common_name)))
+
+  expect_false(any(
+    result$species_common_name %in%
+      c("NONE", "STAFF/SETUP", "UNKNOWN")
+  ))
+
+  expect_true(
+    "White-tailed Deer" %in% result$species_common_name
+  )
+})

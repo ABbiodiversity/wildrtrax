@@ -194,8 +194,6 @@ wt_summarise_cam <- function(detect_data, raw_data, time_interval = "day",
     variable <- c("detections", "counts", "presence")
   }
 
-  print(z)
-
   # Make wide if desired, using
   if (output_format == "wide") {
     z <- z |>
