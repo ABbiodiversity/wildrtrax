@@ -5,7 +5,6 @@ template:
     primary: "#BA4F27"
     base_font: {google: "Roboto"}
     heading_font: {google: "Roboto"}
-    code_font: {google: "JetBrains Mono"}
 navbar:
   bg: primary
   type: dark

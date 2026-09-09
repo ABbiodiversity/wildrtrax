@@ -1,10 +1,8 @@
-# wildrtrax 
-
 # wildrtrax 1.6.0
 
 ## Major changes 
 
-* Support for changes to recent report and sync column name updates (see recent WildTrax update)
+* Support for changes to recent report and sync column name updates (17-08-2026)
 * `wt_get_sync()` and `wt_get_view()` more flexible with Organization acronyms and Project names now both being accepted along with ids.
 * Deprecated `wt_qpad_offsets()`; removed the `QPAD` remote dependency for CRAN compatibility
 
