@@ -123,7 +123,7 @@ test_that('Classifier functions by recording', {
 test_that("Songscope tags USPM", {
   expect_no_error(
     wt_songscope_tags(
-      testthat::test_path("CONI.txt"),
+      testthat::test_path("fixtures/text/CONI.txt"),
       output = "env",
       species = "CONI",
       vocalization = "SONG",
@@ -138,7 +138,7 @@ test_that("Songscope tags USPM", {
 test_that("Songscope tags 1SPT", {
   expect_no_error(
     wt_songscope_tags(
-      testthat::test_path("CONI.txt"),
+      testthat::test_path("fixtures/text/CONI.txt"),
       output = "env",
       species = "CONI",
       vocalization = "SONG",
@@ -153,7 +153,7 @@ test_that("Songscope tags 1SPT", {
 test_that("Kaleidoscope tags", {
   expect_no_error(
     wt_kaleidoscope_tags(
-      testthat::test_path("id.csv"),
+      testthat::test_path("fixtures/id.csv"),
       output = NULL,
       freq_bump = T
     )
@@ -163,7 +163,7 @@ test_that("Kaleidoscope tags", {
 test_that("Kaleidoscope tags", {
   expect_no_error(
     wt_kaleidoscope_tags(
-      testthat::test_path("id.csv"),
+      testthat::test_path("fixtures/id.csv"),
       output = NULL,
       freq_bump = F
     )
@@ -180,42 +180,42 @@ test_that('Format FWMIS lookups', {
 })
 
 test_that('Guano', {
-  expect_no_error(wt_audio_scanner(testthat::test_path(), file_type = "wav", extra_cols = TRUE) |>
+  expect_no_error(wt_audio_scanner(testthat::test_path("fixtures/audio"), file_type = "wav", extra_cols = TRUE) |>
                     filter(sample_rate > 192000) %>% purrr::map(.x = .$file_path, .f = ~wt_guano_tags(.x)))
 })
 
 test_that('WAC Tests', {
-  expect_no_error(wt_audio_scanner(testthat::test_path(), file_type = "wac", extra_cols = TRUE))
+  expect_no_error(wt_audio_scanner(testthat::test_path("fixtures/audio"), file_type = "wac", extra_cols = TRUE))
 })
 
 test_that('Chop tests', {
-my_files <- wt_audio_scanner(testthat::test_path(), file_type = "wav", extra_cols = TRUE) |>
+my_files <- wt_audio_scanner(testthat::test_path("fixtures/audio"), file_type = "wav", extra_cols = TRUE) |>
   slice(1)
-expect_no_error(wt_chop(input = my_files, segment_length = 60, output_folder = testthat::test_path("chop")))})
+expect_no_error(wt_chop(input = my_files, segment_length = 60, output_folder = testthat::test_path("fixtures/audio/chop")))})
 
 test_that('Signal level tests', {
-  expect_no_error(wt_signal_level(testthat::test_path("1-1A1-CA1-B_20250620_120000.wav"), fmin = 500, fmax = 10000, threshold = 35, channel = "left", aggregate = NULL))
+  expect_no_error(wt_signal_level(testthat::test_path("fixtures/audio/1-1A1-CA1-B_20250620_120000.wav"), fmin = 500, fmax = 10000, threshold = 35, channel = "left", aggregate = NULL))
 })
 
 test_that('Signal level tests - aggregate', {
-  expect_no_error(wt_signal_level(testthat::test_path("1-1A1-CA1-B_20250620_120000.wav"), fmin = 500, fmax = 10000, threshold = 35, channel = "right", aggregate = 10))
+  expect_no_error(wt_signal_level(testthat::test_path("fixtures/audio/1-1A1-CA1-B_20250620_120000.wav"), fmin = 500, fmax = 10000, threshold = 35, channel = "right", aggregate = 10))
 })
 
 test_that('Making tasks', {
-expect_no_error(wt_audio_scanner(testthat::test_path(), file_type = "wav", extra_cols = TRUE) |>
+expect_no_error(wt_audio_scanner(testthat::test_path("fixtures/audio"), file_type = "wav", extra_cols = TRUE) |>
   slice(1) |>
   wt_make_aru_tasks(output = NULL, task_method = "1SPT", task_length = 60))
 })
 
 test_that('Audiomoth formatting', {
-  expect_no_error(wt_format_audiomoth_filenames(testthat::test_path("audiomoth")))
+  expect_no_error(wt_format_audiomoth_filenames(testthat::test_path("fixtures/audio/audiomoth")))
                                 })
 
 test_that("Audio Analysis Programs workflow runs successfully", {
 
   # Scan test WAV file
   j <- wt_audio_scanner(
-    testthat::test_path(),
+    testthat::test_path("fixtures/audio"),
     file_type = "wav",
     extra_cols = TRUE
   ) |>
@@ -224,12 +224,12 @@ test_that("Audio Analysis Programs workflow runs successfully", {
   expect_equal(nrow(j), 1)
 
   # Run Analysis Programs
-  ap_output <- testthat::test_path("ap_output")
+  ap_output <- testthat::test_path("fixtures/raw/ap_output")
 
   wt_run_ap(
     j,
     output_dir = ap_output,
-    path_to_ap = testthat::test_path("APNnew/AnalysisPrograms")
+    path_to_ap = testthat::test_path("fixtures/raw/APNnew/AnalysisPrograms")
   )
 
   # Check that AP produced output
