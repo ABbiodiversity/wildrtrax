@@ -82,8 +82,11 @@ wt_summarise_cam <- function(detect_data, raw_data, time_interval = "day",
       x <- raw_data |>
         arrange({{ project_col }}, {{ station_col }}, {{ image_set_id }}, {{ date_time_col }}) |>
         group_by({{ project_col }}, {{ station_col }}, {{ image_set_id }}) |>
-        mutate(cam_ok = image_fov == "") |>
+        arrange({{ date_time_col }}) |>
+        mutate(cam_ok = is.na(image_fov),
+               period - cumsum(cam_ok != lag(cam_ok, default = first(cam_ok))) + 1) |>
         filter(cam_ok) |>
+        group_by({{ project_col }},  {{ station_col }}, {{ image_set_id }}, period) |>
         summarise(start_date = as.Date(min({{ date_time_col }}, na.rm = TRUE)),
                   end_date   = as.Date(max({{ date_time_col }}, na.rm = TRUE))) |>
         ungroup()
