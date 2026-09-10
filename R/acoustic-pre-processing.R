@@ -969,8 +969,7 @@ wt_songscope_tags <- function (input, output = c("env","csv"), output_file=NULL,
 
 wt_guano_tags <- function(path, output = FALSE, output_file = NULL) {
 
-  wav_path <- "tests/testthat/fixtures/audio/BAT1_2426_20250724_003827_000.wav"
-  wav_path <- "/users/alexandremacphail/desktop/BCP11-BWRNNE_20240629_001828_000.wav"
+  wav_path <- path
   con <- file(wav_path, "rb")
   on.exit(close(con), add = TRUE)
 
