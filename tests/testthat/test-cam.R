@@ -2,15 +2,15 @@ library(testthat)
 
 Sys.setenv(WT_USERNAME = "guest", WT_PASSWORD = "Apple123")
 wt_auth(force = TRUE)
-test_data_set <- wt_download_report(project_id = 625, sensor_id = 'CAM', reports = 'main')
+test_data_set <- wt_download_report(project_id = 798, sensor_id = 'CAM', reports = 'main')
 ind_detections <- wt_ind_detect(test_data_set, threshold = 60, units = "minutes", datetime_col = image_date_time, remove_human = TRUE, remove_domestic = TRUE)
-md_test <- wt_download_report(project_id = 625, sensor_id = 'CAM', reports = 'megadetector')
+md_test <- wt_download_report(project_id = 798, sensor_id = 'CAM', reports = 'megadetector')
 
 eff_data <- tibble(
-  project_id = c(625),
-  location = c("1081-NE"),
-  start_date = as.Date(c("2021-03-16")),
-  end_date = as.Date(c("2021-07-20"))
+  project_id = c(798),
+  location = c("OG-ABMI-468-53-1"),
+  start_date = as.Date(c("2018-02-25")),
+  end_date = as.Date(c("2018-08-01 13:15:37"))
 )
 
 ################################### Camera Test suite
@@ -46,8 +46,8 @@ test_that("error when both raw_data and effort_data are provided", {
 
 test_that("output format 'wide' works correctly", {
   result <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "day", output_format = "wide")
-  expect_true("1081-NE" %in% result$location)
-  expect_true("Beaver" %in% colnames(result))
+  expect_true("OG-ABMI-406-51-1" %in% result$location)
+  expect_true("Gray Wolf" %in% colnames(result))
 })
 
 test_that("Megadetector stuff", {
@@ -55,19 +55,25 @@ test_that("Megadetector stuff", {
 })
 
 test_that("out of range", {
-expect_no_error(wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "day", output_format = "wide", exclude_out_of_range = TRUE))
+  exclude_oor <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "day", output_format = "wide", exclude_out_of_range = TRUE)
+  no_exclusion <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "day", output_format = "wide", exclude_out_of_range = FALSE)
+  expect_true(nrow(exclude_oor) < nrow(no_exclusion))
+  no_oor <- test_data_set |> filter(!(image_fov == "OOR"))
+  no_exc <- test_data_set
+  expect_true(nrow(no_oor) < nrow(no_exc))
 })
 
 test_that("weekly summaries", {
-expect_no_error(result_week <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "week", output_format = "long"))
+result_week <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "week", output_format = "long")
+expect_true(max(result_week$n_days_effort) == 7)
 })
 
 test_that("full summaries", {
-  expect_no_error(result_week <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "full", output_format = "long"))
+  expect_no_error(result_full <- wt_summarise_cam(detect_data = ind_detections, raw_data = test_data_set, time_interval = "full", output_format = "long"))
 })
 
 test_that("effort data supplied", {
-  expect_no_error(result_week <- wt_summarise_cam(detect_data = ind_detections, time_interval = "day", output_format = "long", effort_data = eff_data))
+  expect_no_error(result_data_effort <- wt_summarise_cam(detect_data = ind_detections, time_interval = "day", output_format = "long", effort_data = eff_data))
 })
 
 test_that("error ind detect", {

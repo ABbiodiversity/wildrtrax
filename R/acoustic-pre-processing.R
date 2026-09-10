@@ -1056,20 +1056,16 @@ wt_guano_tags <- function(path, output = FALSE, output_file = NULL) {
       abundance = 1,
       detection_time = 0.1,
       tag_duration = as.numeric(Length),
-      min_tag_freq = if_else(is.na(`WA|Kaleidoscope|Classifier|Statistics`), NA_real_,
-                             as.numeric(sub('.*"Fmin":([0-9.]+).*', "\\1", `WA|Kaleidoscope|Classifier|Statistics`)) * 1000),
-      max_tag_freq = if_else(is.na(`WA|Kaleidoscope|Classifier|Statistics`), NA_real_,
-                             as.numeric(sub('.*"Fmax":([0-9.]+).*', "\\1", `WA|Kaleidoscope|Classifier|Statistics`))),
+      min_tag_freq = if_else(is.na(`WA|Kaleidoscope|Classifier|Statistics`), NA_real_, as.numeric(sub('.*"Fmin":([0-9.]+).*', "\\1", `WA|Kaleidoscope|Classifier|Statistics`)) * 1000),
+      max_tag_freq = if_else(is.na(`WA|Kaleidoscope|Classifier|Statistics`), NA_real_, as.numeric(sub('.*"Fmax":([0-9.]+).*', "\\1", `WA|Kaleidoscope|Classifier|Statistics`))),
       species_individual_comments = case_when(
         !is.na(`WA|Kaleidoscope|Classifier|Version`) & !is.na(`SB|Classifier`) ~ paste0("Source: Kaleidoscope ", `WA|Kaleidoscope|Classifier|Version`, " ALTERNATIVE TAGS Sonobat ", sub("-.*", "", `SB|Classifier`), ":", `SB|Leaning Species Auto ID`),
         !is.na(`WA|Kaleidoscope|Classifier|Version`) ~ paste0("Source: Kaleidoscope ", `WA|Kaleidoscope|Classifier|Version`),
         !is.na(`SB|Classifier`) ~ paste0("Source: Sonobat ", sub("-.*", "", `SB|Classifier`), ":", `SB|Leaning Species Auto ID`),
-        TRUE ~ NA_character_
-      ),
+        TRUE ~ NA_character_),
       tag_is_hidden_for_verification = FALSE,
       recording_sample_frequency = as.numeric(Samplerate),
-      tag_id = NA_real_
-    )
+      tag_id = NA_real_)
 
   guan_extra <- guan_tibble |>
     pivot_wider(names_from = key, values_from = value) |>

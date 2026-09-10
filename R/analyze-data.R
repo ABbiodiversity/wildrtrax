@@ -89,7 +89,7 @@ wt_summarise_cam <- function(detect_data, raw_data, time_interval = "day",
         arrange({{ project_col }}, {{ station_col }}, {{ image_set_id }}, {{ date_time_col }}) |>
         group_by({{ project_col }}, {{ station_col }}, {{ image_set_id }}) |>
         arrange({{ date_time_col }}) |>
-        mutate(cam_ok = is.na(image_fov),
+        mutate(cam_ok = is.na(image_fov) | image_fov == "",
                period = cumsum(cam_ok != lag(cam_ok, default = first(cam_ok))) + 1) |>
         filter(cam_ok) |>
         group_by({{ project_col }},  {{ station_col }}, {{ image_set_id }}, period) |>
@@ -188,15 +188,24 @@ wt_summarise_cam <- function(detect_data, raw_data, time_interval = "day",
       mutate(across(all_vars, ~ replace_na(.x, 0)))
 
   } else if (time_interval == "full") {
+
     z <- x |>
       crossing(sp) |>
       left_join(y) |>
       mutate(across(all_vars, ~ replace_na(.x, 0))) |>
-      group_by({{ project_col }}, {{ station_col }}, {{ species_col }}) |>
-      summarise(detections = sum(detections),
-                counts = sum(counts),
-                presence = ifelse(any(presence == 1), 1, 0)) |>
-      ungroup()
+      group_by({{ project_col }}, {{ station_col }}, year) |>
+      mutate(
+        n_days_effort = as.integer(max(day) - min(day)) + 1
+      ) |>
+      group_by({{ project_col }}, {{ station_col }}, year, {{ species_col }}) |>
+      summarise(
+        detections = sum(detections),
+        counts = sum(counts),
+        presence = ifelse(any(presence == 1), 1, 0),
+        n_days_effort = first(n_days_effort)
+      ) |>
+      ungroup() |>
+      mutate(time_interval = "full")
   }
 
   # Make wide if desired, using
