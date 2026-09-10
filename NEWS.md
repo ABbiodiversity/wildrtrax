@@ -2,14 +2,15 @@
 
 ## Major changes 
 
-* Support for changes to recent report and sync column name updates (17-08-2026)
-* `wt_get_sync()` and `wt_get_view()` more flexible with Organization acronyms and Project names now both being accepted along with ids.
-* Deprecated `wt_qpad_offsets()`; removed the `QPAD` remote dependency for CRAN compatibility
+* Support for changes to recent report and sync column name updates (17-08-2026).
+* `wt_get_sync()` and `wt_get_view()` more flexible with Organization acronyms being accepted.
+* Deprecated `wt_qpad_offsets()`; removed the `QPAD` remote dependency for CRAN compatibility.
 
 ## Minor changes
 
-* Bug fixes on ARU convenience functions
-* Additional columns supported in `.wt_col_types()`
+* Bug fixes on ARU convenience functions.
+* Bug fixes and surveillance of camera usages.
+* Additional columns supported in `.wt_col_types()`.
 
 # wildrtrax 1.5.0
 
