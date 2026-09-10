@@ -1,4 +1,4 @@
-#' Evaluate a classifier
+#' Evaluate classifier performance
 #'
 #' @description Calculates precision, recall, and F-score of BirdNET and/or HawkEars for a requested sequence of thresholds. You can request the metrics at the minute level for recordings that are processed with the species per minute method (1SPM).
 #'
@@ -138,7 +138,7 @@ wt_evaluate_classifier <- function(data, resolution = NULL, remove_species = TRU
 
 }
 
-#' Identify optimal threshold
+#' Identify optimal classifier threshold
 #'
 #' @description Retrieves the score threshold that maximizes F-score, which is a trade-off between precision and recall.
 #'

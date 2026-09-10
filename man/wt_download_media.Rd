@@ -2,7 +2,7 @@
 % Please edit documentation in R/api.R
 \name{wt_download_media}
 \alias{wt_download_media}
-\title{Download media}
+\title{Download media from WildTrax}
 \usage{
 wt_download_media(
   input,

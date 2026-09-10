@@ -2,7 +2,7 @@
 % Please edit documentation in R/api.R
 \name{wt_get_projects}
 \alias{wt_get_projects}
-\title{Get a project summary from WildTrax}
+\title{Get a summary of available projects from WildTrax}
 \usage{
 wt_get_projects(sensor)
 }

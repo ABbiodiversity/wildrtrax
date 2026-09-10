@@ -2,7 +2,7 @@
 % Please edit documentation in R/classifier-functions.R
 \name{wt_classifier_threshold}
 \alias{wt_classifier_threshold}
-\title{Identify optimal threshold}
+\title{Identify optimal classifier threshold}
 \usage{
 wt_classifier_threshold(data)
 }

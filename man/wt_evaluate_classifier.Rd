@@ -2,7 +2,7 @@
 % Please edit documentation in R/classifier-functions.R
 \name{wt_evaluate_classifier}
 \alias{wt_evaluate_classifier}
-\title{Evaluate a classifier}
+\title{Evaluate classifier performance}
 \usage{
 wt_evaluate_classifier(
   data,

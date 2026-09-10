@@ -48,8 +48,14 @@ wt_summarise_cam <- function(detect_data, raw_data, time_interval = "day",
     stop("Please only supply a value for one of `raw_data` or `effort_data`.")
   }
 
-  if (variable == "all") {
-    variable <- c("detections", "counts", "presence")
+  all_vars <- c("detections", "counts", "presence")
+  if (length(variable) == 1 &&
+      variable %in% c("detections", "counts", "presence", "all")) {
+    if (variable == "all") {
+      variable <- all_vars
+    }
+  } else {
+    stop("Variable must be one of 'detections', 'counts', 'presence', 'all'.")
   }
 
   # Todo - check that supplied data contains all necessary columns
@@ -124,7 +130,7 @@ wt_summarise_cam <- function(detect_data, raw_data, time_interval = "day",
   # Based on the desired timeframe, assess when each detection occurred
   if (time_interval == "day" | time_interval == "full") {
     y <- detect_data |>
-      mutate(year = as.integer(format({{ start_col_det }}, "%G")),
+      mutate(year = as.integer(format({{ start_col_det }}, "%Y")),
              day = as.Date({{ start_col_det }}))
     grouping_cols <- c("year", "day")
   } else if (time_interval == "week") {
@@ -134,16 +140,16 @@ wt_summarise_cam <- function(detect_data, raw_data, time_interval = "day",
     grouping_cols <- c("year", "week")
   } else if (time_interval == "month") {
     y <- detect_data |>
-      mutate(year = as.integer(format({{ start_col_det }}, "%G")),
+      mutate(year = as.integer(format({{ start_col_det }}, "%Y")),
              month = format({{ start_col_det }}, "%B"))
     grouping_cols <- c("year", "month")
   }
 
   # Summarise variable of interest
   y <- y |>
-    group_by({{ project_col }}, {{ station_col }}, {{ species_col }}, year) |>
+    group_by({{ project_col }}, {{ station_col }}, {{ species_col }}, across(all_of(grouping_cols))) |>
     summarise(detections = n(),
-              counts = sum(max_animals)) |>
+              counts = sum(max_animals, na.rm = TRUE)) |>
     ungroup() |>
     mutate(presence = ifelse(detections > 0, 1, 0))
 
@@ -156,7 +162,7 @@ wt_summarise_cam <- function(detect_data, raw_data, time_interval = "day",
       mutate(n_days_effort = 1) |>
       crossing(sp) |>
       left_join(y) |>
-      mutate(across(all_of(c("detections", "counts", "presence")), ~ replace_na(.x, 0)))
+      mutate(across(all_vars, ~ replace_na(.x, 0)))
 
   } else if (time_interval == "week") {
     x <- x |>
@@ -168,7 +174,7 @@ wt_summarise_cam <- function(detect_data, raw_data, time_interval = "day",
     z <- x |>
       crossing(sp) |>
       left_join(y) |>
-      mutate(across(all_of(c("detections", "counts", "presence")), ~ replace_na(.x, 0)))
+      mutate(across(all_vars, ~ replace_na(.x, 0)))
 
   } else if (time_interval == "month") {
     x <- x |>
@@ -179,13 +185,13 @@ wt_summarise_cam <- function(detect_data, raw_data, time_interval = "day",
     z <- x |>
       crossing(sp) |>
       left_join(y) |>
-      mutate(across(all_of(c("detections", "counts", "presence")), ~ replace_na(.x, 0)))
+      mutate(across(all_vars, ~ replace_na(.x, 0)))
 
   } else if (time_interval == "full") {
     z <- x |>
       crossing(sp) |>
       left_join(y) |>
-      mutate(across(all_of(c("detections", "counts", "presence")), ~ replace_na(.x, 0))) |>
+      mutate(across(all_vars, ~ replace_na(.x, 0))) |>
       group_by({{ project_col }}, {{ station_col }}, {{ species_col }}) |>
       summarise(detections = sum(detections),
                 counts = sum(counts),
@@ -193,17 +199,17 @@ wt_summarise_cam <- function(detect_data, raw_data, time_interval = "day",
       ungroup()
   }
 
-  if (variable == "all") {
-    variable <- c("detections", "counts", "presence")
-  }
-
   # Make wide if desired, using
   if (output_format == "wide") {
     z <- z |>
-      pivot_wider(names_from = {{ species_col }}, values_from = {{ variable }}, names_sep = ".") |>
+      pivot_wider(id_cols = c({{ project_col }}, {{ station_col }}, year, time_interval, n_days_effort),
+                  names_from = {{ species_col }},
+                  values_from = {{ variable }},
+                  names_sep = ".") |>
       unnest(everything())
   } else if (output_format == "long") {
     z <- z |>
+      select({{ project_col }}, {{ station_col }}, year, time_interval, n_days_effort, {{ species_col }}, {{ variable }}) |>
       pivot_longer(cols = {{ variable }}, names_to = "variable", values_to = "value")
   }
 

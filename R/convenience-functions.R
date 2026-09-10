@@ -1,4 +1,4 @@
-#' General convenience functions
+#' Calculate distance between locations
 #'
 #' @description Takes input latitude and longitudes and computes the distances between each set of valid points
 #'
@@ -659,57 +659,3 @@ wt_format_data <- function(input, format = c('FWMIS','NABAT')){
 
     return(spps_tibble)
   }
-
-#' Get EXIF metadata from images
-#'
-#' @description This function gets all relevant EXIF metadata from images in Projects
-#' `r lifecycle::badge("experimental")`
-#'
-#' @param data `wt_download_report(reports = c(image_report))` object containing
-#'
-#' @import dplyr httr2
-#' @importFrom tidyr unnest_wider
-#' @importFrom purrr map
-#' @export
-#'
-#' @examples
-#' \dontrun{
-#'
-#' dat <- wt_download_report(reports = c("image_report"))
-#' exif.data <- wt_get_exif(dat)
-#' }
-#' @return A dataframe with the EXIF metadata for each image
-
-wt_get_exif <- function(data) {
-
-  # Check if authentication has expired:
-  if (.wt_auth_expired())
-    stop("Please authenticate with wt_auth().", call. = FALSE)
-
-  input_data <- data
-
-  all_images <- input_data |>
-    select(image_id) |>
-    distinct() |>
-    mutate(
-      exif = map(
-        image_id,
-        ~ tryCatch(
-          {
-            request("https://www-api.wildtrax.ca") |>
-              req_url_path_append("bis", "camera", "get-image-exif") |>
-              req_url_query(imageId = .x) |>
-              req_headers(
-                Authorization = paste("Bearer", ._wt_auth_env_$access_token)
-              ) |>
-              req_user_agent(.gen_ua()) |>
-              req_timeout(300) |>
-              req_perform() |>
-              resp_body_json()
-          },
-          error = function(e) {"Failed to retrieve EXIF for image_id { .x }"})))
-    #tidyr::unnest_wider(exif)
-
-  return(all_images)
-
-}
