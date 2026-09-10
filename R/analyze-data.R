@@ -194,16 +194,12 @@ wt_summarise_cam <- function(detect_data, raw_data, time_interval = "day",
       left_join(y) |>
       mutate(across(all_vars, ~ replace_na(.x, 0))) |>
       group_by({{ project_col }}, {{ station_col }}, year) |>
-      mutate(
-        n_days_effort = as.integer(max(day) - min(day)) + 1
-      ) |>
+      mutate(n_days_effort = as.integer(max(day) - min(day)) + 1) |>
       group_by({{ project_col }}, {{ station_col }}, year, {{ species_col }}) |>
-      summarise(
-        detections = sum(detections),
-        counts = sum(counts),
-        presence = ifelse(any(presence == 1), 1, 0),
-        n_days_effort = first(n_days_effort)
-      ) |>
+      summarise(detections = sum(detections),
+                counts = sum(counts),
+                presence = ifelse(any(presence == 1), 1, 0),
+                n_days_effort = first(n_days_effort)) |>
       ungroup() |>
       mutate(time_interval = "full")
   }
