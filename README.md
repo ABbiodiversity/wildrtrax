@@ -2,7 +2,7 @@
 
 <!-- badges: start -->
 
-[![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13952335.svg)](https://doi.org/10.5281/zenodo.13952335) [![Codecov test coverage](https://codecov.io/gh/ABbiodiversity/wildrtrax/graph/badge.svg)](https://app.codecov.io/gh/ABbiodiversity/wildrtrax)
+[![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22682284.svg)](https://doi.org/10.5281/zenodo.22682284) [![Codecov test coverage](https://codecov.io/gh/ABbiodiversity/wildrtrax/graph/badge.svg)](https://app.codecov.io/gh/ABbiodiversity/wildrtrax)
 
 <!-- badges: end -->
 
