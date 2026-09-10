@@ -969,8 +969,7 @@ wt_songscope_tags <- function (input, output = c("env","csv"), output_file=NULL,
 
 wt_guano_tags <- function(path, output = FALSE, output_file = NULL) {
 
-  wav_path <- "tests/testthat/fixtures/audio/BAT1_2426_20250724_003827_000.wav"
-  wav_path <- "/users/alexandremacphail/desktop/BCP11-BWRNNE_20240629_001828_000.wav"
+  wav_path <- path
   con <- file(wav_path, "rb")
   on.exit(close(con), add = TRUE)
 
@@ -1019,7 +1018,7 @@ wt_guano_tags <- function(path, output = FALSE, output_file = NULL) {
   }
 
   # Decode text
-  guan_txt <- rawToChar(guan$data, multiple = TRUE)
+  guan_txt <- rawToChar(guan_data, multiple = TRUE)
   guan_txt <- paste(guan_txt, collapse = "")
   lines <- unlist(strsplit(guan_txt, "\n"))
   kv <- do.call(rbind, lapply(lines, function(x) {
@@ -1037,7 +1036,6 @@ wt_guano_tags <- function(path, output = FALSE, output_file = NULL) {
   guan_wide <- guan_tibble |>
     pivot_wider(names_from = key, values_from = value) |>
     rename(location = `Loc Position`) |>
-    select(-`NA`) |>
     distinct()
 
   for (x in c("WA|Kaleidoscope|Auto ID", "WA|Kaleidoscope|Classifier|Version",
