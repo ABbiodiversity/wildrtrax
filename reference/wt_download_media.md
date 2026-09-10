@@ -1,4 +1,4 @@
-# Download media
+# Download media from WildTrax
 
 Download acoustic and image media in batch. Includes the download of tag
 clips and spectrograms for the ARU sensor.

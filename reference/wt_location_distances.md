@@ -1,4 +1,4 @@
-# General convenience functions
+# Calculate distance between locations
 
 Takes input latitude and longitudes and computes the distances between
 each set of valid points

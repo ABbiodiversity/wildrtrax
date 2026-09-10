@@ -1,4 +1,4 @@
-# Identify optimal threshold
+# Identify optimal classifier threshold
 
 Retrieves the score threshold that maximizes F-score, which is a
 trade-off between precision and recall.

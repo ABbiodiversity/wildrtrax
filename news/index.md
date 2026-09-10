@@ -5,20 +5,20 @@
 ### Major changes
 
 - Support for changes to recent report and sync column name updates
-  (17-08-2026)
+  (17-08-2026).
 - [`wt_get_sync()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_get_sync.md)
   and
   [`wt_get_view()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_get_view.md)
-  more flexible with Organization acronyms and Project names now both
-  being accepted along with ids.
+  more flexible with Organization acronyms being accepted.
 - Deprecated `wt_qpad_offsets()`; removed the `QPAD` remote dependency
-  for CRAN compatibility
+  for CRAN compatibility.
 
 ### Minor changes
 
-- Bug fixes on ARU convenience functions
+- Bug fixes on ARU convenience functions.
+- Bug fixes and surveillance of camera usages.
 - Additional columns supported in
-  [`.wt_col_types()`](https://abbiodiversity.github.io/wildrtrax/reference/dot-wt_col_types.md)
+  [`.wt_col_types()`](https://abbiodiversity.github.io/wildrtrax/reference/dot-wt_col_types.md).
 
 ## wildrtrax 1.5.0
 

@@ -15,15 +15,15 @@
 - [`wt_chop()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_chop.md)
   : Segment large audio files
 - [`wt_classifier_threshold()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_classifier_threshold.md)
-  : Identify optimal threshold
+  : Identify optimal classifier threshold
 - [`wt_dd_summary()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_dd_summary.md)
   : Download data from Data Discover
 - [`wt_download_media()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_download_media.md)
-  : Download media
+  : Download media from WildTrax
 - [`wt_download_report()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_download_report.md)
   : Download formatted reports from WildTrax
 - [`wt_evaluate_classifier()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_evaluate_classifier.md)
-  : Evaluate a classifier
+  : Evaluate classifier performance
 - [`wt_flac_info()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_flac_info.md)
   : Extract relevant metadata from a flac file
 - [`wt_format_data()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_format_data.md)
@@ -35,7 +35,7 @@
 - [`wt_get_exif()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_get_exif.md)
   **\[experimental\]** : Get EXIF metadata from images
 - [`wt_get_projects()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_get_projects.md)
-  : Get a project summary from WildTrax
+  : Get a summary of available projects from WildTrax
 - [`wt_get_project_species()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_get_project_species.md)
   : Get the WildTrax species list for a specific project
 - [`wt_get_species()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_get_species.md)
@@ -54,7 +54,7 @@
 - [`wt_kaleidoscope_tags()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_kaleidoscope_tags.md)
   : Convert Kaleidoscope output to tags
 - [`wt_location_distances()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_location_distances.md)
-  : General convenience functions
+  : Calculate distance between locations
 - [`wt_location_photos()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_location_photos.md)
   **\[experimental\]** : Batch download location photos
 - [`wt_make_aru_tasks()`](https://abbiodiversity.github.io/wildrtrax/reference/wt_make_aru_tasks.md)

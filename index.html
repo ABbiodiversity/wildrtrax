@@ -163,7 +163,7 @@
 <span>  <span class="fu"><a href="reference/wt_download_report.html">wt_download_report</a></span><span class="op">(</span>sensor_id <span class="op">=</span> <span class="st">"ARU"</span>, reports <span class="op">=</span> <span class="st">"main"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Format to occupancy for OVEN</span></span>
-<span><span class="va">dat.occu</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/wt_format_occupancy.html">wt_format_occupancy</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">raw_data</span>, species<span class="op">=</span><span class="st">"OVEN"</span>, siteCovs<span class="op">=</span><span class="cn">NULL</span><span class="op">)</span></span>
+<span><span class="va">dat.occu</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/wt_format_occupancy.html">wt_format_occupancy</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">projects</span>, species<span class="op">=</span><span class="st">"OVEN"</span>, siteCovs<span class="op">=</span><span class="cn">NULL</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Run the model</span></span>
 <span><span class="fu">unmarked</span><span class="fu">::</span><span class="fu"><a href="https://ecoverseR.github.io/unmarked/reference/occu.html" class="external-link">occu</a></span><span class="op">(</span><span class="op">~</span> <span class="fl">1</span> <span class="op">~</span> <span class="fl">1</span>, <span class="va">dat.occu</span><span class="op">)</span></span></code></pre></div>
@@ -180,6 +180,7 @@
 <span><span class="co"># Run acoustic indices and LDFCs</span></span>
 <span><span class="fu"><a href="reference/wt_run_ap.html">wt_run_ap</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">my_files</span>, output_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">root</span>, <span class="st">'ap_outputs'</span><span class="op">)</span>, path_to_ap <span class="op">=</span> <span class="st">'/where/you/store/AP'</span><span class="op">)</span></span>
 <span></span>
+<span><span class="co"># Organize the results</span></span>
 <span><span class="fu"><a href="reference/wt_glean_ap.html">wt_glean_ap</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">my_files</span>, input_dir <span class="op">=</span> <span class="st">".../ap_outputs"</span>, purpose <span class="op">=</span> <span class="st">"biotic"</span>, include_ldfcs <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p>Evaluate the performance of BirdNET on a project, and search for false negatives missed by human taggers. See <a href="https://abbiodiversity.github.io/wildrtrax/articles/classifiers-tutorial.html">Classifiers Tutorial</a> for more information.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
@@ -192,13 +193,16 @@
 <span><span class="co"># Authenticate to WildTrax</span></span>
 <span><span class="fu"><a href="reference/wt_auth.html">wt_auth</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
+<span><span class="co"># Download the main and AI reports</span></span>
 <span><span class="va">my_reports</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/wt_download_report.html">wt_download_report</a></span><span class="op">(</span>project_id <span class="op">=</span> <span class="fl">1144</span>, sensor_id <span class="op">=</span> <span class="st">"ARU"</span>, reports <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"main"</span>, <span class="st">"ai"</span><span class="op">)</span><span class="op">)</span></span>
 <span>                           </span>
+<span><span class="co"># Evaluate the classifier with desired thresholds</span></span>
 <span><span class="va">eval</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/wt_evaluate_classifier.html">wt_evaluate_classifier</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">my_reports</span>, resolution <span class="op">=</span> <span class="st">"task"</span>, remove_species <span class="op">=</span> <span class="cn">TRUE</span>, thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.01</span>,<span class="fl">0.99</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
+<span><span class="co"># Find the classifier threshold</span></span>
 <span><span class="va">e1</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/wt_classifier_threshold.html">wt_classifier_threshold</a></span><span class="op">(</span><span class="va">eval</span><span class="op">)</span> </span>
 <span></span>
-<span><span class="co"># Select the lowest threshold across classifiers and find additional species (false negatives)</span></span>
+<span><span class="co"># Use the threshold across classifiers and find additional species (false negatives)</span></span>
 <span><span class="fu"><a href="reference/wt_additional_species.html">wt_additional_species</a></span><span class="op">(</span><span class="va">my_reports</span>, remove_species <span class="op">=</span> <span class="cn">TRUE</span>, threshold <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">e1</span><span class="op">$</span><span class="va">threshold</span><span class="op">)</span>, resolution<span class="op">=</span><span class="st">"task"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -235,12 +239,13 @@
 <span><span class="va">input</span> <span class="op">&lt;-</span> <span class="st">".../bat.csv"</span> <span class="co"># A Kaleidoscope output file</span></span>
 <span><span class="va">output</span> <span class="op">&lt;-</span> <span class="st">".../bats"</span> <span class="co"># A folder to store the formatted csv</span></span>
 <span></span>
+<span><span class="co"># Convert to tags</span></span>
 <span><span class="fu"><a href="reference/wt_kaleidoscope_tags.html">wt_kaleidoscope_tags</a></span><span class="op">(</span><span class="va">input</span>, <span class="va">output</span>, freq_bump <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">## Authenticate to WildTrax, then upload the tags to a WildTrax project</span></span>
 <span><span class="fu"><a href="reference/wt_auth.html">wt_auth</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Get a project id</span></span>
+<span><span class="co"># Get a bat project</span></span>
 <span><span class="va">projects</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/wt_get_projects.html">wt_get_projects</a></span><span class="op">(</span><span class="st">"ARU"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">project</span> <span class="op">==</span> <span class="st">"A bat project"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="co"># Enter your bat project name here</span></span>
 <span>  <span class="fu">pull</span><span class="op">(</span><span class="va">project_id</span><span class="op">)</span> <span class="op">|&gt;</span></span>

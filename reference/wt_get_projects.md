@@ -1,4 +1,4 @@
-# Get a project summary from WildTrax
+# Get a summary of available projects from WildTrax
 
 Obtain a table listing projects that the user is able to download data
 for.

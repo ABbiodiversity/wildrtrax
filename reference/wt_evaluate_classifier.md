@@ -1,4 +1,4 @@
-# Evaluate a classifier
+# Evaluate classifier performance
 
 Calculates precision, recall, and F-score of BirdNET and/or HawkEars for
 a requested sequence of thresholds. You can request the metrics at the
