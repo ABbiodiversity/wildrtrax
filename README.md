@@ -2,7 +2,7 @@
 
 <!-- badges: start -->
 
-[![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13952335.svg)](https://doi.org/10.5281/zenodo.13952335) [![Codecov test coverage](https://codecov.io/gh/ABbiodiversity/wildrtrax/graph/badge.svg)](https://app.codecov.io/gh/ABbiodiversity/wildrtrax)
+[![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22682284.svg)](https://doi.org/10.5281/zenodo.22682284) [![Codecov test coverage](https://codecov.io/gh/ABbiodiversity/wildrtrax/graph/badge.svg)](https://app.codecov.io/gh/ABbiodiversity/wildrtrax)
 
 <!-- badges: end -->
 
@@ -82,7 +82,7 @@ projects <- wt_get_projects("ARU") |>
   wt_download_report(sensor_id = "ARU", reports = "main")
 
 # Format to occupancy for OVEN
-dat.occu <- wt_format_occupancy(data = raw_data, species="OVEN", siteCovs=NULL)
+dat.occu <- wt_format_occupancy(data = projects, species="OVEN", siteCovs=NULL)
 
 # Run the model
 unmarked::occu(~ 1 ~ 1, dat.occu)
@@ -102,6 +102,7 @@ my_files <- wt_audio_scanner(path = ".", file_type = "wav", extra_cols = TRUE) |
 # Run acoustic indices and LDFCs
 wt_run_ap(x = my_files, output_dir = paste0(root, 'ap_outputs'), path_to_ap = '/where/you/store/AP')
 
+# Organize the results
 wt_glean_ap(x = my_files, input_dir = ".../ap_outputs", purpose = "biotic", include_ldfcs = TRUE)
 ```
 
@@ -117,13 +118,16 @@ Sys.setenv(WT_USERNAME = "*****", WT_PASSWORD = "*****")
 # Authenticate to WildTrax
 wt_auth()
 
+# Download the main and AI reports
 my_reports <- wt_download_report(project_id = 1144, sensor_id = "ARU", reports = c("main", "ai"))
                            
+# Evaluate the classifier with desired thresholds
 eval <- wt_evaluate_classifier(data = my_reports, resolution = "task", remove_species = TRUE, thresholds = c(0.01,0.99))
 
+# Find the classifier threshold
 e1 <- wt_classifier_threshold(eval) 
 
-# Select the lowest threshold across classifiers and find additional species (false negatives)
+# Use the threshold across classifiers and find additional species (false negatives)
 wt_additional_species(my_reports, remove_species = TRUE, threshold = min(e1$threshold), resolution="task")
 ```
 
@@ -162,12 +166,13 @@ library(tidyverse)
 input <- ".../bat.csv" # A Kaleidoscope output file
 output <- ".../bats" # A folder to store the formatted csv
 
+# Convert to tags
 wt_kaleidoscope_tags(input, output, freq_bump = T)
 
 ## Authenticate to WildTrax, then upload the tags to a WildTrax project
 wt_auth()
 
-# Get a project id
+# Get a bat project
 projects <- wt_get_projects("ARU") |>
   filter(project == "A bat project") |> # Enter your bat project name here
   pull(project_id) |>
