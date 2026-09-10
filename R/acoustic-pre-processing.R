@@ -995,7 +995,28 @@ wt_guano_tags <- function(path, output = FALSE, output_file = NULL) {
 
   # Extract GUANO chunk
   idx <- which(vapply(chunks, function(x) x$id, "") == "guan")
-  guan <- chunks[[idx]]
+
+  if (length(idx) > 0) {
+    # Standard GUANO chunk
+    guan_data <- chunks[[idx[1]]]$data
+
+  } else if (length(chunks) >= 4) {
+    # Some WAVs contain GUANO in the data of an unrecognised chunk
+    chunk4_data <- chunks[[4]]$data
+
+    # Remove embedded NUL bytes before converting raw data to character
+    chunk4_data <- chunk4_data[chunk4_data != as.raw(0)]
+
+    if (grepl("GUANO", rawToChar(chunk4_data), fixed = TRUE)) {
+      guan_data <- chunks[[4]]$data
+    } else {
+      guan_data <- NULL
+    }
+
+  } else {
+    # No GUANO found
+    guan_data <- NULL
+  }
 
   # Decode text
   guan_txt <- rawToChar(guan$data, multiple = TRUE)
@@ -1009,29 +1030,48 @@ wt_guano_tags <- function(path, output = FALSE, output_file = NULL) {
   }))
   guan_tibble <- tibble(key = kv[,1], value = kv[,2])
 
+  has_sb <- any(grepl("^SB\\|", guan_tibble$key))
+  has_wa <- any(grepl("^WA\\|", guan_tibble$key))
+
   # Convert to WildTrax tags and metadata
-  guan_tags <- guan_tibble |>
+  guan_wide <- guan_tibble |>
     pivot_wider(names_from = key, values_from = value) |>
     rename(location = `Loc Position`) |>
     select(-`NA`) |>
-    distinct() |>
-    transmute(location = sub("_\\d{8}.*", "", `Original Filename`),
-              recording_date_time = as.POSIXct(sub("[-+]\\d{2}:\\d{2}$", "", Timestamp), format = "%Y-%m-%dT%H:%M:%S", tz = "UTC"),
-              task_duration = round(as.numeric(Length),1),
-              task_method = "None",
-              observer = "Not Assigned",
-              species_code = `WA|Kaleidoscope|Auto ID`,
-              individual_number = 1,
-              vocalization = "Call",
-              abundance = 1,
-              detection_time = 0.1,
-              tag_duration = as.numeric(Length),
-              min_tag_freq = as.numeric(sub('.*"Fmin":([0-9.]+).*', "\\1", `WA|Kaleidoscope|Classifier|Statistics`)) * 1000,
-              max_tag_freq = as.numeric(sub('.*"Fmax":([0-9.]+).*', "\\1", `WA|Kaleidoscope|Classifier|Statistics`)) * 1,
-              species_individual_comments = paste0("Source: Kaleidoscope ",`WA|Kaleidoscope|Classifier|Version`, " ALTERNATIVE TAGS Sonobat ", sub("-.*", "", `SB|Classifier`), ":", `SB|Leaning Species Auto ID`),
-              tag_is_hidden_for_verification = FALSE,
-              recording_sample_frequency = as.numeric(Samplerate),
-              tag_id = NA_real_)
+    distinct()
+
+  for (x in c("WA|Kaleidoscope|Auto ID", "WA|Kaleidoscope|Classifier|Version",
+              "WA|Kaleidoscope|Classifier|Statistics", "SB|Leaning Species Auto ID", "SB|Classifier")) {
+    if (!x %in% names(guan_wide)) guan_wide[[x]] <- NA_character_
+  }
+
+  guan_tags <- guan_wide |>
+    transmute(
+      location = sub("_\\d{8}.*", "", `Original Filename`),
+      recording_date_time = as.POSIXct(sub("[-+]\\d{2}:\\d{2}$", "", Timestamp), format = "%Y-%m-%dT%H:%M:%S", tz = "UTC"),
+      task_duration = round(as.numeric(Length), 1),
+      task_method = "None",
+      observer = "Not Assigned",
+      species_code = coalesce(`WA|Kaleidoscope|Auto ID`, `SB|Leaning Species Auto ID`),
+      individual_number = 1,
+      vocalization = "Call",
+      abundance = 1,
+      detection_time = 0.1,
+      tag_duration = as.numeric(Length),
+      min_tag_freq = if_else(is.na(`WA|Kaleidoscope|Classifier|Statistics`), NA_real_,
+                             as.numeric(sub('.*"Fmin":([0-9.]+).*', "\\1", `WA|Kaleidoscope|Classifier|Statistics`)) * 1000),
+      max_tag_freq = if_else(is.na(`WA|Kaleidoscope|Classifier|Statistics`), NA_real_,
+                             as.numeric(sub('.*"Fmax":([0-9.]+).*', "\\1", `WA|Kaleidoscope|Classifier|Statistics`))),
+      species_individual_comments = case_when(
+        !is.na(`WA|Kaleidoscope|Classifier|Version`) & !is.na(`SB|Classifier`) ~ paste0("Source: Kaleidoscope ", `WA|Kaleidoscope|Classifier|Version`, " ALTERNATIVE TAGS Sonobat ", sub("-.*", "", `SB|Classifier`), ":", `SB|Leaning Species Auto ID`),
+        !is.na(`WA|Kaleidoscope|Classifier|Version`) ~ paste0("Source: Kaleidoscope ", `WA|Kaleidoscope|Classifier|Version`),
+        !is.na(`SB|Classifier`) ~ paste0("Source: Sonobat ", sub("-.*", "", `SB|Classifier`), ":", `SB|Leaning Species Auto ID`),
+        TRUE ~ NA_character_
+      ),
+      tag_is_hidden_for_verification = FALSE,
+      recording_sample_frequency = as.numeric(Samplerate),
+      tag_id = NA_real_
+    )
 
   guan_extra <- guan_tibble |>
     pivot_wider(names_from = key, values_from = value) |>
