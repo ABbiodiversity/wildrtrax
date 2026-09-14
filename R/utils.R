@@ -7,11 +7,7 @@
 .gen_ua <- function() {
   user_agent <- getOption("HTTPUserAgent")
   if (is.null(user_agent)) {
-    user_agent <- sprintf(
-      "R/%s; R (%s)",
-      getRversion(),
-      paste(getRversion(), R.version$platform, R.version$arch, R.version$os)
-    )
+    user_agent <- sprintf("R/%s; R (%s)", getRversion(), paste(getRversion(), R.version$platform, R.version$arch, R.version$os))
   }
   user_agent <- paste0("wildrtrax ", as.character(packageVersion("wildrtrax")), "; ", user_agent)
   return(user_agent)
@@ -111,23 +107,37 @@
 
 #' Define classes
 #'
-#' @section Define classes of objects
+#' @description Internal helper that assigns one of four classes, ARU,
+#'   camera, point count, or ultrasonic, to an object within the scope of
+#'   the package. Called implicitly inside other wildrtrax functions
+#'   not intended to be called directly by users.
 #'
-#' @description This function assigns one of three classes, ARU, camera or point count, to an object within the scope of the package
+#' @param x An object (typically a data frame or list) to classify.
+#' @param type Character string specifying the class to assign. One of
+#'   "ARU", "camera", "point_count", or "ultrasonic".
 #'
-#' @param
+#' @return The input object with an added class attribute (`wt_aru`,
+#'   `wt_camera`, `wt_point_count`, or `wt_ultrasonic`), plus the shared
+#'   `wt_data` class.
 #'
-#' @import
-#' @export
-#'
-#' @examples
-#' \dontrun{
-#'
-#' }
-#'
-#' @return A class assignment to an object
+#' @keywords internal
+#' @noRd
 
-.wt_classes <- function() {
+.wt_classes <- function(x, type = c("ARU", "camera", "point_count", "ultrasonic")) {
+
+  type <- match.arg(type)
+
+  wt_class <- switch(
+    type,
+    ARU = "wt_aru",
+    camera = "wt_camera",
+    point_count = "wt_point_count",
+    ultrasonic = "wt_ultrasonic"
+  )
+
+  class(x) <- c(wt_class, "wt_data", class(x))
+
+  x
 
 }
 

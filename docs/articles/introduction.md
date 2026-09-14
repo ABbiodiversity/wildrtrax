@@ -1,0 +1,67 @@
+# Introduction
+
+## Introduction
+
+### What is `wildrtrax`?
+
+`wildrtrax`, pronounced *‘wild-R-tracks’*, is an R package for
+ecologists and advanced users who work with environmental sensors such
+as autonomous recording units (ARUs) and remote cameras. It contains
+functions designed to meet most needs in order to organize, analyze and
+standardize data with the [WildTrax](https://wildtrax.ca)
+infrastructure. `wildrtrax` is self-contained and must be run under an R
+statistical environment, and it also depends on many other R packages.
+`wildrtrax` is free software and distributed under [MIT License (c)
+2023](https://github.com/ABbiodiversity/wildrtrax/blob/master/LICENSE).
+
+### What is **WildTrax**?
+
+[**WildTrax**](https://wildtrax.ca/) is a web-enabled portal designed to
+manage, store, process, share and discover environmental sensor data and
+the biological data extracted from the media. WildTrax was developed by
+the [Alberta Biodiversity Monitoring Institute](https://abmi.ca) and the
+[Bioacoustic Unit](https://apps.ualberta.ca/directory/person/bayne).
+
+### Why did you build `wildrtrax`?
+
+`wildrtrax` has been built in parallel with WildTrax to provide
+additional analytics and functionalities. By outlining a standardized
+and harmonized procedure for data intake, quality control, processing
+and verification of environmental sensor data, `wildrtrax` and WildTrax
+hope to provide open workflows for using ARUs and cameras to answer
+biological questions in order to inform meaningful conservation and
+decision-making.
+
+### How do I report a bug in `wildrtrax`?
+
+If you think you have found a bug in `wildrtrax`, you should report it
+to developers or maintainers. Please do not send bug reports to R
+mailing lists, since wildrtrax is not a standard R package. The
+preferred forum to report bugs is
+[GitHub](https://github.com/ABbiodiversity/wildrtrax/issues). Here is
+what is required in order to report a bug - reporting issues is welcomed
+and encouraged and are the only way to make wildrtrax non-buggy:
+
+- The bug report should be sufficiently detailed that the bug can be
+  replicated and corrected
+- Send an example that causes a bug
+- Send a minimal data set if it is not available in R
+- Paste the output or error message in your message
+- Specify which version of `wildrtrax` you used
+
+### Can I contribute to `wildrtrax`?
+
+Yes! `wildrtrax` is dependent on user contribution and all feedback is
+welcome. If you have problems with `wildrtrax`, it may be as simple as
+incomplete documentation. Feature requests also are welcome, but they
+are not necessarily fulfilled. A new feature will be added if it is easy
+to do and it looks useful to the user base of the package, or if you
+submit fully annotated code. See
+[here](https://abbiodiversity.github.io/wildrtrax/CONTRIBUTING.html) for
+more information and please read the [Code of
+Conduct](https://abbiodiversity.github.io/wildrtrax/articles/CODE_OF_CONDUCT.md).
+
+### Disclaimers
+
+The pronoun “you” throughout these articles refers to the reader. “We”
+refers to the `wildrtrax` team in general.

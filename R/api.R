@@ -86,6 +86,18 @@ wt_get_sync <- function(api, project = NULL, organization = NULL, max_seconds = 
     project_point_counts     = "download-point-count-by-project-id"
   )
 
+  # map each api pseudonym to the sensor type used by .wt_classes()
+  api_class_map <- list(
+    project_aru_tasks      = "ARU",
+    project_aru_tags       = "ARU",
+    project_image_metadata = "camera",
+    project_image_sets     = "camera",
+    project_camera_tags    = "camera",
+    project_point_counts   = "point_count"
+    # organization_* and project_locations don't map to a sensor type -
+    # left out on purpose, handled below
+  )
+
   api_key <- api_pseudonyms[[api]] %||% api
   api_path <- paste0("/bis/", api_key)
 
@@ -103,6 +115,13 @@ wt_get_sync <- function(api, project = NULL, organization = NULL, max_seconds = 
   .wt_api_pr(api_path, query_param, max_time = max_seconds, out_path = tmp)
 
   col_spec <- if (api == "project_image_metadata") cols(image_comments = col_character()) else readr::cols()
-  read_csv(tmp, col_types = col_spec, show_col_types = FALSE)
+  out <- read_csv(tmp, col_types = col_spec, show_col_types = FALSE)
+
+  sensor_type <- api_class_map[[api]]
+  if (!is.null(sensor_type)) {
+    out <- .wt_classes(out, type = sensor_type)
+  }
+
+  out
 
 }
