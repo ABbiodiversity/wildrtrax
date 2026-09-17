@@ -1261,7 +1261,23 @@ wt_get_view <- function(api, project = NULL, organization = NULL, max_seconds = 
         req_perform()
 
       json <- resp_body_json(resp, simplifyVector = TRUE)
-      org_df_usage <- as_tibble(json)
+      recs <- json$recordingStorageSize |> mutate(type = "Recordings")
+      imgs <- json$imageSetStorageSize |> mutate(type = "Image sets")
+      dois <- json$doiFileSize |> mutate(type = "DOIs")
+      loc_imgs <- json$locationImageFileSize |> mutate(type = "Location photos")
+
+      # doi and locationImage report sizeMB instead of sizeGB — convert so units line up
+      dois <- dois |> mutate(sizeGB = sizeMB / 1024) |> select(-sizeMB)
+      loc_imgs <- loc_imgs |> mutate(sizeGB = sizeMB / 1024) |> select(-sizeMB)
+
+      # Combine, drop rows with any NA, and collapse to one row per type
+      storage_summary <- bind_rows(recs, imgs, dois, loc_imgs) |>
+        filter(!is.na(storageName), !is.na(sizeGB)) |>
+        group_by(type) |>
+        summarise(size_gb = sum(sizeGB), .groups = "drop")
+
+      storage_summary
+      org_df_usage <- as_tibble(storage_summary)
 
       return(org_df_usage)
 
