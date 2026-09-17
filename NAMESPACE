@@ -42,74 +42,94 @@ import(purrr)
 import(sf)
 import(tibble)
 import(unmarked)
-importFrom(dplyr,across)
-importFrom(dplyr,arrange)
-importFrom(dplyr,bind_rows)
-importFrom(dplyr,case_when)
-importFrom(dplyr,distinct)
-importFrom(dplyr,enquo)
-importFrom(dplyr,everything)
-importFrom(dplyr,filter)
-importFrom(dplyr,group_by)
-importFrom(dplyr,inner_join)
-importFrom(dplyr,lag)
-importFrom(dplyr,mutate)
-importFrom(dplyr,mutate_at)
-importFrom(dplyr,pull)
-importFrom(dplyr,quo_name)
-importFrom(dplyr,relocate)
-importFrom(dplyr,rename)
-importFrom(dplyr,row_number)
-importFrom(dplyr,rowwise)
-importFrom(dplyr,select)
-importFrom(dplyr,summarise)
-importFrom(dplyr,ungroup)
-importFrom(fs,dir_info)
-importFrom(fs,dir_ls)
-importFrom(fs,file_size)
-importFrom(httr2,req_perform)
-importFrom(httr2,request)
-importFrom(httr2,resp_body_json)
-importFrom(magick,image_append)
-importFrom(magick,image_border)
-importFrom(magick,image_crop)
-importFrom(magick,image_info)
-importFrom(magick,image_read)
-importFrom(purrr,map)
-importFrom(purrr,map_dbl)
-importFrom(purrr,map_dfr)
-importFrom(purrr,pluck)
-importFrom(purrr,pmap)
-importFrom(purrr,pwalk)
-importFrom(purrr,reduce)
-importFrom(purrr,set_names)
-importFrom(purrr,walk)
-importFrom(readr,col_character)
-importFrom(readr,col_date)
-importFrom(readr,col_datetime)
-importFrom(readr,col_double)
-importFrom(readr,col_guess)
-importFrom(readr,col_integer)
-importFrom(readr,col_logical)
-importFrom(readr,cols)
-importFrom(readr,read_csv)
-importFrom(readr,read_table)
-importFrom(readr,write_csv)
-importFrom(seewave,spectro)
-importFrom(seewave,wav2flac)
+importFrom(dplyr,
+  across,
+  arrange,
+  bind_rows,
+  case_when,
+  distinct,
+  enquo,
+  everything,
+  filter,
+  group_by,
+  inner_join,
+  lag,
+  mutate,
+  mutate_at,
+  pull,
+  quo_name,
+  relocate,
+  rename,
+  row_number,
+  rowwise,
+  select,
+  summarise,
+  ungroup
+)
+importFrom(fs,
+  dir_info,
+  dir_ls,
+  file_size
+)
+importFrom(httr2,
+  req_perform,
+  request,
+  resp_body_json
+)
+importFrom(magick,
+  image_append,
+  image_border,
+  image_crop,
+  image_info,
+  image_read
+)
+importFrom(purrr,
+  map,
+  map_dbl,
+  map_dfr,
+  pluck,
+  pmap,
+  pwalk,
+  reduce,
+  set_names,
+  walk
+)
+importFrom(readr,
+  col_character,
+  col_date,
+  col_datetime,
+  col_double,
+  col_guess,
+  col_integer,
+  col_logical,
+  cols,
+  read_csv,
+  read_table,
+  write_csv
+)
+importFrom(seewave,
+  spectro,
+  wav2flac
+)
 importFrom(sf,st_as_sf)
-importFrom(tibble,add_column)
-importFrom(tibble,as_tibble)
-importFrom(tidyr,crossing)
-importFrom(tidyr,drop_na)
-importFrom(tidyr,pivot_longer)
-importFrom(tidyr,pivot_wider)
-importFrom(tidyr,replace_na)
-importFrom(tidyr,separate)
-importFrom(tidyr,separate_rows)
-importFrom(tidyr,unnest)
-importFrom(tidyr,unnest_longer)
-importFrom(tidyr,unnest_wider)
-importFrom(tuneR,readWave)
-importFrom(tuneR,writeWave)
+importFrom(tibble,
+  add_column,
+  as_tibble
+)
+importFrom(tidyr,
+  crossing,
+  drop_na,
+  pivot_longer,
+  pivot_wider,
+  replace_na,
+  separate,
+  separate_rows,
+  unnest,
+  unnest_longer,
+  unnest_wider
+)
+importFrom(tuneR,
+  readWave,
+  writeWave
+)
 importFrom(zip,unzip)

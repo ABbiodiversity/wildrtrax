@@ -1,3 +1,11 @@
+# wildrtrax 1.6.1
+
+## Minor changes 
+
+* Update dependency versions
+* Support for Sonobat only, Kaleidoscope only or both outputs in `wt_guano_tags()`
+* 
+
 # wildrtrax 1.6.0
 
 ## Major changes 
