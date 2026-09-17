@@ -227,29 +227,6 @@
 
 }
 
-#' Column switch assignments
-#'
-#' @description Assign correct column names
-#'
-#' @keywords internal
-#'
-
-.wt_col_switch <- list(
-  "abundance" = "individual_count",
-  "survey_date" = "survey_date_time",
-  "buffer_m" = "location_buffer_m",
-  "name/region/country" = "name_region_country",
-  "surveyDateTime" = "survey_date_time",
-  "distanceBand" = "detection_distance",
-  "distanceMethod" = "survey_distance_method",
-  "durationInterval" = "detection_time",
-  "durationMethod" = "survey_duration_method",
-  "species" = "species_code",
-  "isHeard" = "detection_heard",
-  "isSeen" = "detection_seen",
-  "comments" = "survey_comments"
-)
-
 #' Column assignments
 #'
 #' @description Assign correct column types for reports, varying by sensor
