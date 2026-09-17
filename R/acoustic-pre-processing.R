@@ -969,6 +969,12 @@ wt_songscope_tags <- function (input, output = c("env","csv"), output_file=NULL,
 
 wt_guano_tags <- function(path, output = FALSE, output_file = NULL) {
 
+  location_strip <- path |>
+    as_tibble() |>
+    mutate(file_name = sub("\\..*", "", basename(value)), file_type = sub('.*\\.(\\w+)$', '\\1', basename(value))) |>
+    separate(file_name, into = c("location", "recording_date_time"), sep = "_(?=\\d{8}_)", extra = "merge", remove = FALSE) |>
+    pull(location)
+
   wav_path <- path
   con <- file(wav_path, "rb")
   on.exit(close(con), add = TRUE)
@@ -1035,7 +1041,6 @@ wt_guano_tags <- function(path, output = FALSE, output_file = NULL) {
   # Convert to WildTrax tags and metadata
   guan_wide <- guan_tibble |>
     pivot_wider(names_from = key, values_from = value) |>
-    rename(location = `Loc Position`) |>
     distinct()
 
   for (x in c("WA|Kaleidoscope|Auto ID", "WA|Kaleidoscope|Classifier|Version",
@@ -1043,41 +1048,121 @@ wt_guano_tags <- function(path, output = FALSE, output_file = NULL) {
     if (!x %in% names(guan_wide)) guan_wide[[x]] <- NA_character_
   }
 
-  guan_tags <- guan_wide |>
-    transmute(
-      location = sub("_\\d{8}.*", "", `Original Filename`),
-      recording_date_time = as.POSIXct(sub("[-+]\\d{2}:\\d{2}$", "", Timestamp), format = "%Y-%m-%dT%H:%M:%S", tz = "UTC"),
-      task_duration = round(as.numeric(Length), 1),
-      task_method = "None",
-      observer = "Not Assigned",
-      species_code = coalesce(`WA|Kaleidoscope|Auto ID`, `SB|Leaning Species Auto ID`),
-      individual_number = 1,
-      vocalization = "Call",
-      abundance = 1,
-      detection_time = 0.1,
-      tag_duration = as.numeric(Length),
-      min_tag_freq = if_else(is.na(`WA|Kaleidoscope|Classifier|Statistics`), NA_real_, as.numeric(sub('.*"Fmin":([0-9.]+).*', "\\1", `WA|Kaleidoscope|Classifier|Statistics`)) * 1000),
-      max_tag_freq = if_else(is.na(`WA|Kaleidoscope|Classifier|Statistics`), NA_real_, as.numeric(sub('.*"Fmax":([0-9.]+).*', "\\1", `WA|Kaleidoscope|Classifier|Statistics`))),
-      species_individual_comments = case_when(
-        !is.na(`WA|Kaleidoscope|Classifier|Version`) & !is.na(`SB|Classifier`) ~ paste0("Source: Kaleidoscope ", `WA|Kaleidoscope|Classifier|Version`, " ALTERNATIVE TAGS Sonobat ", sub("-.*", "", `SB|Classifier`), ":", `SB|Leaning Species Auto ID`),
-        !is.na(`WA|Kaleidoscope|Classifier|Version`) ~ paste0("Source: Kaleidoscope ", `WA|Kaleidoscope|Classifier|Version`),
-        !is.na(`SB|Classifier`) ~ paste0("Source: Sonobat ", sub("-.*", "", `SB|Classifier`), ":", `SB|Leaning Species Auto ID`),
-        TRUE ~ NA_character_),
-      tag_is_hidden_for_verification = FALSE,
-      recording_sample_frequency = as.numeric(Samplerate),
-      tag_id = NA_real_)
+  if (has_sb & has_wa) {
 
-  guan_extra <- guan_tibble |>
-    pivot_wider(names_from = key, values_from = value) |>
-    rename(guano_version = `GUANO|Version`)
+    guan_tags <- guan_wide |>
+      transmute(
+        location = location_strip,
+        recording_date_time = as.POSIXct(sub("[-+]\\d{2}:\\d{2}$", "", Timestamp), format = "%Y-%m-%dT%H:%M:%S", tz = "UTC"),
+        task_duration = round(as.numeric(Length), 1),
+        task_method = "None",
+        observer = "Not Assigned",
+        species_code = coalesce(`WA|Kaleidoscope|Auto ID`, `SB|Leaning Species Auto ID`),
+        individual_number = 1,
+        vocalization = "Call",
+        abundance = 1,
+        detection_time = 0.1,
+        tag_duration = as.numeric(Length),
+        min_tag_freq = if_else(is.na(`WA|Kaleidoscope|Classifier|Statistics`), NA_real_, as.numeric(sub('.*"Fmin":([0-9.]+).*', "\\1", `WA|Kaleidoscope|Classifier|Statistics`)) * 1000),
+        max_tag_freq = if_else(is.na(`WA|Kaleidoscope|Classifier|Statistics`), NA_real_, as.numeric(sub('.*"Fmax":([0-9.]+).*', "\\1", `WA|Kaleidoscope|Classifier|Statistics`))),
+        species_individual_comments = case_when(
+          !is.na(`WA|Kaleidoscope|Classifier|Version`) & !is.na(`SB|Classifier`) ~ paste0("Source: Kaleidoscope ", `WA|Kaleidoscope|Classifier|Version`, " ALTERNATIVE TAGS Sonobat ", sub("-.*", "", `SB|Classifier`), ":", `SB|Leaning Species Auto ID`),
+          !is.na(`WA|Kaleidoscope|Classifier|Version`) ~ paste0("Source: Kaleidoscope ", `WA|Kaleidoscope|Classifier|Version`),
+          !is.na(`SB|Classifier`) ~ paste0("Source: Sonobat ", sub("-.*", "", `SB|Classifier`), ":", `SB|Leaning Species Auto ID`),
+          TRUE ~ NA_character_),
+        tag_is_hidden_for_verification = FALSE,
+        recording_sample_frequency = as.numeric(Samplerate),
+        tag_id = NA_real_)
 
-  if (output) {
-    if (is.null(output_file)) stop("Please provide output_file when output = TRUE.")
-    write.csv(guan_tags, output_file, row.names = FALSE)
-    return(invisible(guan_tags))
+    guan_extra <- guan_tibble |>
+      pivot_wider(names_from = key, values_from = value) |>
+      rename(guano_version = `GUANO|Version`)
+
+    if (output) {
+      if (is.null(output_file)) stop("Please provide output_file when output = TRUE.")
+      write.csv(guan_tags, output_file, row.names = FALSE)
+      return(invisible(guan_tags))
+    }
+
+    return(guan_tags)
+
+  } else if (has_sb == TRUE & has_wa == FALSE) {
+
+    guan_tags <- guan_wide |>
+      transmute(
+        location = location_strip,
+        recording_date_time = as.POSIXct(sub("[-+]\\d{2}:\\d{2}$", "", Timestamp), format = "%Y-%m-%dT%H:%M:%S", tz = "UTC"),
+        task_duration = round(as.numeric(Length), 1),
+        task_method = "None",
+        observer = "Not Assigned",
+        species_code = coalesce(`SB|Leaning Species Auto ID`),
+        individual_number = 1,
+        vocalization = "Call",
+        abundance = 1,
+        detection_time = 0.1,
+        tag_duration = as.numeric(Length),
+        min_tag_freq = if_else(is.na(`WA|Kaleidoscope|Classifier|Statistics`), NA_real_, as.numeric(sub('.*"Fmin":([0-9.]+).*', "\\1", `WA|Kaleidoscope|Classifier|Statistics`)) * 1000),
+        max_tag_freq = if_else(is.na(`WA|Kaleidoscope|Classifier|Statistics`), NA_real_, as.numeric(sub('.*"Fmax":([0-9.]+).*', "\\1", `WA|Kaleidoscope|Classifier|Statistics`))),
+        species_individual_comments = case_when(
+          !is.na(`WA|Kaleidoscope|Classifier|Version`) & !is.na(`SB|Classifier`) ~ paste0("Source: Kaleidoscope ", `WA|Kaleidoscope|Classifier|Version`, " ALTERNATIVE TAGS Sonobat ", sub("-.*", "", `SB|Classifier`), ":", `SB|Leaning Species Auto ID`),
+          !is.na(`WA|Kaleidoscope|Classifier|Version`) ~ paste0("Source: Kaleidoscope ", `WA|Kaleidoscope|Classifier|Version`),
+          !is.na(`SB|Classifier`) ~ paste0("Source: Sonobat ", sub("-.*", "", `SB|Classifier`), ":", `SB|Leaning Species Auto ID`),
+          TRUE ~ NA_character_),
+        tag_is_hidden_for_verification = FALSE,
+        recording_sample_frequency = as.numeric(Samplerate),
+        tag_id = NA_real_)
+
+    guan_extra <- guan_tibble |>
+      pivot_wider(names_from = key, values_from = value) |>
+      rename(guano_version = `GUANO|Version`)
+
+    if (output) {
+      if (is.null(output_file)) stop("Please provide output_file when output = TRUE.")
+      write.csv(guan_tags, output_file, row.names = FALSE)
+      return(invisible(guan_tags))
+    }
+
+    return(guan_tags)
+
+  } else if (has_sb == FALSE & has_wa == TRUE) {
+
+    guan_tags <- guan_wide |>
+      transmute(
+        location = location_strip,
+        recording_date_time = as.POSIXct(sub("[-+]\\d{2}:\\d{2}$", "", Timestamp), format = "%Y-%m-%dT%H:%M:%S", tz = "UTC"),
+        task_duration = round(as.numeric(Length), 1),
+        task_method = "None",
+        observer = "Not Assigned",
+        species_code = coalesce(`WA|Kaleidoscope|Auto ID`),
+        individual_number = 1,
+        vocalization = "Call",
+        abundance = 1,
+        detection_time = 0.1,
+        tag_duration = as.numeric(Length),
+        min_tag_freq = if_else(is.na(`WA|Kaleidoscope|Classifier|Statistics`), NA_real_, as.numeric(sub('.*"Fmin":([0-9.]+).*', "\\1", `WA|Kaleidoscope|Classifier|Statistics`)) * 1000),
+        max_tag_freq = if_else(is.na(`WA|Kaleidoscope|Classifier|Statistics`), NA_real_, as.numeric(sub('.*"Fmax":([0-9.]+).*', "\\1", `WA|Kaleidoscope|Classifier|Statistics`))),
+        species_individual_comments = case_when(
+          !is.na(`WA|Kaleidoscope|Classifier|Version`) & !is.na(`SB|Classifier`) ~ paste0("Source: Kaleidoscope ", `WA|Kaleidoscope|Classifier|Version`, " ALTERNATIVE TAGS Sonobat ", sub("-.*", "", `SB|Classifier`), ":", `SB|Leaning Species Auto ID`),
+          !is.na(`WA|Kaleidoscope|Classifier|Version`) ~ paste0("Source: Kaleidoscope ", `WA|Kaleidoscope|Classifier|Version`),
+          !is.na(`SB|Classifier`) ~ paste0("Source: Sonobat ", sub("-.*", "", `SB|Classifier`), ":", `SB|Leaning Species Auto ID`),
+          TRUE ~ NA_character_),
+        tag_is_hidden_for_verification = FALSE,
+        recording_sample_frequency = as.numeric(Samplerate),
+        tag_id = NA_real_)
+
+    guan_extra <- guan_tibble |>
+      pivot_wider(names_from = key, values_from = value) |>
+      rename(guano_version = `GUANO|Version`)
+
+    if (output) {
+      if (is.null(output_file)) stop("Please provide output_file when output = TRUE.")
+      write.csv(guan_tags, output_file, row.names = FALSE)
+      return(invisible(guan_tags))
+    }
+
+    return(guan_tags)
+
   }
-
-  return(guan_tags)
 
 
 }
