@@ -4,7 +4,7 @@
 
 * Update dependency versions
 * Support for Sonobat only, Kaleidoscope only or both outputs in `wt_guano_tags()`
-* 
+* Corrections to format in API calls for `wt_get_view()`
 
 # wildrtrax 1.6.0
 
