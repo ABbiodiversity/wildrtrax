@@ -38,3 +38,15 @@ test_that("Language", {
   expect_no_error(.language("fr"))
 })
 
+test_that("Location distances not a tibble", {
+  expect_error(wt_location_distances(input_from_tibble = list()))
+})
+
+test_that("Tidy species wrong classes", {
+  Sys.setenv(WT_USERNAME = "guest", WT_PASSWORD = "Apple123")
+  wt_auth(force = TRUE)
+  proj <- wt_download_report(620, 'ARU', 'main')
+  expect_error(wt_tidy_species(proj, remove = "nothing"))
+})
+
+

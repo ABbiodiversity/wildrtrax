@@ -258,3 +258,8 @@ expect_no_error(sync_view_endpoints %>%
 test_that("Location photos", {
 expect_no_error(wt_location_photos(organization = "TESTORGAPI", output = NULL))
 })
+
+test_that("Location photos", {
+  expect_no_error(wt_location_photos(organization = "TESTORGAPI", output = NULL))
+})
+
