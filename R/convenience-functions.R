@@ -125,10 +125,6 @@ wt_tidy_species <- function(data,
              recording_date_time=survey_date_time)
   }
 
-  if('bird' %in% remove){
-    message('Note: By removing birds, you will not be able to use wt_qpad_offsets since QPAD offsets are only available for birds.')
-  }
-
   #Convert to the sql database labels for species class
   remove <- case_when(remove=="mammal" ~ "MAMMALIA",
                       remove=="amphibian" ~ "AMPHIBIA",
