@@ -46,6 +46,10 @@ test_that("Try to get projects without a sensor id", {
   expect_error(wt_get_projects())
 })
 
+test_that("Try to get organizations", {
+  expect_no_error(wt_get_organizations())
+})
+
 test_that("Multiple projects", {
   expect_no_error(wt_get_projects('ARU') |>
   filter(grepl('Public', project_status)) |>

@@ -38,6 +38,7 @@ reference:
   - wt_format_occupancy
   - wt_format_audiomoth_filenames
   - wt_get_exif
+  - wt_get_organizations
   - wt_get_projects
   - wt_get_project_species
   - wt_get_species

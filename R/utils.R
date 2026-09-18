@@ -134,43 +134,32 @@
 #'
 #' @import httr2
 
-.wt_api_pr <- function(path, ..., max_time=300) {
+.wt_api_pr <- function(path, ..., max_time = 300) {
 
-  # Check if authentication has expired:
-  if (.wt_auth_expired()) {stop("Please authenticate with wt_auth().", call. = FALSE)}
+  if (.wt_auth_expired()) stop("Please authenticate with wt_auth().", call. = FALSE)
 
-  ## User agent
   u <- .gen_ua()
-
-  # Convert ... into a list
   query_params <- list(...)
 
-  # Check if query_params is a list; if not, ensure it is treated as a list
-  if (length(query_params) == 1 && is.character(query_params[[1]])) {
-    # If there's only one element and it's a character, treat it as a named query
-    query_params <- as.list(query_params)
-  }
-
-  if (path != "/bis/download-report") {
-    req <- request("https://www-api.wildtrax.ca") |>
-      req_url_path_append(path) |>
-      req_body_json(query_params) |>
-      req_headers(Authorization = paste("Bearer", ._wt_auth_env_$access_token)) |>
-      req_user_agent(u) |>
-      req_method("POST") |>
-      req_timeout(max_time) |>
-      req_perform()
-
-    if (resp_status(req) >= 400) {
-      stop(sprintf("API request failed [%s]", resp_status(req)), call. = FALSE)
-    }
-    return(req)
-
-  } else {
-
+  if (path == "/bis/download-report") {
     stop("The API you provided is not yet supported by this function")
-
   }
+
+  req <- request("https://www-api.wildtrax.ca") |>
+    req_url_path_append(path) |>
+    req_headers(Authorization = paste("Bearer", ._wt_auth_env_$access_token)) |>
+    req_user_agent(u) |>
+    req_method("POST") |>
+    req_timeout(max_time)
+
+  # Condition: only send params if there are any, otherwise send an empty JSON object
+  if (length(query_params) > 0) {
+    req <- req_body_json(req, query_params)
+  } else {
+    req <- req_body_raw(req, "{}", type = "application/json")
+  }
+
+  req_perform(req)
 }
 
 #' An internal function to handle generic GET requests to WildTrax

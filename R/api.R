@@ -96,6 +96,55 @@ wt_get_projects <- function(sensor) {
 
 }
 
+
+#' Get a summary of available Organizations from WildTrax
+#'
+#' @description Obtain a table listing Organizations that the user is able to download data for.
+#'
+#' @importFrom dplyr select rename everything distinct
+#' @importFrom tidyr unnest_longer
+#' @importFrom tibble as_tibble
+#' @importFrom httr2 resp_body_json
+#
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' # Authenticate first:
+#' wt_auth()
+#' wt_get_organizations()
+#' }
+#'
+#' @return A data frame listing the Organization that the user can access including important Organization summaries
+#'
+
+wt_get_organizations <- function() {
+
+  r <- .wt_api_pr(
+    path = "/bis/get-organization-summary"
+  )
+
+  if(is.null(r)) {
+    stop('No response was returned or the response was NULL.')
+  }
+
+  orgs <- as_tibble(do.call(rbind, resp_body_json(r)$results)) |>
+    unnest_longer(everything()) |>
+    rename(organization_id = id,
+           organization = name,
+           organization_name = fullName,
+           location_count = locations,
+           project_count = projects,
+           user_is_member = isMember,
+           organization_read = canOpenOrganization,
+           organization_admin = canEditOrganization) |>
+    select(-c(isPendingStatus, fundingSource, location, languageCode, canRequestAccess)) |>
+    distinct()
+
+  return(orgs)
+
+}
+
 #' Download formatted reports from WildTrax
 #'
 #' @description Download various ARU, camera, or point count data from projects across WildTrax

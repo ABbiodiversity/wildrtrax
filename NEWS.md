@@ -1,5 +1,9 @@
 # wildrtrax 1.6.1
 
+## Major changes 
+
+* New function to retrieve list of Organizations: `wt_get_organizations()`
+
 ## Minor changes 
 
 * Update dependency versions
