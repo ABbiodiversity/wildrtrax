@@ -119,56 +119,56 @@ test_that('Classifier functions by recording', {
   add_sp <- wt_additional_species(rep, remove_species = TRUE, threshold = min(e1$threshold), resolution = "task")
   expect_true(!is.null(add_sp))
 })
-#
-# test_that("Songscope tags USPM", {
-#   expect_no_error(
-#     wt_songscope_tags(
-#       testthat::test_path("fixtures/text/CONI.txt"),
-#       output = "env",
-#       species = "CONI",
-#       vocalization = "SONG",
-#       score_filter = 10,
-#       method = "USPM",
-#       duration = 300,
-#       sample_freq = 44100
-#     )
-#   )
-# })
 
-# test_that("Songscope tags 1SPT", {
-#   expect_no_error(
-#     wt_songscope_tags(
-#       testthat::test_path("fixtures/text/CONI.txt"),
-#       output = "env",
-#       species = "CONI",
-#       vocalization = "SONG",
-#       score_filter = 10,
-#       method = "1SPT",
-#       duration = 180,
-#       sample_freq = 44100
-#     )
-#   )
-# })
-#
-# test_that("Kaleidoscope tags", {
-#   expect_no_error(
-#     wt_kaleidoscope_tags(
-#       testthat::test_path("fixtures/id.csv"),
-#       output = NULL,
-#       freq_bump = T
-#     )
-#   )
-# })
+ test_that("Songscope tags USPM", {
+   expect_no_error(
+     wt_songscope_tags(
+       testthat::test_path("fixtures/text/CONI.txt"),
+       output = "env",
+       species = "CONI",
+       vocalization = "SONG",
+       score_filter = 10,
+       method = "USPM",
+       duration = 300,
+       sample_freq = 44100
+     )
+   )
+ })
 
-# test_that("Kaleidoscope tags", {
-#   expect_no_error(
-#     wt_kaleidoscope_tags(
-#       testthat::test_path("fixtures/id.csv"),
-#       output = NULL,
-#       freq_bump = F
-#     )
-#   )
-# })
+ test_that("Songscope tags 1SPT", {
+   expect_no_error(
+     wt_songscope_tags(
+       testthat::test_path("fixtures/text/CONI.txt"),
+       output = "env",
+       species = "CONI",
+       vocalization = "SONG",
+       score_filter = 10,
+       method = "1SPT",
+       duration = 180,
+       sample_freq = 44100
+     )
+   )
+ })
+
+ test_that("Kaleidoscope tags", {
+   expect_no_error(
+     wt_kaleidoscope_tags(
+       testthat::test_path("fixtures/id.csv"),
+       output = NULL,
+       freq_bump = T
+     )
+   )
+ })
+
+ test_that("Kaleidoscope tags", {
+   expect_no_error(
+     wt_kaleidoscope_tags(
+       testthat::test_path("fixtures/id.csv"),
+       output = NULL,
+       freq_bump = F
+     )
+   )
+ })
 
 test_that("Wide with PC", {
   expect_no_error(wt_make_wide(pc_proj))
@@ -179,69 +179,84 @@ test_that('Format FWMIS lookups', {
     wt_format_data(format = 'FWMIS'))
 })
 
-# test_that('Guano', {
-#   expect_no_error(wt_audio_scanner(testthat::test_path("fixtures/audio"), file_type = "wav", extra_cols = TRUE) |>
-#                     filter(sample_rate > 192000) %>% purrr::map(.x = .$file_path, .f = ~wt_guano_tags(.x)))
-# })
-#
-# test_that('WAC Tests', {
-#   expect_no_error(wt_audio_scanner(testthat::test_path("fixtures/audio"), file_type = "wac", extra_cols = TRUE))
-# })
-#
-# test_that('Chop tests', {
-# my_files <- wt_audio_scanner(testthat::test_path("fixtures/audio"), file_type = "wav", extra_cols = TRUE) |>
-#   slice(1)
-# expect_no_error(wt_chop(input = my_files, segment_length = 60, output_folder = testthat::test_path("fixtures/audio/chop")))})
-#
-# test_that('Signal level tests', {
-#   expect_no_error(wt_signal_level(testthat::test_path("fixtures/audio/1-1A1-CA1-B_20250620_120000.wav"), fmin = 500, fmax = 10000, threshold = 35, channel = "left", aggregate = NULL))
-# })
+ test_that('Guano', {
+   expect_no_error(wt_audio_scanner(testthat::test_path("fixtures/audio"), file_type = "wav", extra_cols = TRUE) |>
+                     filter(sample_rate > 192000) %>% purrr::map(.x = .$file_path, .f = ~wt_guano_tags(.x)))
+ })
 
-# test_that('Signal level tests - aggregate', {
-#   expect_no_error(wt_signal_level(testthat::test_path("fixtures/audio/1-1A1-CA1-B_20250620_120000.wav"), fmin = 500, fmax = 10000, threshold = 35, channel = "right", aggregate = 10))
-# })
+ test_that('WAC Tests', {
+   expect_no_error(wt_audio_scanner(testthat::test_path("fixtures/audio"), file_type = "wac", extra_cols = TRUE))
+ })
 
-# test_that('Making tasks', {
-# expect_no_error(wt_audio_scanner(testthat::test_path("fixtures/audio"), file_type = "wav", extra_cols = TRUE) |>
-#   slice(1) |>
-#   wt_make_aru_tasks(output = NULL, task_method = "1SPT", task_length = 60))
-# })
+ test_that('Chop tests', {
+ my_files <- wt_audio_scanner(testthat::test_path("fixtures/audio"), file_type = "wav", extra_cols = TRUE) |>
+   slice(1)
+ expect_no_error(wt_chop(input = my_files, segment_length = 60, output_folder = testthat::test_path("fixtures/audio/chop")))})
 
-# test_that('Audiomoth formatting', {
-#   expect_no_error(wt_format_audiomoth_filenames(testthat::test_path("fixtures/audio/audiomoth")))
-#                                 })
+ test_that('Signal level tests', {
+   expect_no_error(wt_signal_level(testthat::test_path("fixtures/audio/1-1A1-CA1-B_20250620_120000.wav"), fmin = 500, fmax = 10000, threshold = 35, channel = "left", aggregate = NULL))
+ })
 
-# test_that("Audio Analysis Programs workflow runs successfully", {
-#
-#   # Scan test WAV file
-#   j <- wt_audio_scanner(
-#     testthat::test_path("fixtures/audio"),
-#     file_type = "wav",
-#     extra_cols = TRUE
-#   ) |>
-#     dplyr::slice(1)
-#
-#   expect_equal(nrow(j), 1)
-#
-#   # Run Analysis Programs
-#   ap_output <- testthat::test_path("fixtures/raw/ap_output")
-#
-#   wt_run_ap(
-#     j,
-#     output_dir = ap_output,
-#     path_to_ap = testthat::test_path("fixtures/raw/APNnew/AnalysisPrograms")
-#   )
-#
-#   # Check that AP produced output
-#   expect_true(dir.exists(ap_output))
-#
-#   # Wrangle Analysis Programs output
-#   expect_no_error(wt_glean_ap(
-#     j,
-#     input_dir = ap_output,
-#     purpose = "biotic"
-#   ))
-#
-#
-# })
-#
+ test_that('Signal level tests - aggregate', {
+   expect_no_error(wt_signal_level(testthat::test_path("fixtures/audio/1-1A1-CA1-B_20250620_120000.wav"), fmin = 500, fmax = 10000, threshold = 35, channel = "right", aggregate = 10))
+ })
+
+ test_that('Making tasks', {
+ expect_no_error(wt_audio_scanner(testthat::test_path("fixtures/audio"), file_type = "wav", extra_cols = TRUE) |>
+   slice(1) |>
+   wt_make_aru_tasks(output = NULL, task_method = "1SPT", task_length = 60))
+ })
+
+ test_that('Audiomoth formatting', {
+   expect_no_error(wt_format_audiomoth_filenames(testthat::test_path("fixtures/audio/audiomoth")))
+                                 })
+
+ test_that("Audio Analysis Programs workflow runs successfully", {
+
+   j <- wt_audio_scanner(
+     testthat::test_path("fixtures/audio"),
+     file_type = "wav",
+     extra_cols = TRUE
+   ) |>
+     dplyr::slice(1)
+
+   expect_equal(nrow(j), 1)
+
+   ap_output <- testthat::test_path("fixtures/raw/ap_output")
+
+   wt_run_ap(
+     j,
+     output_dir = ap_output,
+     path_to_ap = testthat::test_path("fixtures/raw/APNnew/AnalysisPrograms")
+   )
+
+   expect_true(dir.exists(ap_output))
+
+   expect_no_error(wt_glean_ap(
+     j,
+     input_dir = ap_output,
+     purpose = "biotic"
+   ))
+
+
+ })
+
+ test_that('FLAC', {
+   expect_no_error(wt_audio_scanner(testthat::test_path("fixtures/audio"), file_type = "flac", extra_cols = TRUE))})
+
+ test_that('No audio', {
+   expect_error(wt_audio_scanner(testthat::test_path("fixtures/images"), file_type = "all", extra_cols = TRUE))})
+
+ test_that('Failure on wt_run_ap and wt_glean_ap', {
+   expect_error(wt_run_ap(x = NULL, audio_dir = NULL))
+   expect_error(wt_glean_ap(x = NULL, input_dir = NULL, purpose = "biotic"))
+ })
+
+test_that('Guano test', {
+  # Sonobat only
+  expect_no_error(wt_guano_tags(path <- testthat::test_path("fixtures/audio/guano/BCP10-322NW_20260630_213329.wav")))
+  # Both
+  expect_no_error(wt_guano_tags(testthat::test_path("fixtures/audio/guano/BCP11-BOWNE_20250623_221005_000.wav")))
+  # Kaleido only
+  expect_no_error(wt_guano_tags(testthat::test_path("fixtures/audio/guano/BCP11-BWRNNE_20240621_220503_000.wav")))
+ })
