@@ -156,6 +156,8 @@ utils::globalVariables(
     "wac_info",
     "value",
     "species_id",
+    'Species Manual ID',
+    'SB|Species Auto ID',
     "projectId",
     "project_name",
     "species_scientific_name",

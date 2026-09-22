@@ -1000,6 +1000,20 @@ wt_guano_tags <- function(path, output = FALSE, output_file = NULL) {
     pivot_wider(names_from = key, values_from = value) |>
     distinct()
 
+  expected_cols <- c(
+    "WA|Kaleidoscope|Auto ID",
+    "WA|Kaleidoscope|Classifier|Version",
+    "WA|Kaleidoscope|Classifier|Statistics",
+    "SB|Species Auto ID",
+    "SB|Classifier",
+    "Species Manual ID"
+  )
+
+  missing_cols <- setdiff(expected_cols, names(guan_wide))
+  if (length(missing_cols) > 0) {
+    guan_wide[missing_cols] <- NA_character_
+  }
+
   guan_wide <- guan_wide |>
     mutate(manual_clean = ifelse(is.na(`Species Manual ID`) | trimws(`Species Manual ID`) == "" | toupper(sub(",.*", "", trimws(`Species Manual ID`))) %in% c("NOID", "NO ID"), NA_character_, trimws(`Species Manual ID`)),
            kaleidoscope_id = ifelse(is.na(`WA|Kaleidoscope|Auto ID`) | toupper(trimws(`WA|Kaleidoscope|Auto ID`)) %in% c("NOID", "NO ID"), NA_character_, trimws(`WA|Kaleidoscope|Auto ID`)),
