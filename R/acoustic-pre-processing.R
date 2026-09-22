@@ -1031,6 +1031,10 @@ wt_guano_tags <- function(path, output = FALSE, output_file = NULL) {
               tag_id = NA_real_) |>
     mutate(species_code = case_when(species_code == "NoID" ~ "UBAT", TRUE ~ species_code))
 
+  if(any(guan_tags$task_duration < 0.1)) {
+    warning("There are tasks smaller than the tag duration")
+  }
+
   if (output) {
     if (is.null(output_file)) stop("Please provide output_file when output = TRUE.")
     write.csv(guan_tags, output_file, row.names = FALSE)
