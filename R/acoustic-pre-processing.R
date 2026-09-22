@@ -1000,33 +1000,36 @@ wt_guano_tags <- function(path, output = FALSE, output_file = NULL) {
     pivot_wider(names_from = key, values_from = value) |>
     distinct()
 
-  # Ensure optional columns exist
-  need <- c("WA|Kaleidoscope|Auto ID", "WA|Kaleidoscope|Classifier|Version",
-            "WA|Kaleidoscope|Classifier|Statistics", "SB|Leaning Species Auto ID", "SB|Classifier")
-  guan_wide[setdiff(need, names(guan_wide))] <- NA_character_
+  guan_wide <- guan_wide |>
+    mutate(manual_clean = ifelse(is.na(`Species Manual ID`) | trimws(`Species Manual ID`) == "" | toupper(sub(",.*", "", trimws(`Species Manual ID`))) %in% c("NOID", "NO ID"), NA_character_, trimws(`Species Manual ID`)),
+           kaleidoscope_id = ifelse(is.na(`WA|Kaleidoscope|Auto ID`) | toupper(trimws(`WA|Kaleidoscope|Auto ID`)) %in% c("NOID", "NO ID"), NA_character_, trimws(`WA|Kaleidoscope|Auto ID`)),
+           sonobat_id = ifelse(is.na(`SB|Species Auto ID`) | toupper(trimws(`SB|Species Auto ID`)) %in% c("NOID", "NO ID"), NA_character_, trimws(`SB|Species Auto ID`)),
+           primary_source = case_when(!is.na(manual_clean) ~ "manual", !is.na(kaleidoscope_id) ~ "kaleidoscope", !is.na(sonobat_id) ~ "sonobat", TRUE ~ "none"))
 
   guan_tags <- guan_wide |>
-    transmute(
-      location = location,
-      recording_date_time = as.POSIXct(sub("[-+]\\d{2}:\\d{2}$", "", Timestamp), format = "%Y-%m-%dT%H:%M:%S", tz = "UTC"),
-      task_duration = round(as.numeric(Length), 1),
-      task_method = "None",
-      observer = "Not Assigned",
-      species_code = coalesce(`WA|Kaleidoscope|Auto ID`, `SB|Leaning Species Auto ID`),
-      individual_number = 1,
-      vocalization = "Call",
-      abundance = 1,
-      detection_time = 0.1,
-      tag_duration = as.numeric(Length),
-      min_tag_freq = freq(`WA|Kaleidoscope|Classifier|Statistics`, "Fmin") * 1000,
-      max_tag_freq = freq(`WA|Kaleidoscope|Classifier|Statistics`, "Fmax") * 1000,
-      species_individual_comments = case_when(
-        !is.na(`WA|Kaleidoscope|Classifier|Version`) & !is.na(`SB|Classifier`) ~ paste0("Source: Kaleidoscope ", `WA|Kaleidoscope|Classifier|Version`, " ALTERNATIVE TAGS Sonobat ", sub("-.*", "", `SB|Classifier`), ":", `SB|Leaning Species Auto ID`),
-        !is.na(`WA|Kaleidoscope|Classifier|Version`) ~ paste0("Source: Kaleidoscope ", `WA|Kaleidoscope|Classifier|Version`),
-        !is.na(`SB|Classifier`) ~ paste0("Source: Sonobat ", sub("-.*", "", `SB|Classifier`), ":", `SB|Leaning Species Auto ID`)),
-      tag_is_hidden_for_verification = FALSE,
-      recording_sample_frequency = as.numeric(Samplerate),
-      tag_id = NA_real_)
+    transmute(location = location,
+              recording_date_time = as.POSIXct(sub("[-+]\\d{2}:\\d{2}$", "", Timestamp), format = "%Y-%m-%dT%H:%M:%S", tz = "UTC"),
+              task_duration = round(as.numeric(Length), 1),
+              task_method = "None",
+              observer = "Not Assigned",
+              species_code = case_when(primary_source == "manual" ~ sub(",.*", "", manual_clean),
+                                       primary_source == "kaleidoscope" ~ kaleidoscope_id,
+                                       primary_source == "sonobat" ~ sonobat_id,
+                                       TRUE ~ "UBAT"),
+              individual_number = 1,
+              vocalization = "Call",
+              abundance = 1,
+              detection_time = 0.1,
+              tag_duration = as.numeric(Length) - 0.2,
+              min_tag_freq = freq(`WA|Kaleidoscope|Classifier|Statistics`, "Fmin") * 1000,
+              max_tag_freq = freq(`WA|Kaleidoscope|Classifier|Statistics`, "Fmax") * 1000,
+              species_individual_comments = case_when(primary_source == "manual" ~ trimws(paste0("Source: Manual ID", ifelse(!is.na(kaleidoscope_id) | !is.na(`WA|Kaleidoscope|Classifier|Version`),paste0(" ALTERNATIVE TAGS Kaleidoscope ", `WA|Kaleidoscope|Classifier|Version`, ":", coalesce(kaleidoscope_id, "NoID")), ""), ifelse(!is.na(sonobat_id) | !is.na(`SB|Classifier`), paste0(" Sonobat ", sub("-.*", "", `SB|Classifier`), ":", coalesce(sonobat_id, "NoID")), ""))),
+                                                      primary_source == "kaleidoscope" ~ trimws(paste0("Source: Kaleidoscope ", `WA|Kaleidoscope|Classifier|Version`, ifelse(!is.na(sonobat_id) | !is.na(`SB|Classifier`), paste0(" ALTERNATIVE TAGS Sonobat ", sub("-.*", "", `SB|Classifier`), ":", coalesce(sonobat_id, "NoID")), ""))),
+                                                      primary_source == "sonobat" ~ paste0("Source: Sonobat ", sub("-.*", "", `SB|Classifier`)), TRUE ~ NA_character_),
+              tag_is_hidden_for_verification = FALSE,
+              recording_sample_frequency = as.numeric(Samplerate),
+              tag_id = NA_real_) |>
+    mutate(species_code = case_when(species_code == "NoID" ~ "UBAT", TRUE ~ species_code))
 
   if (output) {
     if (is.null(output_file)) stop("Please provide output_file when output = TRUE.")
