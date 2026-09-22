@@ -196,10 +196,10 @@ wt_get_organizations <- function() {
 #' # Authenticate first:
 #' wt_auth()
 #' a_camera_project <- wt_download_report(
-#' project_id = 397, sensor_id = "CAM", reports = c("tag", "image_set_report"))
+#' project_id = 205, sensor_id = "CAM", reports = c("tag", "image_set_report"))
 #'
 #' an_aru_project <- wt_download_report(
-#' project_id = 47, sensor_id = "ARU", reports = c("main", "ai"))
+#' project_id = 3261, sensor_id = "ARU", reports = c("main", "ai"))
 #' }
 #'
 #' @return If multiple report types are requested, a list object is returned; if only one, a dataframe.
@@ -220,7 +220,7 @@ wt_download_report <- function(project_id, sensor_id, reports, max_seconds=300) 
 
   sensor_value <- i |>
     rename('id' = 1) |>
-    filter(id %in% project_id) |>
+    filter(id %in% 2783) |>
     pull(project_sensor)
 
   # Make sure report is specified
@@ -290,8 +290,10 @@ wt_download_report <- function(project_id, sensor_id, reports, max_seconds=300) 
     error = function(e) {
       if (grepl("HTTP 500", e$message)) {
         stop("An unexpected server error occurred while downloading the report.")
-      } else if (grepl("HTTP 400", e$message)){
-        stop("You may not have permission to access this project or report. Please check your WildTrax account permissions.", e$message)
+      } else if (grepl("HTTP 400", e$message)) {
+        stop("You may not have permission to access this project or report. Please check your WildTrax account permissions.")
+      } else {
+        stop(e)  # re-throw anything else instead of swallowing it
       }
     }
   )

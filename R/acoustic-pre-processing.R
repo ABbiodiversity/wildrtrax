@@ -961,14 +961,13 @@ wt_songscope_tags <- function (input, output = c("env","csv"), output_file=NULL,
 #'
 #' # Process audio files from a directory
 #' wt_audio_scanner("/path/to/audio", file_type = "wav", extra_cols = TRUE) |>
-#'   purrr::map(.x = .$file_path, .f = ~wt_guano_tags(.x)) |>
+#'   purrr::map(\(x) = file_path ~wt_guano_tags(file_path)) |>
 #'   bind_rows()
 #' }
 #'
 #' @return A csv formatted as a WildTrax tag template
 
 wt_guano_tags <- function(path, output = FALSE, output_file = NULL) {
-
 
   location <- sub("_(?=\\d{8}_).*", "", sub("\\..*", "", basename(path)), perl = TRUE)
   freq <- function(x, k) {
@@ -993,8 +992,11 @@ wt_guano_tags <- function(path, output = FALSE, output_file = NULL) {
   lines <- strsplit(rawToChar(guan_data[guan_data != as.raw(0)]), "\n")[[1]]
   lines <- lines[nzchar(lines)]
 
-  guan_wide <- tibble(key = trimws(sub(":.*", "", lines)),
-                      value = trimws(sub("^[^:]*:", "", lines))) |>
+  guan_wide <- tibble(
+    key = trimws(sub(":.*", "", lines)),
+    value = trimws(sub("^[^:]*:", "", lines))
+  ) |>
+    filter(key != "") |>
     pivot_wider(names_from = key, values_from = value) |>
     distinct()
 
