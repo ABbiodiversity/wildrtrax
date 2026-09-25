@@ -17,6 +17,7 @@ articles:
   - audio-data-concepts
   - acoustic-pre-processing
   - acoustic-data-wrangling
+  - bat-functions
   - classifiers-tutorial
   - camera-data-wrangling
   - tutorials

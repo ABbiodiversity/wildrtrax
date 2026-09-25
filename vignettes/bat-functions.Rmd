@@ -1,0 +1,11 @@
+---
+title: 'Bat data workflows'
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Bat data workflows}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+

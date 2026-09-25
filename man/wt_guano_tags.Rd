@@ -27,7 +27,7 @@ wt_guano_tags("/path/to/audio_file.wav")
 
 # Process audio files from a directory
 wt_audio_scanner("/path/to/audio", file_type = "wav", extra_cols = TRUE) |>
-  purrr::map(.x = .$file_path, .f = ~wt_guano_tags(.x)) |>
+  purrr::map(\(x) = file_path ~wt_guano_tags(file_path)) |>
   bind_rows()
 }
 
