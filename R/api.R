@@ -1221,7 +1221,66 @@ wt_get_view <- function(api, project = NULL, organization = NULL, max_seconds = 
     json <- resp_body_json(resp, simplifyVector = TRUE)
     org_df <- as_tibble(json$results)
 
-    return(org_df)
+    if(api_match == "organization_locations") {
+
+      loc_ops <- .wt_api_gr("/bis/get-location-options") |>
+        resp_body_json()
+      opt_to_tbl <- function(x, label_col = "type") {
+        map_dfr(x, ~ tibble(id = .x$id, label = .x[[label_col]]))
+      }
+
+      locs_lu <- opt_to_tbl(loc_ops$visibility, "type") |>  # adjust label_col if needed
+        rename(location_visibility = label)
+
+      org_df <- org_df |>
+        rename(location_id = id,
+               organization_id = organizationId,
+               location = locationName,
+               location_buffer_m = bufferRadius,
+               location_true_coordinates = isTrueCoordinates,
+               local_area_name = localAreaName,
+               visit_count = visitCount,
+               recording_count = recordingCount,
+               image_count = imageCount) |>
+        left_join(locs_lu, by = c("visibilityId" = "id")) |>
+        select(-visibilityId) |>
+        relocate(location_visibility, .after = longitude)
+
+      return(org_df)
+
+    } else if (api_match == "organization_visits") {
+
+      vis_ops <- .wt_api_gr("/bis/get-location-visit-static-options") |>
+        resp_body_json()
+      opt_to_tbl <- function(x, label_col = "type") {
+        map_dfr(x, ~ tibble(id = .x$id, label = .x[[label_col]]))
+      }
+
+      bait_lu <- opt_to_tbl(vis_ops$locationDeploymentVisitBait, "type") |>
+        rename(bait = label)
+
+      org_df <- org_df |>
+        rename(visit_id = id,
+               location = locationName,
+               visit_date = date,
+               snow_depth_m = snowDepth,
+               water_depth_m = waterDepth,
+               visit_crew = crewName,
+               access_method = accessMethodId,
+               clutter_distance = distanceToClutter,
+               water_distance = distanceToWater,
+               clutter_percent = clutterPercent,
+               sunrise = sunRise,
+               sunset = sunSet,
+               timezone = timeZone,
+               land_features = landFeatureIds) |>
+        left_join(bait_lu, by = c("baitId" = "id")) |>
+        select(-baitId) |>
+        relocate(bait, .after = water_depth_m)
+
+      return(org_df)
+
+    }
 
     } else if (api_match == "organization_equipment") {
 
