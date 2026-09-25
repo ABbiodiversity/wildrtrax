@@ -7,5 +7,75 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = FALSE)
+```
 
+## Bat data concepts
 
+Autonomous recording units (ARUs) deployed for bat monitoring differ from those used for birds or amphibians in one key way: they record in the **ultrasonic** range. Most bat echolocation calls fall roughly between 9 kHz and 120 kHz, well above the upper limit of human hearing (~20 kHz). Because these calls are inaudible to people, specialized hardware and sample rates (typically 192–500 kHz) are required to capture them without aliasing, and specialized software is required to
+interpret them afterward. This creates a distinct workflow compared to sonic (audible-range) ARU data:
+
+- **Recording**: ultrasonic microphones and higher sample rates capture full-spectrum or zero-crossing audio of bat calls.
+- **Classification**: because calls are short (often <100 ms) and highly variable between species, automated classifiers are used to scan recordings and assign a likely species identity to each detected call or file, rather than relying solely on human aural identification.
+- **Verification**: classifier output is typically treated as a first-pass filter, with acoustic experts confirming or correcting species calls, especially for rare, at-risk, or acoustically similar species.
+- **Standardization**: outputs from different classifiers use different file structures and species codes, so `wildrtrax` provides functions to translate these into a single, consistent tag format that can be synced with recordings already uploaded to [WildTrax](https://www.wildtrax.ca/).
+
+## Bat classifiers
+
+`wildrtrax` supports formatting output from three widely used bat classification tools:
+
+| Classifier | Developer | Status | `wildrtrax` function |
+|---|---|---|---|
+| Sonobat | SonoBat | Actively maintained | *(see below)* |
+| Kaleidoscope | Wildlife Acoustics | Actively maintained | `wt_kaleidoscope_tags()` |
+| Songscope | Wildlife Acoustics | Deprecated | `wt_songscope_tags()` |
+
+`wt_kaleidoscope_tags()` and `wt_songscope_tags()` take the classification output files produced by each program (typically a CSV or set of per-file classification results) and reformat them into the WildTrax tag schema; species code, confidence, start/end time, and frequency bounds per detection, so that tags line up correctly with their corresponding recordings once uploaded. A minimal workflow looks like:
+
+```{r kaleidoscope-example}
+library(wildrtrax)
+
+# Point to the Kaleidoscope classifier output (e.g. a summary CSV)
+kaleido_tags <- wt_kaleidoscope_tags(input = "path/to/kaleidoscope_output.csv")
+
+# Inspect the standardized tag table before uploading
+head(kaleido_tags)
+```
+
+```{r songscope-example}
+# Songscope is deprecated by Wildlife Acoustics but historical
+# datasets processed with it can still be brought into WildTrax
+songscope_tags <- wt_songscope_tags(input = "path/to/songscope_output")
+```
+
+Because Songscope is no longer actively developed or supported by Wildlife Acoustics, `wt_songscope_tags()` exists primarily to support legacy data, new projects should generally classify with Kaleidoscope or Sonobat instead.
+
+## GUANO metadata to tags
+
+[GUANO](https://guano-md.org/) (**G**rand **U**nified **A**coustic **N**otation **O**ntology) is a metadata standard for bat acoustic recordings. Rather than living in a separate file, GUANO metadata is embedded directly in the WAV file itself, in a dedicated metadata chunk. This can include information such as:
+
+- Species classification and classifier-assigned confidence
+- Recording location (latitude/longitude), date, and time
+- Equipment and firmware details
+- Notes added manually by an analyst or automatically by classifier software (e.g. Kaleidoscope and some Sonobat workflows write GUANO tags back into the original recordings)
+
+Because this metadata travels with the file rather than in a separate results table, it needs its own extraction step. The `wt_guano_tags()` function reads the embedded GUANO metadata from a set of recordings and exports it into the same standard WildTrax tag template used by the classifier functions above, ready for upload and synchronization with your recordings in WildTrax.
+
+```{r guano-example}
+guano_tags <- wt_guano_tags(input = "path/to/recordings/")
+
+head(guano_tags)
+```
+
+## Putting it together: a typical bat workflow
+
+1. **Deploy** ultrasonic ARUs and collect full-spectrum recordings.
+2. **Classify** recordings using Kaleidoscope, Sonobat, or (for legacy data) Songscope.
+3. **Standardize** the classifier output with the matching `wildrtrax` function (`wt_kaleidoscope_tags()`, `wt_songscope_tags()`), or extract embedded metadata directly with `wt_guano_tags()` if species information was written back into the files as GUANO.
+4. **Upload** recordings to WildTrax, then **sync** the standardized tag table so that species detections line up with the correct recording and timestamp.
+5. **Verify** classifier calls in WildTrax, correcting or confirming identifications as needed, particularly for species at risk or easily confused call types.
+
+## A note on species identification confidence
+
+Automated bat classifiers assign a confidence score (or probability) to each species call, and accuracy varies substantially by species, call quality, and background noise. It's good practice to treat classifier output as a starting point rather than a final identification, especially for species with overlapping call characteristics, and to have qualified personnel review calls flagged as at-risk or low-confidence before they are finalized in WildTrax.
