@@ -4,10 +4,10 @@
 \alias{wt_get_project_species}
 \title{Get the WildTrax species list for a specific project}
 \usage{
-wt_get_project_species(project)
+wt_get_project_species(project_id)
 }
 \arguments{
-\item{project}{The project id associated with the desired species list}
+\item{project_id}{The project id associated with the desired species list}
 }
 \value{
 A tibble of the WildTrax species list for a specific project

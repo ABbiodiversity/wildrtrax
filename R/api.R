@@ -413,7 +413,7 @@ wt_get_species <- function(){
 #'
 #' @description Request for the WildTrax species list for a project
 #'
-#' @param project The project id associated with the desired species list
+#' @param project_id The project id associated with the desired species list
 #'
 #' @import dplyr httr2
 #' @importFrom tibble as_tibble
@@ -426,15 +426,15 @@ wt_get_species <- function(){
 #' @return A tibble of the WildTrax species list for a specific project
 #'
 
-wt_get_project_species <- function(project) {
+wt_get_project_species <- function(project_id) {
 
-  if (is.null(project)) {
+  if (is.null(project_id)) {
     stop("You need to supply a project ID.", call. = FALSE)
   }
 
   resp <- request("https://www-api.wildtrax.ca") |>
     req_url_path_append("bis/get-project-species-details") |>
-    req_url_query(projectId = project) |>
+    req_url_query(projectId = project_id) |>
     req_headers(Authorization = paste("Bearer", ._wt_auth_env_$access_token)) |>
     req_user_agent(.gen_ua()) |>
     req_method("GET") |>
@@ -451,6 +451,68 @@ wt_get_project_species <- function(project) {
     rename(species_id = speciesId)
 
   return(project_species)
+
+}
+
+#' Get the WildTrax species preset lists
+#'
+#' @description Request for the WildTrax species list for a project
+#'
+#' @param preset The name of the preset list
+#'
+#' @import dplyr httr2 tibble
+#' @export
+#'
+#' @examples
+#'  \dontrun{
+#'  presets <- wt_get_species_presets()
+#'  }
+#' @return A tibble of the WildTrax species list for a specific project
+#'
+
+wt_get_species_presets <- function(preset = NULL) {
+
+  if(is.null(preset)) {
+    stop("Please provide a preset from the list available in the WildTrax user interface.")
+  }
+
+  resp <- request("https://www-api.wildtrax.ca") |>
+    req_url_path_append("/bis/get-project-species-presets") |>
+    req_url_query(projectId = 1) |> # Probably better way to do this
+    req_headers(Authorization = paste("Bearer", ._wt_auth_env_$access_token)) |>
+    req_user_agent(.gen_ua()) |>
+    req_method("GET") |>
+    req_timeout(300)
+
+  resp <- req_perform(resp)
+  json <- resp_body_json(resp, simplifyVector = FALSE)
+
+  # Flatten the json map with all the presets
+  flatten_presets <- function(node, parent_id = NA) {
+    row <- tibble(id = node$id %||% NA,
+                  parentId = node$parentId %||% parent_id,
+                  sensorId = node$sensorId %||% NA,
+                  userId   = node$userId %||% NA)
+    children <- node$children %||% node$items %||% NULL
+    if (!is.null(children) && length(children) > 0) {
+      child_rows <- map_dfr(children, flatten_presets, parent_id = node$id)
+      row <- bind_rows(row, child_rows)
+    }
+    row
+  }
+
+  presets_tbl <- map_dfr(json, flatten_presets) |>
+    filter(userId == preset) |>
+    pull(id)
+
+  species_list <- .wt_api_pr(path = "/bis/get-species-list-for-preset", presets_tbl) |>
+    resp_body_json() |>
+    unlist() |>
+    tibble(species_id = _) |>
+    left_join(wt_get_species(), by = "species_id") |>
+    mutate(preset_list = preset, .before = species_id)
+
+  return(species_list)
 
 }
 

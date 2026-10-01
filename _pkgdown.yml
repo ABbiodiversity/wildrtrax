@@ -43,6 +43,7 @@ reference:
   - wt_get_projects
   - wt_get_project_species
   - wt_get_species
+  - wt_get_species_presets
   - wt_get_sync
   - wt_get_view
   - wt_glean_ap
