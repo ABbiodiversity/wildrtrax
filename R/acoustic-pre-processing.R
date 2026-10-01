@@ -698,7 +698,7 @@ wt_make_aru_tasks <- function(input, output=NULL, task_method = c("1SPM","1SPT",
     add_column(task_is_complete = FALSE, .after = "task_duration") |>
     add_column(observer = "", .after = "task_is_complete") |>
     add_column(task_comments = "", .after = "observer") |>
-    add_column(internal_task_id = "", .after = "task_comments") |>
+    add_column(task_id = "", .after = "task_comments") |>
     mutate(recording_date_time = as.character(recording_date_time))
 
   no_length <- tasks |>
