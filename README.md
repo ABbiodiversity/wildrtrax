@@ -166,8 +166,8 @@ library(tidyverse)
 input <- ".../bat.csv" # A Kaleidoscope output file
 output <- ".../bats" # A folder to store the formatted csv
 
-# Convert to tags
-wt_kaleidoscope_tags(input, output, freq_bump = T)
+# Convert GUANO or Kaleidoscope metadata to WildTrax tags
+wt_guano_tags(path = "/path/to/file.wav")
 
 ## Authenticate to WildTrax, then upload the tags to a WildTrax project
 wt_auth()

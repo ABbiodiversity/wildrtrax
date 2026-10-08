@@ -969,26 +969,37 @@ wt_songscope_tags <- function (input, output = c("env","csv"), output_file=NULL,
 
 wt_guano_tags <- function(path, output = FALSE, output_file = NULL) {
 
-  location <- sub("_(?=\\d{8}_).*", "", sub("\\..*", "", basename(path)), perl = TRUE)
+  location <- sub("_(?=\\d{8}_).*", "", tools::file_path_sans_ext(basename(path)), perl = TRUE)
+
   freq <- function(x, k) {
     pat <- paste0('"', k, '"\\s*:\\s*"?([0-9.eE+-]+)')
     as.numeric(ifelse(grepl(pat, x), sub(paste0(".*", pat, ".*"), "\\1", x), NA))
   }
 
-  # Read RIFF chunks (skip the 12-byte RIFF/WAVE header)
+  # Read RIFF chunks (skip the 12-byte RIFF/WAVE header); only keep the data we need
   con <- file(path, "rb"); on.exit(close(con), add = TRUE)
   readBin(con, "raw", 12)
   chunks <- list()
-  while (length(readBin(con, "raw", 1)) > 0) {
-    seek(con, -1, origin = "current")
-    id   <- tryCatch(rawToChar(readBin(con, "raw", 4)), error = function(e) NA_character_)
+  idx <- 0L
+  while (length(id_raw <- readBin(con, "raw", 4)) == 4) {
+    idx  <- idx + 1L
+    id   <- tryCatch(rawToChar(id_raw), error = function(e) NA_character_)
     size <- readBin(con, "integer", 1, size = 4, endian = "little")
-    chunks[[length(chunks) + 1]] <- list(id = id, data = readBin(con, "raw", size))
+    if (length(size) == 0) break
+    if (identical(id, "guan") || idx == 4L) {
+      chunks[[as.character(idx)]] <- list(id = id, data = readBin(con, "raw", size))
+    } else {
+      seek(con, size, origin = "current")
+    }
+    if (size %% 2 == 1) seek(con, 1, origin = "current")  # RIFF pad byte
   }
 
   # Standard "guan" chunk, else fall back to the 4th chunk
-  i <- match("guan", vapply(chunks, `[[`, "", "id"), nomatch = 4L)
-  guan_data <- chunks[[i]]$data
+  is_guan <- vapply(chunks, function(ch) identical(ch$id, "guan"), logical(1))
+  guan_chunk <- if (any(is_guan)) chunks[[which(is_guan)[1]]] else chunks[["4"]]
+  if (is.null(guan_chunk)) stop("No GUANO metadata chunk found in ", path)
+
+  guan_data <- guan_chunk$data
   lines <- strsplit(rawToChar(guan_data[guan_data != as.raw(0)]), "\n")[[1]]
   lines <- lines[nzchar(lines)]
 
@@ -997,13 +1008,15 @@ wt_guano_tags <- function(path, output = FALSE, output_file = NULL) {
     value = trimws(sub("^[^:]*:", "", lines))
   ) |>
     filter(key != "") |>
-    pivot_wider(names_from = key, values_from = value) |>
-    distinct()
+    distinct() |>
+    pivot_wider(names_from = key, values_from = value, values_fn = dplyr::first)
 
   expected_cols <- c(
+    "Timestamp", "Length", "Samplerate",
     "WA|Kaleidoscope|Auto ID",
     "WA|Kaleidoscope|Classifier|Version",
     "WA|Kaleidoscope|Classifier|Statistics",
+    "WA|Kaleidoscope|Classifier|Settings",
     "SB|Species Auto ID",
     "SB|Classifier",
     "Species Manual ID"
@@ -1021,7 +1034,9 @@ wt_guano_tags <- function(path, output = FALSE, output_file = NULL) {
            primary_source = case_when(!is.na(manual_clean) ~ "manual", !is.na(kaleidoscope_id) ~ "kaleidoscope", !is.na(sonobat_id) ~ "sonobat", TRUE ~ "none"))
 
   guan_tags <- guan_wide |>
+    mutate(is_noise = coalesce(`WA|Kaleidoscope|Auto ID` == "Noise", FALSE)) |>
     transmute(location = location,
+              is_noise = is_noise,
               recording_date_time = as.POSIXct(sub("[-+]\\d{2}:\\d{2}$", "", Timestamp), format = "%Y-%m-%dT%H:%M:%S", tz = "UTC"),
               task_duration = round(as.numeric(Length), 1),
               task_method = "None",
@@ -1035,18 +1050,22 @@ wt_guano_tags <- function(path, output = FALSE, output_file = NULL) {
               abundance = 1,
               detection_time = 0.1,
               tag_duration = as.numeric(Length) - 0.2,
-              min_tag_freq = freq(`WA|Kaleidoscope|Classifier|Statistics`, "Fmin") * 1000,
-              max_tag_freq = freq(`WA|Kaleidoscope|Classifier|Statistics`, "Fmax") * 1000,
+              min_tag_freq = if_else(is_noise, freq(`WA|Kaleidoscope|Classifier|Settings`, "min freq"), freq(`WA|Kaleidoscope|Classifier|Statistics`, "Fmin") * 1000),
+              max_tag_freq = if_else(is_noise, freq(`WA|Kaleidoscope|Classifier|Settings`, "max freq"), freq(`WA|Kaleidoscope|Classifier|Statistics`, "Fmax") * 1000),
               species_individual_comments = case_when(primary_source == "manual" ~ trimws(paste0("Source: Manual ID", ifelse(!is.na(kaleidoscope_id) | !is.na(`WA|Kaleidoscope|Classifier|Version`),paste0(" ALTERNATIVE TAGS Kaleidoscope ", `WA|Kaleidoscope|Classifier|Version`, ":", coalesce(kaleidoscope_id, "NoID")), ""), ifelse(!is.na(sonobat_id) | !is.na(`SB|Classifier`), paste0(" Sonobat ", sub("-.*", "", `SB|Classifier`), ":", coalesce(sonobat_id, "NoID")), ""))),
                                                       primary_source == "kaleidoscope" ~ trimws(paste0("Source: Kaleidoscope ", `WA|Kaleidoscope|Classifier|Version`, ifelse(!is.na(sonobat_id) | !is.na(`SB|Classifier`), paste0(" ALTERNATIVE TAGS Sonobat ", sub("-.*", "", `SB|Classifier`), ":", coalesce(sonobat_id, "NoID")), ""))),
-                                                      primary_source == "sonobat" ~ paste0("Source: Sonobat ", sub("-.*", "", `SB|Classifier`)), TRUE ~ NA_character_),
+                                                      primary_source == "sonobat" ~ paste0("Source: Sonobat ", sub("-.*", "", `SB|Classifier`)),
+                                                      !is.na(`WA|Kaleidoscope|Classifier|Version`) ~ paste0("Source: Kaleidoscope ", `WA|Kaleidoscope|Classifier|Version`, " (NoID)"),
+                                                      !is.na(`SB|Classifier`) ~ paste0("Source: Sonobat ", sub("-.*", "", `SB|Classifier`), " (NoID)"),
+                                                      TRUE ~ NA_character_),
               tag_is_hidden_for_verification = FALSE,
               recording_sample_frequency = as.numeric(Samplerate),
               tag_id = NA_real_) |>
+    select(-is_noise) |>
     mutate(species_code = case_when(species_code == "NoID" ~ "UBAT", TRUE ~ species_code))
 
-  if(any(guan_tags$task_duration < 0.1)) {
-    warning("There are tasks smaller than the tag duration")
+  if (any(guan_tags$tag_duration <= 0, na.rm = TRUE)) {
+    warning("There are tasks too short to fit the tag duration (task_duration < 0.2 s)")
   }
 
   if (output) {

@@ -23,7 +23,7 @@ interpret them afterward. This creates a distinct workflow compared to sonic (au
 
 ## Bat classifiers
 
-`wildrtrax` supports formatting output from three widely used bat classification tools:
+Automated bat classifiers assign a confidence score (or probability) to each species call, and accuracy varies substantially by species, call quality, and background noise. It's good practice to treat classifier output as a starting point rather than a final identification, especially for species with overlapping call characteristics, and to have qualified personnel review calls flagged as at-risk or low-confidence before they are finalized in WildTrax. `wildrtrax` supports formatting output from three widely used bat classification tools:
 
 | Classifier | Developer | Status | `wildrtrax` function |
 |---|---|---|---|
@@ -68,6 +68,14 @@ guano_tags <- wt_guano_tags(input = "path/to/recordings/")
 head(guano_tags)
 ```
 
+```{r multiple-files}
+# Scan for multiple files
+wt_audio_scanner("/foler/to/files", file_type = "all") |>
+  pull(file_path) |>
+  map(\(x) wt_guano_tags(x)) |>
+  bind_rows()
+```
+
 ## Putting it together: a typical bat workflow
 
 1. **Deploy** ultrasonic ARUs and collect full-spectrum recordings.
@@ -76,6 +84,4 @@ head(guano_tags)
 4. **Upload** recordings to WildTrax, then **sync** the standardized tag table so that species detections line up with the correct recording and timestamp.
 5. **Verify** classifier calls in WildTrax, correcting or confirming identifications as needed, particularly for species at risk or easily confused call types.
 
-## A note on species identification confidence
 
-Automated bat classifiers assign a confidence score (or probability) to each species call, and accuracy varies substantially by species, call quality, and background noise. It's good practice to treat classifier output as a starting point rather than a final identification, especially for species with overlapping call characteristics, and to have qualified personnel review calls flagged as at-risk or low-confidence before they are finalized in WildTrax.
