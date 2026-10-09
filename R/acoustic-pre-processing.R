@@ -1060,7 +1060,7 @@ wt_guano_tags <- function(path, output = FALSE, output_file = NULL) {
               tag_is_hidden_for_verification = FALSE,
               recording_sample_frequency = as.numeric(Samplerate),
               tag_id = NA_real_) |>
-    select(-is_noise) |>
+    select(-c(is_noise, Length)) |>
     mutate(species_code = case_when(species_code == "NoID" ~ "UBAT", TRUE ~ species_code))
 
   if (any(guan_tags$tag_duration <= 0, na.rm = TRUE)) {
