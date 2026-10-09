@@ -277,6 +277,7 @@ utils::globalVariables(
     "durationInterval",
     "comments",
     "isHeard",
-    "isSeen"
+    "isSeen",
+    "SB|Species Auto ID verbose", "is_noise"
   )
 )

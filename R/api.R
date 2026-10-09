@@ -1321,6 +1321,9 @@ wt_get_view <- function(api, project = NULL, organization = NULL, max_seconds = 
       bait_lu <- opt_to_tbl(vis_ops$locationDeploymentVisitBait, "type") |>
         rename(bait = label)
 
+      land_feature_lu <- opt_to_tbl(vis_ops$landFeature, "type") |>
+        rename(land_feature = label)
+
       org_df <- org_df |>
         rename(visit_id = id,
                location = locationName,
@@ -1337,7 +1340,11 @@ wt_get_view <- function(api, project = NULL, organization = NULL, max_seconds = 
                timezone = timeZone,
                land_features = landFeatureIds) |>
         left_join(bait_lu, by = c("baitId" = "id")) |>
+        unnest_longer(land_features, values_to = "land_feature_id", keep_empty = TRUE) |>
+        left_join(land_feature_lu, by = c("land_feature_id" = "id")) |>
+        summarise(land_features = if (all(is.na(land_feature))) NA_character_ else paste(na.omit(land_feature), collapse = ", "), across(-c(land_feature, land_feature_id), first), .by = visit_id) |>
         select(-baitId) |>
+        relocate(land_features, .after = last_col()) |>
         relocate(bait, .after = water_depth_m)
 
       return(org_df)
