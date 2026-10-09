@@ -1206,6 +1206,18 @@ wt_get_sync <- function(api, project = NULL, organization = NULL, max_seconds = 
 
 wt_get_view <- function(api, project = NULL, organization = NULL, max_seconds = 300, ai_threshold = 0.5) {
 
+  if (is.null(project) && is.null(organization)) {
+    stop("Must define at least an organization or project", call. = FALSE)
+  }
+
+  if (grepl("^organization_", api) && is.null(organization)) {
+    stop("The '", api, "' view requires `organization`. Use organization = <id> (an ID passed positionally goes to `project`).", call. = FALSE)
+  }
+
+  if (grepl("^project_", api) && is.null(project)) {
+    stop("The '", api, "' view requires `project`. Use project = <id>.", call. = FALSE)
+  }
+
   api_match <- api
   organization <- if (!is.null(organization)) {
     .get_org_id(organization)
@@ -1261,7 +1273,7 @@ wt_get_view <- function(api, project = NULL, organization = NULL, max_seconds = 
 
   if(!is.null(organization)) {
 
-    if(!(api_match %in% c("organization_equipment","organization_recordings","organization_usage_report"))) {
+    if(!(api_match %in% c("organization_equipment", "organization_deployments", "organization_recordings","organization_usage_report"))) {
 
     resp <- request("https://www-api.wildtrax.ca") |>
       req_url_path_append(api_path) |>
@@ -1306,7 +1318,9 @@ wt_get_view <- function(api, project = NULL, organization = NULL, max_seconds = 
                image_count = imageCount) |>
         left_join(locs_lu, by = c("visibilityId" = "id")) |>
         select(-visibilityId) |>
-        relocate(location_visibility, .after = longitude)
+        relocate(location_visibility, .after = longitude) |>
+        relocate(location) |>
+        relocate(organization_id, .after = longitude)
 
       return(org_df)
 
@@ -1325,7 +1339,7 @@ wt_get_view <- function(api, project = NULL, organization = NULL, max_seconds = 
         rename(land_feature = label)
 
       org_df <- org_df |>
-        rename(visit_id = id,
+        rename(wildtrax_visit_id = id,
                location = locationName,
                visit_date = date,
                snow_depth_m = snowDepth,
@@ -1345,7 +1359,8 @@ wt_get_view <- function(api, project = NULL, organization = NULL, max_seconds = 
         summarise(land_features = if (all(is.na(land_feature))) NA_character_ else paste(na.omit(land_feature), collapse = ", "), across(-c(land_feature, land_feature_id), first), .by = visit_id) |>
         select(-baitId) |>
         relocate(land_features, .after = last_col()) |>
-        relocate(bait, .after = water_depth_m)
+        relocate(bait, .after = water_depth_m) |>
+        relocate(c(location, latitude, longitude))
 
       return(org_df)
 
@@ -1383,7 +1398,33 @@ wt_get_view <- function(api, project = NULL, organization = NULL, max_seconds = 
 
       return(org_df_equip)
 
-    } else if (api_match == "organization_recordings") {
+    } else if (api_match == "organization_deployments") {
+
+      resp <- request("https://www-api.wildtrax.ca") |>
+        req_url_path_append(api_path) |>
+        req_headers(
+          Authorization = paste("Bearer", ._wt_auth_env_$access_token),
+          "Content-Type" = "application/json"
+        ) |>
+        req_user_agent(.gen_ua()) |>
+        req_body_json(list(
+          organizationId = organization,
+          limit          = 1e9,
+          orderBy        = "locationName",
+          orderDirection = "asc"
+        )) |>
+        req_method("POST") |>
+        req_timeout(max_seconds) |>
+        req_perform()
+
+      org_df_deploy <- resp_body_json(resp, simplifyVector = TRUE, check_type = FALSE)$results |>
+        as_tibble() |>
+        rename(deployment_id = id, location = locationName, deployment_date = deploymentDate, retrieval_date = retrieveDate, equipment_type = typeId, equipment_code = code, equipment_serial_number = serialNo, equipment_make = make, equipment_model = model, equipment_condition = conditionId, direction_degrees = directionDegree, equipment_mount = mountId, equipment_target = targetId, equipment_target_distance_m = targetDistance, equipment_target_description = targetDescription, vertical_angle_degrees = verticalAngleDegree, stake_distance = stakeDistance, parent_equipment_code = parentEquipment) |>
+        mutate(deployment_date = as.POSIXct(strptime(deployment_date, format = "%Y-%m-%d %H:%M:%S", tz = "UTC")), retrieval_date = as.POSIXct(strptime(retrieval_date, format = "%Y-%m-%d %H:%M:%S", tz = "UTC")), equipment_code = as.character(equipment_code), equipment_serial_number = as.character(equipment_serial_number), equipment_condition = as.character(equipment_condition), equipment_target = as.character(equipment_target), equipment_target_distance_m = as.numeric(equipment_target_distance_m), direction_degrees = as.numeric(direction_degrees), vertical_angle_degrees = as.numeric(vertical_angle_degrees), stake_distance = as.numeric(stake_distance))
+
+      return(org_df_deploy)
+
+    }  else if (api_match == "organization_recordings") {
 
       message('Depending on the number of recordings in your Organization, this may take a moment...')
 
