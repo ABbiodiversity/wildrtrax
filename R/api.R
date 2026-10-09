@@ -1370,8 +1370,16 @@ wt_get_view <- function(api, project = NULL, organization = NULL, max_seconds = 
         req_timeout(max_seconds) |>
         req_perform()
 
-      json <- resp_body_string(resp)
-      org_df_equip <- as_tibble(json)
+      org_df_equip <- resp_body_json(resp, simplifyVector = TRUE, check_type = FALSE)$results |>
+        as_tibble() |>
+        rename(equipment_id = id, equipment_make = make,
+               equipment_model = model, equipment_code = code,
+               equipment_status = statusId,
+               equipment_type = typeId,
+               equipment_serial_number = serialNo,
+               deployment_count = deploymentCount) |>
+        mutate(equipment_code = as.character(equipment_code), equipment_serial_number = as.character(equipment_serial_number)) |>
+        select(equipment_id, equipment_code, equipment_type, equipment_make, equipment_model, equipment_serial_number, equipment_status, deployment_count)
 
       return(org_df_equip)
 
