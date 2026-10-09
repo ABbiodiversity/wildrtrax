@@ -969,6 +969,8 @@ wt_songscope_tags <- function (input, output = c("env","csv"), output_file=NULL,
 
 wt_guano_tags <- function(path, output = FALSE, output_file = NULL) {
 
+  .bat_codes <- readRDS(system.file("extdata", "nabat_codes.rds", package="wildrtrax"))
+
   location <- sub("_(?=\\d{8}_).*", "", tools::file_path_sans_ext(basename(path)), perl = TRUE)
 
   freq <- function(x, k) {
@@ -1049,7 +1051,7 @@ wt_guano_tags <- function(path, output = FALSE, output_file = NULL) {
               recording_sample_frequency = as.numeric(Samplerate),
               tag_id = NA_real_) |>
     select(-c(is_noise, Length)) |>
-    mutate(species_code = case_when(species_code == "NoID" ~ "UBAT", TRUE ~ species_code))
+    mutate(species_code = case_when(species_code == "NoID" ~ "UBAT", species_code %in% .bat_codes$four_letter_code ~ .bat_codes$full_code[match(species_code, .bat_codes$four_letter_code)], TRUE ~ species_code))
 
   if (any(guan_tags$tag_duration <= 0, na.rm = TRUE)) {
     warning("There are tasks too short to fit the tag duration (task_duration < 0.2 s)")
