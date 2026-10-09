@@ -1424,7 +1424,69 @@ wt_get_view <- function(api, project = NULL, organization = NULL, max_seconds = 
       }) |>
         list_rbind()
 
-      org_df_recs <- bind_rows(all_results) |> distinct()
+      vis_ops <- .wt_api_gr("/bis/get-location-visit-static-options") |>
+        resp_body_json()
+      opt_to_tbl <- function(x, label_col = "type") {
+        map_dfr(x, ~ tibble(id = .x$id, label = .x[[label_col]]))
+      }
+
+      land_feature_lu <- opt_to_tbl(vis_ops$landFeature, "type") |>
+        rename(land_feature = label)
+
+      sp <- wt_get_species() |> select(species_id, species_common_name)
+
+      org_df_recs <- bind_rows(all_results) |>
+        distinct() |>
+        rename(equipment_model = aruModel,
+               task_count = taskCount,
+               hourly_temp = hourlyTemp,
+               project_id = projectIds,
+               moon_phase_id = moonPhaseId,
+               recording_id = recordingId,
+               daily_avg_temp = dailyAvgTemp,
+               daily_max_temp = dailyMaxTemp,
+               daily_min_temp = dailyMinTemp,
+               location = locationName,
+               recording_day = recordingDay,
+               recording_date_time = recordingDate,
+               recording_hour = recordingHour,
+               rms_peak_dbfs = `rmsPeak(dbfs)`,
+               daily_total_snow_cm = dailyTotalSnow,
+               hourly_rel_humidity = hourlyHumidity,
+               hourly_station_pressure = hourlyPressure,
+               land_features = landFeatureIds,
+               organization_id = organizationId,
+               recording_month = recordingMonth,
+               rms_level_dbfs = `rmsLevel(dbfs)`,
+               hourly_wind_chill = hourlyWindChill,
+               hourly_wind_speed = hourlyWindSpeed,
+               origin_project_id = originProjectId,
+               hourly_cloud_cover = hourlyCloudCover,
+               hourly_visibility_km = hourlyVisibility,
+               latitude = locationLatitude,
+               birdnet_species_ids = birdNetSpeciesIds,
+               hawkears_species_ids = hawkEarSpeciesIds,
+               hourly_weather_code = hourlyWeatherCode,
+               elevation = locationElevation,
+               longitude = locationLongitude,
+               recording_channels = recordingChannels,
+               detected_species_ids = detectedSpeciesIds,
+               hourly_precipitation_mm = hourlyPrecipitation,
+               recording_insert_date = recordingInsertDate,
+               recording_sample_frequency = recordingSampleFreq,
+               recording_length = recordingAudioLength,
+               recording_is_triggered = recordingIsTriggered) |>
+        select(location, latitude, longitude, elevation, land_features, recording_id, recording_date_time, recording_month, recording_day, recording_hour, recording_insert_date, recording_length, recording_sample_frequency, recording_channels, recording_is_triggered, organization_id, project_id, origin_project_id, equipment_model, rms_peak_dbfs, rms_level_dbfs, task_count, detected_species_ids, birdnet_species_ids, hawkears_species_ids, sunrise, sunset, moonrise, moonset, moon_phase_id, hourly_temp, hourly_rel_humidity, hourly_station_pressure, hourly_wind_speed, hourly_wind_chill, hourly_cloud_cover, hourly_visibility_km, hourly_precipitation_mm, hourly_weather_code, daily_avg_temp, daily_max_temp, daily_min_temp, daily_total_snow_cm) |>
+        mutate(recording_date_time = as.POSIXct(recording_date_time, format = "%Y-%m-%dT%H:%M:%S"),
+               recording_insert_date = as.POSIXct(recording_insert_date, format = "%Y-%m-%dT%H:%M:%OS")) |>
+        unnest_longer(land_features) |>
+        unnest_longer(project_id) |>
+        unnest_longer(detected_species_ids) |>
+        unnest_longer(birdnet_species_ids) |>
+        unnest_longer(hawkears_species_ids) |>
+        left_join(sp |> rename(detected_species_ids = species_id, detected_common_name = species_common_name), by = "detected_species_ids") |>
+        left_join(sp |> rename(birdnet_species_ids = species_id, birdnet_common_name = species_common_name), by = "birdnet_species_ids") |>
+        left_join(sp |> rename(hawkears_species_ids = species_id, hawkears_common_name = species_common_name), by = "hawkears_species_ids")
 
       return(org_df_recs)
 
