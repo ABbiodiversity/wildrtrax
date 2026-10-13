@@ -1163,7 +1163,7 @@ wt_get_sync <- function(api, project = NULL, organization = NULL, max_seconds = 
 
 #' Get data from WildTrax views
 #'
-#' @description Fetch data for tables and views in WildTrax. You must specify at least one of `project` or `organization` depending on the API
+#' @description Fetch data for API views in WildTrax. You must specify at least one of `project` or `organization` depending on the API.
 #' `r lifecycle::badge("experimental")`
 #'
 #' @param api A string specifying the API to query. Must be one of:
@@ -1182,7 +1182,7 @@ wt_get_sync <- function(api, project = NULL, organization = NULL, max_seconds = 
 #' @param project Numeric; The project id
 #' @param organization Numeric; The organization id
 #' @param max_seconds Numeric; Number of seconds to force to wait for downloads
-#' @param ai_threshold Numeric; Minimum threshold set for AI classifier detections
+#' @param ai_threshold Numeric; Minimum threshold set for AI classifier detections is 0.5, which user can change as necessary
 #'
 #' @import httr2 dplyr
 #' @importFrom tidyr unnest
@@ -1531,9 +1531,9 @@ wt_get_view <- function(api, project = NULL, organization = NULL, max_seconds = 
                hourly_precipitation_mm = hourlyPrecipitation,
                recording_insert_date = recordingInsertDate,
                recording_sample_frequency = recordingSampleFreq,
-               recording_length = recordingAudioLength,
+               recording_duration = recordingAudioLength,
                recording_is_triggered = recordingIsTriggered) |>
-        select(location, latitude, longitude, elevation, land_features, recording_id, recording_date_time, recording_month, recording_day, recording_hour, recording_insert_date, recording_length, recording_sample_frequency, recording_channels, recording_is_triggered, organization_id, project_id, origin_project_id, equipment_model, rms_peak_dbfs, rms_level_dbfs, task_count, detected_species_ids, birdnet_species_ids, hawkears_species_ids, sunrise, sunset, moonrise, moonset, moon_phase_id, hourly_temp, hourly_rel_humidity, hourly_station_pressure, hourly_wind_speed, hourly_wind_chill, hourly_cloud_cover, hourly_visibility_km, hourly_precipitation_mm, hourly_weather_code, daily_avg_temp, daily_max_temp, daily_min_temp, daily_total_snow_cm) |>
+        select(location, latitude, longitude, elevation, land_features, recording_id, recording_date_time, recording_month, recording_day, recording_hour, recording_insert_date, recording_duration, recording_sample_frequency, recording_channels, recording_is_triggered, organization_id, project_id, origin_project_id, equipment_model, rms_peak_dbfs, rms_level_dbfs, task_count, detected_species_ids, birdnet_species_ids, hawkears_species_ids, sunrise, sunset, moonrise, moonset, moon_phase_id, hourly_temp, hourly_rel_humidity, hourly_station_pressure, hourly_wind_speed, hourly_wind_chill, hourly_cloud_cover, hourly_visibility_km, hourly_precipitation_mm, hourly_weather_code, daily_avg_temp, daily_max_temp, daily_min_temp, daily_total_snow_cm) |>
         mutate(recording_date_time = as.POSIXct(recording_date_time, format = "%Y-%m-%dT%H:%M:%S"),
                recording_insert_date = as.POSIXct(recording_insert_date, format = "%Y-%m-%dT%H:%M:%OS")) |>
         unnest_longer(project_id) |>

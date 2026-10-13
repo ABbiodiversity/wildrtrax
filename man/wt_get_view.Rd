@@ -33,13 +33,13 @@ wt_get_view(
 
 \item{max_seconds}{Numeric; Number of seconds to force to wait for downloads}
 
-\item{ai_threshold}{Numeric; Minimum threshold set for AI classifier detections}
+\item{ai_threshold}{Numeric; Minimum threshold set for AI classifier detections is 0.5, which user can change as necessary}
 }
 \value{
 A tibble with column headers for the specified API call.
 }
 \description{
-Fetch data for tables and views in WildTrax. You must specify at least one of \code{project} or \code{organization} depending on the API
+Fetch data for API views in WildTrax. You must specify at least one of \code{project} or \code{organization} depending on the API.
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 }
 \examples{

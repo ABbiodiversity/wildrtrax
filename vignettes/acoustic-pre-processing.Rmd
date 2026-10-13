@@ -108,32 +108,78 @@ s['output']
 
 # Linking data to WildTrax
 
-Make tasks at any time using a `wt_*` standard data set with `wt_make_aru_tasks()`.
+`wt_make_aru_tasks()` generates tasks from any `wt_*` standard data set. The only columns it needs are `location`, `recording_date_time`, `recording_sample_frequency` and `recording_duration`. Any extra columns are ignored, so you don't need to trim your data first. There are two common ways to get there.
+
+## Generate tasks from recordings already in WildTrax
+
+Use this when the media is already uploaded and you want tasks for a subset of it, for example recordings where a classifier detected a species of interest.
+
+Start by pulling your organization's recordings with `wt_get_sync(api = "organization_recordings")` or `wt_get_view("organization_recordings")` if you want additional columns (see `vignette("apis", package = "wildrtrax")`. The `ai_threshold` argument sets the minimum classifier confidence used for the detection columns at 0.5 but can be changed as needed. Depending on how many recordings your organization has, this can take a moment as it iterates through the pages of recordings available.
 
 ```{r eval=F, message=FALSE, warning=FALSE, include=T}
-wt_make_aru_tasks(input = files |>
-                    select(-file_path), task_method = "1SPT", task_length = 180)
-
+recs <- wt_get_view("organization_recordings", organization = 5466, ai_threshold = 0.9)
 ```
 
-If you've already uploaded recordings to WildTrax, scan your media using `wt_audio_scanner()` and a relative folder path.
+The result has one row per recording, including location, date and time, weather and astronomical variables, and the species detected by each classifier (`birdnet_common_name`, `hawkears_common_name`). Filter it down to the recordings you want to listen to:
 
 ```{r eval=F, message=FALSE, warning=FALSE, include=T}
-my_files <- wt_audio_scanner(path = '/my/BigGrid/files', file_type = 'all', extra_cols = F)
-
+alfl_recs <- recs |>
+  dplyr::filter(hawkears_common_name == "Alder Flycatcher")
 ```
 
-And then download the project data you wish to compare it to:
+You can filter on any column, such as dates, locations, time of day or weather, or combine several conditions:
+
+```{r eval=F, message=FALSE, warning=FALSE, include=T}
+alfl_recs <- recs |>
+  dplyr::filter(
+    hawkears_common_name == "Alder Flycatcher",
+    recording_month %in% 5:7,
+    weather == "Clear/Sunny"
+  )
+```
+
+Then pass the filtered data to `wt_make_aru_tasks()`, choosing a task method and a task length in seconds:
+
+```{r eval=F, message=FALSE, warning=FALSE, include=T}
+alfl_tasks <- alfl_recs |>
+  wt_make_aru_tasks(task_method = "1SPT", task_length = 60)
+```
+
+## Generate tasks from media on your computer
+
+Use this when you have recordings that you haven't processed or uploaded yet.
+
+Scan your media with `wt_audio_scanner()` and a folder path:
+
+```{r eval=F, message=FALSE, warning=FALSE, include=T}
+my_files <- wt_audio_scanner(path = "/my/BigGrid/files", file_type = "all", extra_cols = F)
+```
+
+Next, find out what WildTrax already has. Download the recordings for your organization and compare them to your files on `location` and `recording_date_time`. An `anti_join()` leaves only the media that hasn't been uploaded yet:
+
+```{r eval=F, message=FALSE, warning=FALSE, include=T}
+recs <- wt_get_sync("organization_recordings", organization = 5466)
+
+to_upload <- my_files |>
+  dplyr::anti_join(recs, by = c("location", "recording_date_time"))
+```
+
+Alternatively, if you only want to compare against particular projects, download their main reports:
 
 ```{r eval=F, message=FALSE, warning=FALSE, include=T}
 my_projects <- wt_get_projects("ARU") |>
   dplyr::filter(grepl("Cypress", project)) |>
   dplyr::pull(project_id) |>
-  wt_download_report(sensor_id  = "ARU", reports = "main")
-
+  wt_download_report(sensor_id = "ARU", reports = "main")
 ```
 
-Alternatively use `wt_get_sync("organization_recordings")` to get a list of all recordings. Then either filter out or do an `dplyr::anti_join()` on location and recording_date_time. That should give you the remaining list of media that has not been processed or uploaded to WildTrax yet.
+Once you have the list of media to process, generate the tasks:
+
+```{r eval=F, message=FALSE, warning=FALSE, include=T}
+new_tasks <- to_upload |>
+  dplyr::select(-file_path) |>
+  wt_make_aru_tasks(task_method = "1SPT", task_length = 180)
+```
 
 ## Integrating legacy data from classifiers
 

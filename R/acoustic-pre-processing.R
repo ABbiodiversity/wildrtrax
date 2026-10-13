@@ -669,14 +669,16 @@ wt_make_aru_tasks <- function(input, output=NULL, task_method = c("1SPM","1SPT",
 
   task_prep <- input
 
-  req_cols <- c("location","recording_date_time","length_seconds", "recording_sample_frequency")
-
-  if (!any(names(task_prep) %in% req_cols)){
-    stop("Missing certain columns. Check that you have file_path, location and recording_date_time at a minimum in order to generate tasks.")
+  required_names <- c("location", "recording_date_time", "recording_sample_frequency", "recording_duration")
+  missing <- setdiff(required_names, names(task_prep))
+  if (length(missing)) {
+    stop(
+      "`task_prep` is missing required columns: ", toString(missing),
+      call. = FALSE
+    )
   }
 
   req_methods <- c("1SPM","1SPT","None")
-
   if (!(task_method %in% req_methods)) {
     stop("This isn't an accepted method. Use 1SPM, 1SPT or None.")
   }
@@ -686,11 +688,10 @@ wt_make_aru_tasks <- function(input, output=NULL, task_method = c("1SPM","1SPT",
   }
 
   tasks <- task_prep |>
-    rename(recording_sample_frequency = sample_rate) |>
-    select(location, recording_date_time, length_seconds, recording_sample_frequency) |>
+    select(location, recording_date_time, recording_duration, recording_sample_frequency) |>
     distinct() |>
-    mutate(task_duration = case_when(length_seconds < task_length ~ NA_real_, TRUE ~ task_length)) |> #Make sure recording length is long enough
-    select(-length_seconds) |>
+    mutate(task_duration = case_when(recording_duration < task_length ~ NA_real_, TRUE ~ task_length)) |> #Make sure recording length is long enough
+    select(-recording_duration) |>
     add_column(method = task_method, .after = "recording_date_time") |>
     relocate(recording_sample_frequency, .after = "method") |>
     relocate(task_duration, .after = "recording_sample_frequency") |>
