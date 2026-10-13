@@ -1537,15 +1537,17 @@ wt_get_view <- function(api, project = NULL, organization = NULL, max_seconds = 
         mutate(recording_date_time = as.POSIXct(recording_date_time, format = "%Y-%m-%dT%H:%M:%S"),
                recording_insert_date = as.POSIXct(recording_insert_date, format = "%Y-%m-%dT%H:%M:%OS")) |>
         unnest_longer(project_id) |>
-        unnest_longer(detected_species_ids) |>
-        unnest_longer(birdnet_species_ids) |>
-        unnest_longer(hawkears_species_ids) |>
-        left_join(sp |> rename(detected_species_ids = species_id, detected_common_name = species_common_name), by = "detected_species_ids") |>
-        left_join(sp |> rename(birdnet_species_ids = species_id, birdnet_common_name = species_common_name), by = "birdnet_species_ids") |>
-        left_join(sp |> rename(hawkears_species_ids = species_id, hawkears_common_name = species_common_name), by = "hawkears_species_ids") |>
+        mutate(
+          detected_species_ids = map(detected_species_ids, \(ids) sp$species_common_name[match(ids, sp$species_id)]),
+          birdnet_species_ids = map(birdnet_species_ids, \(ids) sp$species_common_name[match(ids, sp$species_id)]),
+          hawkears_species_ids = map(hawkears_species_ids, \(ids) sp$species_common_name[match(ids, sp$species_id)])
+        ) |>
+        rename(detected_species = detected_species_ids,
+               birdnet_species = birdnet_species_ids,
+               hawkears_species = hawkears_species_ids) |>
         left_join(moon_phases |> select(id, name) |> rename(moon_phase = name), by = c("moon_phase_id" = "id")) |>
         left_join(weather_codes |> select(id, name) |> rename(weather = name), by = c("hourly_weather_code" = "id")) |>
-        select(-c(detected_species_ids, birdnet_species_ids, hawkears_species_ids, hourly_weather_code, moon_phase_id)) |>
+        select(-c(hourly_weather_code, moon_phase_id)) |>
         relocate(moon_phase, .before = moonrise) |>
         relocate(weather, .before = hourly_temp) |>
         mutate(land_features = map(land_features, \(v) as.integer(unlist(v, use.names = FALSE)))) |>

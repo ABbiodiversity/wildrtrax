@@ -700,13 +700,13 @@ wt_make_aru_tasks <- function(input, output=NULL, task_method = c("1SPM","1SPT",
     add_column(observer = "", .after = "task_is_complete") |>
     add_column(task_comments = "", .after = "observer") |>
     add_column(task_id = "", .after = "task_comments") |>
-    mutate(recording_date_time = as.character(recording_date_time))
+    mutate(recording_date_time = format(recording_date_time, "%Y-%m-%d %H:%M:%S"))
 
   no_length <- tasks |>
     filter(is.na(task_duration))
 
   if ((nrow(no_length)) > 0) {
-    message(nrow(no_length), ' rows are shorter than the desired task length')
+    message(nrow(no_length), ' rows are shorter than the desired task length. Task durations have been left as NA.')
   }
 
   if (!is.null(tasks)) {
@@ -1052,8 +1052,13 @@ wt_guano_tags <- function(path, output = FALSE, output_file = NULL) {
               recording_sample_frequency = as.numeric(Samplerate),
               tag_id = NA_real_) |>
     select(-c(is_noise, Length)) |>
-    mutate(species_code = case_when(species_code == "NoID" ~ "UBAT", species_code %in% .bat_codes$four_letter_code ~ .bat_codes$full_code[match(species_code, .bat_codes$four_letter_code)], TRUE ~ species_code))
-
+    mutate(species_code = case_when(
+        species_code == "NoID" ~ "UBAT",
+        species_code %in% .bat_codes$species_code_old ~
+          .bat_codes$species_code_new[match(species_code, .bat_codes$species_code_old)],
+        TRUE ~ species_code
+      )
+    )
   if (any(guan_tags$tag_duration <= 0, na.rm = TRUE)) {
     warning("There are tasks too short to fit the tag duration (task_duration < 0.2 s)")
   }

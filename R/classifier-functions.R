@@ -181,7 +181,7 @@ wt_classifier_threshold <- function(data){
 #' @param data Output from the `wt_download_report()` function when you request the `main` and `ai` reports
 #' @param remove_species Logical; indicates whether species that are not allowed in the WildTrax project should be removed from the AI report
 #' @param threshold Numeric; the desired score threshold
-#' @param resolution Character; either "recording" to identify any new species for each recording or "location" to identify new species for each location
+#' @param resolution Character; "recording", "task", "location" or "project" depending on the level of interest
 #' @param format_to_tags Logical; when TRUE, creates a formatted output to turn detections into tags for uploading to WildTrax
 #' @param output Character; when a valid directory is entered, exports the additional detections as tags for sync with a WildTrax project
 #'
@@ -319,43 +319,99 @@ wt_additional_species <- function(data, remove_species = TRUE, threshold = 0.5, 
 
   }
 
-  if(format_to_tags == TRUE){
+  if (format_to_tags == TRUE) {
 
-    if(resolution != "task"){
-      message("Currently tag uploads are best supported when you resolve at the task level. You may encounter an error otherwise. If you used `wt_additional_species(resolution='recording')` change the task lengths to the maximum length of the recording in your project")
+    if (resolution != "task") {
+      message("Currently tag uploads are best supported when you resolve at the task level. If you use resolution = 'location', detections are assigned to matching recording tasks.")
     }
 
-    new_export <- new |>
-      relocate(location) |>
-      relocate(recording_date_time, .after = location) |>
-      inner_join(data[[2]] |> select(task_id, task_method, task_duration, task_is_complete) |> distinct(), by = "task_id") |>
-      relocate(task_duration, .after = recording_date_time) |>
-      relocate(task_method, .after = task_duration) |>
-      mutate(observer = "Not Assigned", .after = task_method) |>
-      relocate(species_code, .after = observer) |>
-      group_by(task_id, species_code) |>
-      mutate(individual_number = row_number(), .after = species_code) |>
-      ungroup() |>
-      mutate(vocalization = "SONG", .after = individual_number) |>
-      mutate(abundance = 1, .after = vocalization) |>
-      rename(tag_start_time = ai_detection_time) |>
-      relocate(tag_start_time, .after = abundance) |>
-      mutate(tag_duration = "", .after = tag_start_time) |>
+    if (resolution == "task") {
+
+      new_export <- new |>
+        inner_join(
+          data[[2]] |>
+            select(task_id, task_method, task_duration, task_is_complete) |>
+            distinct(),
+          by = "task_id"
+        ) |>
+        relocate(location) |>
+        relocate(recording_date_time, .after = location) |>
+        relocate(task_duration, .after = recording_date_time) |>
+        relocate(task_method, .after = task_duration) |>
+        mutate(observer = "Not Assigned", .after = task_method) |>
+        relocate(species_code, .after = observer) |>
+        group_by(task_id, species_code) |>
+        mutate(individual_number = row_number(), .after = species_code) |>
+        ungroup() |>
+        mutate(vocalization = "SONG", .after = individual_number) |>
+        mutate(abundance = 1, .after = vocalization) |>
+        rename(detection_time = ai_detection_time)
+
+    } else if (resolution == "location") {
+
+      new_export <- new |>
+        inner_join(
+          data[[2]] |>
+            select(recording_id, task_id, task_method, task_duration, task_is_complete) |>
+            distinct(recording_id, .keep_all = TRUE),
+          by = "recording_id"
+        ) |>
+        relocate(location) |>
+        relocate(recording_date_time, .after = location) |>
+        relocate(task_duration, .after = recording_date_time) |>
+        relocate(task_method, .after = task_duration) |>
+        mutate(observer = "Not Assigned", .after = task_method) |>
+        relocate(species_code, .after = observer) |>
+        group_by(recording_id, species_code) |>
+        mutate(individual_number = row_number(), .after = species_code) |>
+        ungroup() |>
+        mutate(vocalization = "SONG", .after = individual_number) |>
+        mutate(abundance = 1, .after = vocalization)
+
+    } else {
+
+      stop("`format_to_tags = TRUE` currently supports `resolution = 'task'` and `resolution = 'location'` only.")
+
+    }
+
+    new_export <- new_export |>
+      relocate(detection_time, .after = abundance) |>
+      mutate(tag_duration = "", .after = detection_time) |>
       mutate(min_tag_freq = "", .after = tag_duration) |>
       mutate(max_tag_freq = "", .after = min_tag_freq) |>
-      mutate(species_individual_comments = paste0(version, " Confidence: ", confidence), .after = max_tag_freq) |>
+      mutate(
+        species_individual_comments = paste0(version, " Confidence: ", confidence),
+        .after = max_tag_freq
+      ) |>
       mutate(tag_is_hidden_for_verification = FALSE, .after = species_individual_comments) |>
       mutate(recording_sample_frequency = 44100, .after = tag_is_hidden_for_verification) |>
-      mutate(internal_tag_id = "", .after = recording_sample_frequency) |>
-      select(-c(location_id:task_is_complete))
+      mutate(tag_id = "", .after = recording_sample_frequency) |>
+      select(
+        location,
+        recording_date_time,
+        task_duration,
+        task_method,
+        observer,
+        species_code,
+        individual_number,
+        vocalization,
+        abundance,
+        detection_time,
+        tag_duration,
+        min_tag_freq,
+        max_tag_freq,
+        species_individual_comments,
+        tag_is_hidden_for_verification,
+        recording_sample_frequency,
+        tag_id
+      )
 
     return(new_export)
-
-    write_csv(new_export, paste0(output, "/ai_tags.csv"))
 
   } else {
 
     return(new)
 
   }
+
 }

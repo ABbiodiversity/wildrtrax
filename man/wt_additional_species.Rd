@@ -20,7 +20,7 @@ wt_additional_species(
 
 \item{threshold}{Numeric; the desired score threshold}
 
-\item{resolution}{Character; either "recording" to identify any new species for each recording or "location" to identify new species for each location}
+\item{resolution}{Character; "recording", "task" or "location" depending on the level of interest}
 
 \item{format_to_tags}{Logical; when TRUE, creates a formatted output to turn detections into tags for uploading to WildTrax}
 
