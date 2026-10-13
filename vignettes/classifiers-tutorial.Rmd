@@ -55,6 +55,22 @@ F-score is a combination of precision and recall and can also used to select a s
 
 $Fscore = \frac{2 * precision* recall}{precision + recall}$
 
+## Generating a classifier-based project
+
+Classifiers change what a project can be. Instead of deciding in advance which recordings to listen to, you can let the detections point you to where the signals or species are. A classifier-based project turns that idea into tasks: you choose a species, the classifier finds the recordings where it likely occurred, and your listening time goes to those recordings rather than to a random or exhaustive sample.
+
+This is a trade-off, and it's worth being deliberate about. Targeting detections is efficient for verifying a species, finding rare occurrences or building a training set, but the recordings you end up with are a biased sample, selected by what the classifier already thinks it heard. They are not a good basis for estimating occupancy or abundance without accounting for that. How detections are generated, what the confidence threshold means and how to choose one are covered in `vignette("classifiers", package = "wildrtrax")`. Read that first if you're unsure how strict to be.
+
+Once you've settled on your species and threshold, the workflow is the same as any other task generation. Pull the recordings, filter to your detections and hand them to `wt_make_aru_tasks()`:
+
+```{r eval=F, message=FALSE, warning=FALSE, include=T}
+wt_get_view("organization_recordings", organization = 5466, ai_threshold = 0.9) |>
+  dplyr::filter(hawkears_common_name == "Alder Flycatcher") |>
+  wt_make_aru_tasks(task_method = "1SPT", task_length = 60)
+```
+
+Keep the task short when you only need to confirm a detection and longer when you want the whole recording listened to. Either way, the tasks you generate are only as good as the detections behind them, so treat the first batch as a check on the classifier's performance before committing to a larger one.
+
 ## Evaluating
 
 Use `wt_download_report(reports = c('main','ai'))` to download the classifier reports and the main report for further analysis. We can then combine the `main` report and the `ai` report to evaluate the classifier's performance on a given dataset. The `wt_evaluate_classifier()` function takes the output from the `wt_download_report()` and joins them together and then calculates precision, recall, and F-score for the requested sequences of thresholds. You can request the metrics at the minute level for recordings that are processed with the species per minute method (1SPM). You can also exclude species that are not allowed in the project from the BirdNET results before evaluation.
