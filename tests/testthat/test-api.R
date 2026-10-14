@@ -263,3 +263,7 @@ test_that("Location photos", {
   expect_no_error(wt_location_photos(organization = "TESTORGAPI", output = NULL))
 })
 
+test_that("Species presets", {
+  expect_no_error(wt_get_species_presets("Birds of Alberta"))
+})
+
