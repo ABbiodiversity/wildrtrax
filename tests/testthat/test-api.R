@@ -35,6 +35,10 @@ test_that("Download without authentication, boundary; multiple single-species", 
   expect_true(!is.null(wt_dd_summary(sensor = 'ARU', species = c('White-throated Sparrow','Hermit Thrush'), boundary = aoi)))
 })
 
+test_that("Try to auth without info", {
+  expect_error(wt_auth())
+})
+
 test_that("Try to do something without authorization", {
   expect_error(wt_download_report(620, 'ARU', 'main'))
 })
