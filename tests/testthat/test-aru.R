@@ -266,3 +266,7 @@ test_that('Guano test', {
   # Kaleido only
   expect_no_error(wt_guano_tags(testthat::test_path("fixtures/audio/guano/BCP11-BWRNNE_20240621_220503_000.wav")))
  })
+
+test_that('Wrong classifier data', {
+  expect_error(wt_evaluate_classifier(rep))
+})
