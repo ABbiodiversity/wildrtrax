@@ -87,6 +87,7 @@ importFrom(magick,
 )
 importFrom(purrr,
   map,
+  map2,
   map_dbl,
   map_dfr,
   pluck,
