@@ -1356,7 +1356,7 @@ wt_get_view <- function(api, project = NULL, organization = NULL, max_seconds = 
         left_join(bait_lu, by = c("baitId" = "id")) |>
         unnest_longer(land_features, values_to = "land_feature_id", keep_empty = TRUE) |>
         left_join(land_feature_lu, by = c("land_feature_id" = "id")) |>
-        summarise(land_features = if (all(is.na(land_feature))) NA_character_ else paste(na.omit(land_feature), collapse = ", "), across(-c(land_feature, land_feature_id), first), .by = visit_id) |>
+        summarise(land_features = if (all(is.na(land_feature))) NA_character_ else paste(na.omit(land_feature), collapse = ", "), across(-c(land_feature, land_feature_id), first), .by = wildtrax_visit_id) |>
         select(-baitId) |>
         relocate(land_features, .after = last_col()) |>
         relocate(bait, .after = water_depth_m) |>

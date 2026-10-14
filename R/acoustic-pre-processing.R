@@ -82,8 +82,8 @@ wt_audio_scanner <- function(path, file_type, extra_cols = FALSE) {
       df_wav <- df |>
         filter(file_type == "wav") |>
         mutate(data = map(.x = file_path, .f = ~ readWave(.x, from = 0, to = Inf, units = "seconds", header = TRUE))) |>
-        mutate(length_seconds = map_dbl(.x = data, .f = ~ round(pluck(.x[["samples"]]) / pluck(.x[["sample.rate"]]), 2)),
-                      sample_rate = map_dbl(.x = data, .f = ~ round(pluck(.x[["sample.rate"]]), 2)),
+        mutate(recording_duration = map_dbl(.x = data, .f = ~ round(pluck(.x[["samples"]]) / pluck(.x[["sample.rate"]]), 2)),
+               recording_sample_frequency = map_dbl(.x = data, .f = ~ round(pluck(.x[["sample.rate"]]), 2)),
                       n_channels = map_dbl(.x = data, .f = ~ pluck(.x[["channels"]]))) %>%
         select(-data)
     }
@@ -92,8 +92,8 @@ wt_audio_scanner <- function(path, file_type, extra_cols = FALSE) {
       df_wac <- df |>
         filter(file_type == "wac") |>
         mutate(wac_info = map(.x = file_path, .f = ~ wt_wac_info(.x)),
-                      sample_rate = map_dbl(.x = wac_info, .f = ~ pluck(.x[["sample_rate"]])),
-                      length_seconds = map_dbl(.x = wac_info, .f = ~ round(pluck(.x[["length_seconds"]]), 2)),
+                      recording_sample_frequency = map_dbl(.x = wac_info, .f = ~ pluck(.x[["sample_rate"]])),
+                      recording_duration = map_dbl(.x = wac_info, .f = ~ round(pluck(.x[["length_seconds"]]), 2)),
                       n_channels = map_dbl(.x = wac_info, .f = ~ pluck(.x[["n_channels"]]))) |>
         select(-wac_info)
     }
@@ -102,8 +102,8 @@ wt_audio_scanner <- function(path, file_type, extra_cols = FALSE) {
       df_flac <- df |>
         filter(file_type == "flac") |>
         mutate(flac_info = map(.x = file_path, .f = ~ wt_flac_info(.x)),
-                      sample_rate = map_dbl(.x = flac_info, .f = ~ pluck(.x, 1)),
-                      length_seconds = map_dbl(.x = flac_info, .f = ~ round(pluck(.x, 3), 2)),
+               recording_sample_frequency = map_dbl(.x = flac_info, .f = ~ pluck(.x, 1)),
+               recording_duration = map_dbl(.x = flac_info, .f = ~ round(pluck(.x, 3), 2)),
                       n_channels = 0) |>
         select(-flac_info)
     }
@@ -1060,7 +1060,7 @@ wt_guano_tags <- function(path, output = FALSE, output_file = NULL) {
       )
     )
   if (any(guan_tags$tag_duration <= 0, na.rm = TRUE)) {
-    warning("There are tasks too short to fit the tag duration (task_duration < 0.2 s)")
+    message("There are tasks too short to fit the tag duration (task_duration < 0.2 s)")
   }
 
   if (output) {
