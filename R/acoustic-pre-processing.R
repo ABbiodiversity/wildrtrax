@@ -535,7 +535,7 @@ wt_signal_level <- function(path, fmin = 500, fmax = NA, threshold, channel = "l
 #' @importFrom tibble add_column
 #' @importFrom dplyr select mutate filter across
 #' @importFrom tidyr unnest_longer
-#' @importFrom purrr pmap
+#' @importFrom purrr map2 pmap
 #'
 #' @export
 #'
@@ -560,21 +560,21 @@ wt_chop <- function(input = NULL, segment_length = NULL, output_folder = NULL) {
 
   # Prepare input data
   inp <- input |>
-    select(file_path, recording_date_time, location, file_type, length_seconds) |>
+    select(file_path, recording_date_time, location, file_type, recording_duration) |>
     add_column(length_sec = segment_length) |>
-    mutate(longer = ifelse(length_seconds >= length_sec, TRUE, FALSE),
-           length_seconds = round(length_seconds, 0))
+    mutate(longer = ifelse(recording_duration >= length_sec, TRUE, FALSE),
+           recording_duration = round(recording_duration, 0))
 
   # Check for too short recordings
-  if (any(inp$length_seconds < segment_length)) {
+  if (any(inp$recording_duration < segment_length)) {
     stop("Some recordings are shorter than the segment length.")
   }
 
   # Generate start times and new file paths
   inp2 <- inp %>%
-    mutate(start_times = purrr::map2(length_seconds, length_sec, ~ seq(0, .x - .y, by = .y))) %>%
+    mutate(start_times = map2(recording_duration, length_sec, ~ seq(0, .x - .y, by = .y))) %>%
     unnest_longer(start_times) %>%
-    filter(start_times + length_sec <= length_seconds) %>%
+    filter(start_times + length_sec <= recording_duration) %>%
     mutate(new_file = paste0(output_folder, "/", location, "_", format(recording_date_time + as.difftime(start_times, units = "secs"), "%Y%m%d_%H%M%S"), ".", file_type)) %>%
     mutate(across(c(length_sec, start_times), as.numeric))
 

@@ -181,7 +181,7 @@ test_that('Format FWMIS lookups', {
 
  test_that('Guano', {
    expect_no_error(wt_audio_scanner(testthat::test_path("fixtures/audio"), file_type = "wav", extra_cols = TRUE) |>
-                     filter(sample_rate > 192000) %>% purrr::map(.x = .$file_path, .f = ~wt_guano_tags(.x)))
+                     filter(recording_sample_frequency > 192000) %>% purrr::map(.x = .$file_path, .f = ~wt_guano_tags(.x)))
  })
 
  test_that('WAC Tests', {
