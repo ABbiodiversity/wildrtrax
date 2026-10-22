@@ -73,7 +73,16 @@ test_that("full summaries", {
 })
 
 test_that("effort data supplied", {
-  expect_no_error(result_data_effort <- wt_summarise_cam(detect_data = ind_detections, time_interval = "day", output_format = "long", effort_data = eff_data))
+  expect_no_error({
+    eff_data <- tibble(
+      project_id = c(798),
+      location = c("OG-ABMI-468-53-1"),
+      start_date = as.Date(c("2018-02-25")),
+      end_date = as.Date(c("2018-08-01 13:15:37"))
+    )
+    ind_detections <- wt_ind_detect(test_data_set, threshold = 60, units = "minutes", datetime_col = image_date_time, remove_human = TRUE, remove_domestic = TRUE)
+    result_data_effort <- wt_summarise_cam(detect_data = ind_detections, time_interval = "day", output_format = "long", effort_data = eff_data)
+  })
 })
 
 test_that("error ind detect", {
