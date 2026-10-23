@@ -162,7 +162,7 @@ wt_summarise_cam <- function(detect_data, raw_data, time_interval = "day",
       mutate(n_days_effort = 1) |>
       crossing(sp) |>
       left_join(y) |>
-      mutate(across(all_vars, ~ replace_na(.x, 0)))
+      mutate(across(all_of(all_vars), ~replace_na(.x, 0)))
 
   } else if (time_interval == "week") {
     x <- x |>
@@ -174,7 +174,7 @@ wt_summarise_cam <- function(detect_data, raw_data, time_interval = "day",
     z <- x |>
       crossing(sp) |>
       left_join(y) |>
-      mutate(across(all_vars, ~ replace_na(.x, 0)))
+      mutate(across(all_of(all_vars), ~replace_na(.x, 0)))
 
   } else if (time_interval == "month") {
     x <- x |>
@@ -185,14 +185,14 @@ wt_summarise_cam <- function(detect_data, raw_data, time_interval = "day",
     z <- x |>
       crossing(sp) |>
       left_join(y) |>
-      mutate(across(all_vars, ~ replace_na(.x, 0)))
+      mutate(across(all_of(all_vars), ~replace_na(.x, 0)))
 
   } else if (time_interval == "full") {
 
     z <- x |>
       crossing(sp) |>
       left_join(y) |>
-      mutate(across(all_vars, ~ replace_na(.x, 0))) |>
+      mutate(across(all_of(all_vars), ~replace_na(.x, 0))) |>
       group_by({{ project_col }}, {{ station_col }}, year) |>
       mutate(n_days_effort = as.integer(max(day) - min(day)) + 1) |>
       group_by({{ project_col }}, {{ station_col }}, year, {{ species_col }}) |>

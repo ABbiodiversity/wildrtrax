@@ -36,7 +36,7 @@ test_that("Download without authentication, boundary; multiple single-species", 
 })
 
 test_that("Try to auth without info", {
-  expect_error(wt_auth())
+  expect_error(wt_auth(force = T))
 })
 
 test_that("Try to do something without authorization", {
