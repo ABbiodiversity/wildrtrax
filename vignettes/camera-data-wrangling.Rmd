@@ -10,6 +10,9 @@ vignette: >
 ```{r echo=F, eval=T, message=TRUE, include=TRUE}
 knitr::opts_chunk$set(echo = TRUE)
 
+library(wildrtrax)
+library(ggplot2)
+
 load("camera.RData")
 #save.image("camera.RData")
 ```
@@ -88,6 +91,97 @@ eh14_summarised <- wt_summarise_cam(
 ```{r echo=TRUE, eval=T, message=TRUE, include=TRUE}
 head(eh14_summarised)
 
+```
+
+## Visualize your summaries
+
+The 'long' output format works nicely with `ggplot2`. Below, we summarise species **presence** in the Ecosystem Health 2014 data at four different time intervals and plot each as a stacked bar chart, coloured by species.
+
+```{r echo=TRUE, eval=T, message=FALSE, warning=FALSE}
+library(ggplot2)
+```
+
+### Across the full deployment
+
+Setting `time_interval = "full"` summarises presence across the entire deployment period for each location:
+
+```{r echo=TRUE, eval=T, message=FALSE, warning=FALSE, fig.width=7, fig.height=5}
+wt_summarise_cam(
+  detect_data = eh14_detections,
+  raw_data = eh14_raw,
+  time_interval = "full",
+  variable = "presence",
+  output_format = "long"
+) |>
+  ggplot(aes(x = location, y = value, fill = species_common_name)) +
+  geom_bar(stat = "identity", position = "stack") +
+  ylab("Presence") +
+  scale_fill_viridis_d() +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+         legend.position = "bottom")
+```
+
+### By month
+
+```{r echo=TRUE, eval=T, message=FALSE, warning=FALSE, fig.width=7, fig.height=5}
+wt_summarise_cam(
+  detect_data = eh14_detections,
+  raw_data = eh14_raw,
+  time_interval = "month",
+  variable = "presence",
+  output_format = "long"
+) |>
+  ggplot(aes(x = month, y = value, fill = species_common_name)) +
+  geom_bar(stat = "identity", position = "stack") +
+  scale_fill_viridis_d() +
+  theme_classic() +
+  ylab("Presence") +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "bottom",
+    legend.key.size = unit(0.35, "cm"),
+    legend.text = element_text(size = 7)
+  ) +
+  guides(fill = guide_legend(nrow = 4, title = NULL))
+```
+
+### By week
+
+```{r echo=TRUE, eval=T, message=FALSE, warning=FALSE, fig.width=7, fig.height=5}
+wt_summarise_cam(
+  detect_data = eh14_detections,
+  raw_data = eh14_raw,
+  time_interval = "week",
+  variable = "presence",
+  output_format = "long"
+) |>
+  ggplot(aes(x = week, y = value, fill = species_common_name)) +
+  geom_bar(stat = "identity", position = "stack") +
+  theme_classic() +
+  scale_fill_viridis_d() +
+  ylab("Presence") +
+   theme(axis.text.x = element_text(angle = 45, hjust = 1),
+         legend.position = "bottom") +
+  guides(fill = guide_legend(nrow = 4, title = NULL))
+```
+
+### By day
+
+```{r echo=TRUE, eval=T, message=FALSE, warning=FALSE, fig.width=7, fig.height=5}
+wt_summarise_cam(
+  detect_data = eh14_detections,
+  raw_data = eh14_raw,
+  time_interval = "day",
+  variable = "presence",
+  output_format = "long") |>
+  ggplot(aes(x = day, y = value, fill = species_common_name)) +
+  geom_bar(stat = "identity", position = "stack") +
+  scale_fill_viridis_d() +
+  theme_classic() +
+  ylab("Presence") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+         legend.position = "bottom")
 ```
 
 And now you can get straight into the science!

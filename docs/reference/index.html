@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">wildrtrax</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.6.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -23,6 +23,7 @@
     <li><a class="dropdown-item" href="../articles/audio-data-concepts.html">Audio data concepts</a></li>
     <li><a class="dropdown-item" href="../articles/acoustic-pre-processing.html">Acoustic pre-processing</a></li>
     <li><a class="dropdown-item" href="../articles/acoustic-data-wrangling.html">Acoustic data wrangling</a></li>
+    <li><a class="dropdown-item" href="../articles/bat-functions.html">Bat data workflows</a></li>
     <li><a class="dropdown-item" href="../articles/classifiers-tutorial.html">Acoustic classifiers</a></li>
     <li><a class="dropdown-item" href="../articles/camera-data-wrangling.html">Camera data wrangling</a></li>
     <li><a class="dropdown-item" href="../articles/tutorials.html">Tutorials</a></li>
@@ -30,6 +31,7 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-news" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">News</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-news"><li><h6 class="dropdown-header" data-toc-skip>Releases</h6></li>
+    <li><h6 class="dropdown-header" data-toc-skip>wildrtrax 1.6.1</h6></li>
     <li><h6 class="dropdown-header" data-toc-skip>wildrtrax 1.6.0</h6></li>
     <li><h6 class="dropdown-header" data-toc-skip>wildrtrax 1.5.0</h6></li>
     <li><h6 class="dropdown-header" data-toc-skip>wildrtrax 1.4.0</h6></li>
@@ -109,7 +111,7 @@
           <code><a href="wt_classifier_threshold.html">wt_classifier_threshold()</a></code>
 
         </dt>
-        <dd>Identify optimal threshold</dd>
+        <dd>Identify optimal classifier threshold</dd>
 
         <dt>
 
@@ -123,7 +125,7 @@
           <code><a href="wt_download_media.html">wt_download_media()</a></code>
 
         </dt>
-        <dd>Download media</dd>
+        <dd>Download media from WildTrax</dd>
 
         <dt>
 
@@ -137,7 +139,7 @@
           <code><a href="wt_evaluate_classifier.html">wt_evaluate_classifier()</a></code>
 
         </dt>
-        <dd>Evaluate a classifier</dd>
+        <dd>Evaluate classifier performance</dd>
 
         <dt>
 
@@ -176,10 +178,17 @@
 
         <dt>
 
+          <code><a href="wt_get_organizations.html">wt_get_organizations()</a></code>
+
+        </dt>
+        <dd>Get a summary of available Organizations from WildTrax</dd>
+
+        <dt>
+
           <code><a href="wt_get_projects.html">wt_get_projects()</a></code>
 
         </dt>
-        <dd>Get a project summary from WildTrax</dd>
+        <dd>Get a summary of available projects from WildTrax</dd>
 
         <dt>
 
@@ -194,6 +203,13 @@
 
         </dt>
         <dd>Get the WildTrax species table</dd>
+
+        <dt>
+
+          <code><a href="wt_get_species_presets.html">wt_get_species_presets()</a></code>
+
+        </dt>
+        <dd>Get the WildTrax species preset lists</dd>
 
         <dt>
 
@@ -242,7 +258,7 @@
           <code><a href="wt_location_distances.html">wt_location_distances()</a></code>
 
         </dt>
-        <dd>General convenience functions</dd>
+        <dd>Calculate distance between locations</dd>
 
         <dt>
 

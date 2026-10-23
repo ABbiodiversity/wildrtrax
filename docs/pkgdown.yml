@@ -6,11 +6,12 @@ articles:
   acoustic-pre-processing: acoustic-pre-processing.html
   apis: apis.html
   audio-data-concepts: audio-data-concepts.html
+  bat-functions: bat-functions.html
   camera-data-wrangling: camera-data-wrangling.html
   classifiers-tutorial: classifiers-tutorial.html
   introduction: introduction.html
   tutorials: tutorials.html
-last_built: 2026-09-09T19:22Z
+last_built: 2026-10-23T18:57Z
 urls:
   reference: https://abbiodiversity.github.io/wildrtrax/reference
   article: https://abbiodiversity.github.io/wildrtrax/articles

@@ -26,7 +26,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">wildrtrax</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.6.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,6 +44,7 @@
     <li><a class="dropdown-item" href="../articles/audio-data-concepts.html">Audio data concepts</a></li>
     <li><a class="dropdown-item" href="../articles/acoustic-pre-processing.html">Acoustic pre-processing</a></li>
     <li><a class="dropdown-item" href="../articles/acoustic-data-wrangling.html">Acoustic data wrangling</a></li>
+    <li><a class="dropdown-item" href="../articles/bat-functions.html">Bat data workflows</a></li>
     <li><a class="dropdown-item" href="../articles/classifiers-tutorial.html">Acoustic classifiers</a></li>
     <li><a class="dropdown-item" href="../articles/camera-data-wrangling.html">Camera data wrangling</a></li>
     <li><a class="dropdown-item" href="../articles/tutorials.html">Tutorials</a></li>
@@ -53,6 +54,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-news" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">News</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-news">
 <li><h6 class="dropdown-header" data-toc-skip>Releases</h6></li>
+    <li><h6 class="dropdown-header" data-toc-skip>wildrtrax 1.6.1</h6></li>
     <li><h6 class="dropdown-header" data-toc-skip>wildrtrax 1.6.0</h6></li>
     <li><h6 class="dropdown-header" data-toc-skip>wildrtrax 1.5.0</h6></li>
     <li><h6 class="dropdown-header" data-toc-skip>wildrtrax 1.4.0</h6></li>
@@ -181,26 +183,86 @@ sounds that exceed a certain amplitude threshold.</p>
 <div class="section level2">
 <h2 id="linking-data-to-wildtrax">Linking data to WildTrax<a class="anchor" aria-label="anchor" href="#linking-data-to-wildtrax"></a>
 </h2>
-<p>Make tasks at any time using a <code>wt_*</code> standard data set
-with <code><a href="../reference/wt_make_aru_tasks.html">wt_make_aru_tasks()</a></code>.</p>
+<p><code><a href="../reference/wt_make_aru_tasks.html">wt_make_aru_tasks()</a></code> generates tasks from any
+<code>wt_*</code> standard data set. The only columns it needs are
+<code>location</code>, <code>recording_date_time</code>,
+<code>recording_sample_frequency</code> and
+<code>recording_duration</code>. Any extra columns are ignored, so you
+don’t need to trim your data first. There are two common ways to get
+there.</p>
+<div class="section level3">
+<h3 id="generate-tasks-from-recordings-already-in-wildtrax">Generate tasks from recordings already in WildTrax<a class="anchor" aria-label="anchor" href="#generate-tasks-from-recordings-already-in-wildtrax"></a>
+</h3>
+<p>Use this when the media is already uploaded and you want tasks for a
+subset of it, for example recordings where a classifier detected a
+species of interest.</p>
+<p>Start by pulling your organization’s recordings with
+<code>wt_get_sync(api = "organization_recordings")</code> or
+<code>wt_get_view("organization_recordings")</code> if you want
+additional columns (see
+<code><a href="../articles/apis.html">vignette("apis", package = "wildrtrax")</a></code>. The
+<code>ai_threshold</code> argument sets the minimum classifier
+confidence used for the detection columns at 0.5 but can be changed as
+needed. Depending on how many recordings your organization has, this can
+take a moment as it iterates through the pages of recordings
+available.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/wt_make_aru_tasks.html">wt_make_aru_tasks</a></span><span class="op">(</span>input <span class="op">=</span> <span class="va">files</span> <span class="op">|&gt;</span></span>
-<span>                    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">-</span><span class="va">file_path</span><span class="op">)</span>, task_method <span class="op">=</span> <span class="st">"1SPT"</span>, task_length <span class="op">=</span> <span class="fl">180</span><span class="op">)</span></span></code></pre></div>
-<p>If you’ve already uploaded recordings to WildTrax, scan your media
-using <code><a href="../reference/wt_audio_scanner.html">wt_audio_scanner()</a></code> and a relative folder path.</p>
+<code class="sourceCode R"><span><span class="va">recs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/wt_get_view.html">wt_get_view</a></span><span class="op">(</span><span class="st">"organization_recordings"</span>, organization <span class="op">=</span> <span class="fl">5466</span>, ai_threshold <span class="op">=</span> <span class="fl">0.9</span><span class="op">)</span></span></code></pre></div>
+<p>The result has one row per recording, including location, date and
+time, weather and astronomical variables, and the species detected by
+each classifier (<code>birdnet_common_name</code>,
+<code>hawkears_common_name</code>). Filter it down to the recordings you
+want to listen to:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">my_files</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/wt_audio_scanner.html">wt_audio_scanner</a></span><span class="op">(</span>path <span class="op">=</span> <span class="st">'/my/BigGrid/files'</span>, file_type <span class="op">=</span> <span class="st">'all'</span>, extra_cols <span class="op">=</span> <span class="cn">F</span><span class="op">)</span></span></code></pre></div>
-<p>And then download the project data you wish to compare it to:</p>
+<code class="sourceCode R"><span><span class="va">alfl_recs</span> <span class="op">&lt;-</span> <span class="va">recs</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">hawkears_common_name</span> <span class="op">==</span> <span class="st">"Alder Flycatcher"</span><span class="op">)</span></span></code></pre></div>
+<p>You can filter on any column, such as dates, locations, time of day
+or weather, or combine several conditions:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">alfl_recs</span> <span class="op">&lt;-</span> <span class="va">recs</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
+<span>    <span class="va">hawkears_common_name</span> <span class="op">==</span> <span class="st">"Alder Flycatcher"</span>,</span>
+<span>    <span class="va">recording_month</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">5</span><span class="op">:</span><span class="fl">7</span>,</span>
+<span>    <span class="va">weather</span> <span class="op">==</span> <span class="st">"Clear/Sunny"</span></span>
+<span>  <span class="op">)</span></span></code></pre></div>
+<p>Then pass the filtered data to <code><a href="../reference/wt_make_aru_tasks.html">wt_make_aru_tasks()</a></code>,
+choosing a task method and a task length in seconds:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">alfl_tasks</span> <span class="op">&lt;-</span> <span class="va">alfl_recs</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/wt_make_aru_tasks.html">wt_make_aru_tasks</a></span><span class="op">(</span>task_method <span class="op">=</span> <span class="st">"1SPT"</span>, task_length <span class="op">=</span> <span class="fl">60</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="generate-tasks-from-media-on-your-computer">Generate tasks from media on your computer<a class="anchor" aria-label="anchor" href="#generate-tasks-from-media-on-your-computer"></a>
+</h3>
+<p>Use this when you have recordings that you haven’t processed or
+uploaded yet.</p>
+<p>Scan your media with <code><a href="../reference/wt_audio_scanner.html">wt_audio_scanner()</a></code> and a folder
+path:</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">my_files</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/wt_audio_scanner.html">wt_audio_scanner</a></span><span class="op">(</span>path <span class="op">=</span> <span class="st">"/my/BigGrid/files"</span>, file_type <span class="op">=</span> <span class="st">"all"</span>, extra_cols <span class="op">=</span> <span class="cn">F</span><span class="op">)</span></span></code></pre></div>
+<p>Next, find out what WildTrax already has. Download the recordings for
+your organization and compare them to your files on
+<code>location</code> and <code>recording_date_time</code>. An
+<code><a href="https://dplyr.tidyverse.org/reference/filter-joins.html" class="external-link">anti_join()</a></code> leaves only the media that hasn’t been uploaded
+yet:</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">recs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/wt_get_sync.html">wt_get_sync</a></span><span class="op">(</span><span class="st">"organization_recordings"</span>, organization <span class="op">=</span> <span class="fl">5466</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">to_upload</span> <span class="op">&lt;-</span> <span class="va">my_files</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter-joins.html" class="external-link">anti_join</a></span><span class="op">(</span><span class="va">recs</span>, by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"location"</span>, <span class="st">"recording_date_time"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>Alternatively, if you only want to compare against particular
+projects, download their main reports:</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">my_projects</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/wt_get_projects.html">wt_get_projects</a></span><span class="op">(</span><span class="st">"ARU"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"Cypress"</span>, <span class="va">project</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">project_id</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/wt_download_report.html">wt_download_report</a></span><span class="op">(</span>sensor_id  <span class="op">=</span> <span class="st">"ARU"</span>, reports <span class="op">=</span> <span class="st">"main"</span><span class="op">)</span></span></code></pre></div>
-<p>Alternatively use <code>wt_get_sync("organization_recordings")</code>
-to get a list of all recordings. Then either filter out or do an
-<code><a href="https://dplyr.tidyverse.org/reference/filter-joins.html" class="external-link">dplyr::anti_join()</a></code> on location and recording_date_time.
-That should give you the remaining list of media that has not been
-processed or uploaded to WildTrax yet.</p>
+<span>  <span class="fu"><a href="../reference/wt_download_report.html">wt_download_report</a></span><span class="op">(</span>sensor_id <span class="op">=</span> <span class="st">"ARU"</span>, reports <span class="op">=</span> <span class="st">"main"</span><span class="op">)</span></span></code></pre></div>
+<p>Once you have the list of media to process, generate the tasks:</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">new_tasks</span> <span class="op">&lt;-</span> <span class="va">to_upload</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">-</span><span class="va">file_path</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/wt_make_aru_tasks.html">wt_make_aru_tasks</a></span><span class="op">(</span>task_method <span class="op">=</span> <span class="st">"1SPT"</span>, task_length <span class="op">=</span> <span class="fl">180</span><span class="op">)</span></span></code></pre></div>
+</div>
 <div class="section level3">
 <h3 id="integrating-legacy-data-from-classifiers">Integrating legacy data from classifiers<a class="anchor" aria-label="anchor" href="#integrating-legacy-data-from-classifiers"></a>
 </h3>
@@ -216,7 +278,7 @@ already been processed by external classifiers, enabling existing
 detections to be reformatted, aligned with media, and uploaded to
 WildTrax for further review and analysis.</p>
 <p>Here is some raw Songscope output:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Convert Songscope output into WildTrax tags</span></span>
 <span></span>
 <span><span class="fu">readr</span><span class="fu">::</span><span class="fu"><a href="https://readr.tidyverse.org/reference/read_table.html" class="external-link">read_table</a></span><span class="op">(</span><span class="st">"./CONI.txt"</span><span class="op">)</span></span>
@@ -239,7 +301,7 @@ WildTrax for further review and analysis.</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 2 more variables: CONI_Boom2.0 &lt;chr&gt;, X8 &lt;lgl&gt;</span></span></span></code></pre></div>
 <p>And here’s in the transformation with
 <code><a href="../reference/wt_songscope_tags.html">wt_songscope_tags()</a></code>:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/wt_songscope_tags.html">wt_songscope_tags</a></span><span class="op">(</span></span>
 <span>  input <span class="op">=</span> <span class="st">"./CONI.txt"</span>,</span>
 <span>  output <span class="op">=</span> <span class="st">"env"</span>,</span>
@@ -252,7 +314,7 @@ WildTrax for further review and analysis.</p>
 <span>  sample_freq <span class="op">=</span> <span class="fl">44100</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Similarly, a Kaleidoscope output can be converted similarly:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/wt_kaleidoscope_tags.html">wt_kaleidoscope_tags</a></span><span class="op">(</span></span>
 <span>  input <span class="op">=</span> <span class="st">"./id.csv"</span>,</span>
 <span>  output <span class="op">=</span> <span class="cn">NULL</span>,</span>

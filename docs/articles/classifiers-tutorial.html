@@ -26,7 +26,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">wildrtrax</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.6.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,6 +44,7 @@
     <li><a class="dropdown-item" href="../articles/audio-data-concepts.html">Audio data concepts</a></li>
     <li><a class="dropdown-item" href="../articles/acoustic-pre-processing.html">Acoustic pre-processing</a></li>
     <li><a class="dropdown-item" href="../articles/acoustic-data-wrangling.html">Acoustic data wrangling</a></li>
+    <li><a class="dropdown-item" href="../articles/bat-functions.html">Bat data workflows</a></li>
     <li><a class="dropdown-item" href="../articles/classifiers-tutorial.html">Acoustic classifiers</a></li>
     <li><a class="dropdown-item" href="../articles/camera-data-wrangling.html">Camera data wrangling</a></li>
     <li><a class="dropdown-item" href="../articles/tutorials.html">Tutorials</a></li>
@@ -53,6 +54,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-news" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">News</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-news">
 <li><h6 class="dropdown-header" data-toc-skip>Releases</h6></li>
+    <li><h6 class="dropdown-header" data-toc-skip>wildrtrax 1.6.1</h6></li>
     <li><h6 class="dropdown-header" data-toc-skip>wildrtrax 1.6.0</h6></li>
     <li><h6 class="dropdown-header" data-toc-skip>wildrtrax 1.5.0</h6></li>
     <li><h6 class="dropdown-header" data-toc-skip>wildrtrax 1.4.0</h6></li>
@@ -166,6 +168,37 @@ select a score threshold by selecting the peak value.</p>
 <p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mi>s</mi><mi>c</mi><mi>o</mi><mi>r</mi><mi>e</mi><mo>=</mo><mfrac><mrow><mn>2</mn><mo>*</mo><mi>p</mi><mi>r</mi><mi>e</mi><mi>c</mi><mi>i</mi><mi>s</mi><mi>i</mi><mi>o</mi><mi>n</mi><mo>*</mo><mi>r</mi><mi>e</mi><mi>c</mi><mi>a</mi><mi>l</mi><mi>l</mi></mrow><mrow><mi>p</mi><mi>r</mi><mi>e</mi><mi>c</mi><mi>i</mi><mi>s</mi><mi>i</mi><mi>o</mi><mi>n</mi><mo>+</mo><mi>r</mi><mi>e</mi><mi>c</mi><mi>a</mi><mi>l</mi><mi>l</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex">Fscore = \frac{2 * precision* recall}{precision + recall}</annotation></semantics></math></p>
 </div>
 <div class="section level2">
+<h2 id="generating-a-classifier-based-project">Generating a classifier-based project<a class="anchor" aria-label="anchor" href="#generating-a-classifier-based-project"></a>
+</h2>
+<p>Classifiers change what a project can be. Instead of deciding in
+advance which recordings to listen to, you can let the detections point
+you to where the signals or species are. A classifier-based project
+turns that idea into tasks: you choose a species, the classifier finds
+the recordings where it likely occurred, and your listening time goes to
+those recordings rather than to a random or exhaustive sample.</p>
+<p>This is a trade-off, and it’s worth being deliberate about. Targeting
+detections is efficient for verifying a species, finding rare
+occurrences or building a training set, but the recordings you end up
+with are a biased sample, selected by what the classifier already thinks
+it heard. They are not a good basis for estimating occupancy or
+abundance without accounting for that. How detections are generated,
+what the confidence threshold means and how to choose one are covered in
+<code>vignette("classifiers", package = "wildrtrax")</code>. Read that
+first if you’re unsure how strict to be.</p>
+<p>Once you’ve settled on your species and threshold, the workflow is
+the same as any other task generation. Pull the recordings, filter to
+your detections and hand them to <code><a href="../reference/wt_make_aru_tasks.html">wt_make_aru_tasks()</a></code>:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/wt_get_view.html">wt_get_view</a></span><span class="op">(</span><span class="st">"organization_recordings"</span>, organization <span class="op">=</span> <span class="fl">5466</span>, ai_threshold <span class="op">=</span> <span class="fl">0.9</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">hawkears_common_name</span> <span class="op">==</span> <span class="st">"Alder Flycatcher"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/wt_make_aru_tasks.html">wt_make_aru_tasks</a></span><span class="op">(</span>task_method <span class="op">=</span> <span class="st">"1SPT"</span>, task_length <span class="op">=</span> <span class="fl">60</span><span class="op">)</span></span></code></pre></div>
+<p>Keep the task short when you only need to confirm a detection and
+longer when you want the whole recording listened to. Either way, the
+tasks you generate are only as good as the detections behind them, so
+treat the first batch as a check on the classifier’s performance before
+committing to a larger one.</p>
+</div>
+<div class="section level2">
 <h2 id="evaluating">Evaluating<a class="anchor" aria-label="anchor" href="#evaluating"></a>
 </h2>
 <p>Use <code>wt_download_report(reports = c('main','ai'))</code> to
@@ -179,7 +212,7 @@ requested sequences of thresholds. You can request the metrics at the
 minute level for recordings that are processed with the species per
 minute method (1SPM). You can also exclude species that are not allowed
 in the project from the BirdNET results before evaluation.</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>WT_USERNAME <span class="op">=</span> <span class="st">'guest'</span>, WT_PASSWORD <span class="op">=</span> <span class="st">'Apple123'</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/wt_auth.html">wt_auth</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
@@ -209,7 +242,7 @@ in the project from the BirdNET results before evaluation.</p>
 <span><span class="co">## <span style="color: #BCBCBC;">10</span>     0.273      1  0.429      0.1  Birdnet v2.1</span></span></code></pre>
 <p>We can plot the results of our evaluation to get an idea of how each
 classifier is performing:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">eval</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html" class="external-link">geom_smooth</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">threshold</span>, y<span class="op">=</span><span class="va">precision</span>, colour<span class="op">=</span><span class="va">classifier</span><span class="op">)</span>, linewidth<span class="op">=</span><span class="fl">1.5</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Score threshold"</span><span class="op">)</span> <span class="op">+</span></span>
@@ -217,8 +250,8 @@ classifier is performing:</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/lims.html" class="external-link">xlim</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/lims.html" class="external-link">ylim</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="classifiers-tutorial_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="700"></p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<p><img src="classifiers-tutorial_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" alt="" width="700"></p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">eval</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html" class="external-link">geom_smooth</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">threshold</span>, y<span class="op">=</span><span class="va">recall</span>, colour<span class="op">=</span><span class="va">classifier</span><span class="op">)</span>, linewidth<span class="op">=</span><span class="fl">1.5</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Score threshold"</span><span class="op">)</span> <span class="op">+</span></span>
@@ -226,8 +259,8 @@ classifier is performing:</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/lims.html" class="external-link">xlim</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/lims.html" class="external-link">ylim</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="classifiers-tutorial_files/figure-html/unnamed-chunk-3-2.png" class="r-plt" alt="" width="700"></p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<p><img src="classifiers-tutorial_files/figure-html/unnamed-chunk-4-2.png" class="r-plt" alt="" width="700"></p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">eval</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html" class="external-link">geom_smooth</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">threshold</span>, y<span class="op">=</span><span class="va">fscore</span>, colour<span class="op">=</span><span class="va">classifier</span><span class="op">)</span>, linewidth<span class="op">=</span><span class="fl">1.5</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Score threshold"</span><span class="op">)</span> <span class="op">+</span></span>
@@ -235,8 +268,8 @@ classifier is performing:</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/lims.html" class="external-link">xlim</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/lims.html" class="external-link">ylim</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="classifiers-tutorial_files/figure-html/unnamed-chunk-3-3.png" class="r-plt" alt="" width="700"></p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<p><img src="classifiers-tutorial_files/figure-html/unnamed-chunk-4-3.png" class="r-plt" alt="" width="700"></p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">eval</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html" class="external-link">geom_smooth</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">recall</span>, y<span class="op">=</span><span class="va">precision</span>, colour<span class="op">=</span><span class="va">classifier</span><span class="op">)</span>, linewidth<span class="op">=</span><span class="fl">1.5</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Recall"</span><span class="op">)</span> <span class="op">+</span></span>
@@ -244,7 +277,7 @@ classifier is performing:</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/lims.html" class="external-link">xlim</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/lims.html" class="external-link">ylim</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="classifiers-tutorial_files/figure-html/unnamed-chunk-3-4.png" class="r-plt" alt="" width="700"></p>
+<p><img src="classifiers-tutorial_files/figure-html/unnamed-chunk-4-4.png" class="r-plt" alt="" width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="selecting-and-filtering-a-threshold">Selecting and filtering a threshold<a class="anchor" aria-label="anchor" href="#selecting-and-filtering-a-threshold"></a>
@@ -254,7 +287,7 @@ classifier is performing:</p>
 threshold manually, or you can use the
 <code><a href="../reference/wt_classifier_threshold.html">wt_classifier_threshold()</a></code> function to select the highest
 threshold that maximizes F-score.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/wt_classifier_threshold.html">wt_classifier_threshold</a></span><span class="op">(</span><span class="va">eval</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 3 × 2</span></span></span>
 <span><span class="co">##   classifier      threshold</span></span>
@@ -266,7 +299,7 @@ threshold that maximizes F-score.</p>
 filtered as desired. Whether you’re a human or a computer, all
 classifiers make mistakes. But we can select a score threshold that
 maximizes the F-score. Let’s look at what our precision is:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">eval</span><span class="op">[</span><span class="va">eval</span><span class="op">$</span><span class="va">threshold</span><span class="op">==</span><span class="fl">0.75</span>,<span class="op">]</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 3 × 5</span></span></span>
 <span><span class="co">##   precision recall fscore threshold classifier     </span></span>
@@ -309,7 +342,7 @@ new species are detected. We can use the resolution argument to specify
 whether we want to look for new species in each task, recording,
 location, or in the entire project. Let’s pretend we’re interested in
 site-specific species richness and use the task argument.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">new</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/wt_additional_species.html">wt_additional_species</a></span><span class="op">(</span><span class="va">data</span>, remove_species <span class="op">=</span> <span class="cn">TRUE</span>, threshold <span class="op">=</span> <span class="fl">0.8</span>, resolution<span class="op">=</span><span class="st">"task"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">new</span></span></code></pre></div>
@@ -335,7 +368,7 @@ site-specific species richness and use the task argument.</p>
 this case, you can then format the output of these results to fit with
 tag sync and either check the tasks individually, or synchronize the
 tags and check them via species verification.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/wt_additional_species.html">wt_additional_species</a></span><span class="op">(</span><span class="va">data</span>, remove_species <span class="op">=</span> <span class="cn">TRUE</span>, threshold <span class="op">=</span> <span class="fl">0.8</span>, resolution<span class="op">=</span><span class="st">"task"</span>, format_to_tags <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 98 × 17</span></span></span>
 <span><span class="co">##    location  recording_date_time task_duration task_method observer species_code</span></span>
@@ -352,10 +385,10 @@ tags and check them via species verification.</p>
 <span><span class="co">## <span style="color: #BCBCBC;">10</span> CHPP-WP-6 2021-07-04 <span style="color: #949494;">05:00:00</span>           180 1SPT        Not Ass… NHWR        </span></span>
 <span><span class="co">## <span style="color: #949494;"># ℹ 88 more rows</span></span></span>
 <span><span class="co">## <span style="color: #949494;"># ℹ 11 more variables: individual_number &lt;int&gt;, vocalization &lt;chr&gt;,</span></span></span>
-<span><span class="co">## <span style="color: #949494;">#   abundance &lt;dbl&gt;, tag_start_time &lt;dbl&gt;, tag_duration &lt;chr&gt;,</span></span></span>
+<span><span class="co">## <span style="color: #949494;">#   abundance &lt;dbl&gt;, detection_time &lt;dbl&gt;, tag_duration &lt;chr&gt;,</span></span></span>
 <span><span class="co">## <span style="color: #949494;">#   min_tag_freq &lt;chr&gt;, max_tag_freq &lt;chr&gt;, species_individual_comments &lt;chr&gt;,</span></span></span>
 <span><span class="co">## <span style="color: #949494;">#   tag_is_hidden_for_verification &lt;lgl&gt;, recording_sample_frequency &lt;dbl&gt;,</span></span></span>
-<span><span class="co">## <span style="color: #949494;">#   internal_tag_id &lt;chr&gt;</span></span></span></code></pre>
+<span><span class="co">## <span style="color: #949494;">#   tag_id &lt;chr&gt;</span></span></span></code></pre>
 <p><span style="display: inline-block; border: 1px solid #000; padding: 5px; background-color: #f0f0f0;">
 If no human-generated tags exist in a project, in other words you are
 only using classifiers to detect species, additional tags can be easily
@@ -376,7 +409,7 @@ task (1SPT) or minute (1SPM). This might be of interest if you’re using
 call rate in a behavioural analysis, or if you’re looking for detections
 for tool development like distance estimation or building a focal
 species recognizer. Let’s try it for White-crowned Sparrow (WCSP):</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Evaluate classifier performance</span></span>
 <span></span>
 <span><span class="va">eval_wcsp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/wt_evaluate_classifier.html">wt_evaluate_classifier</a></span><span class="op">(</span><span class="va">data</span>,</span>
@@ -400,7 +433,7 @@ for verification, even though the classifiers performance for
 White-crowned Sparrow is pretty good. Let’s take a look at our output as
 call rate to see if it’s higher at the beginning of the season, as we
 would expect:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Calculate detections per second and mean confidence in each recording</span></span>
 <span><span class="va">rate_wcsp</span> <span class="op">&lt;-</span> <span class="va">detections_wcsp</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">location_id</span>, <span class="va">recording_date_time</span>, <span class="va">recording_length</span>, <span class="va">version</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -427,7 +460,7 @@ would expect:</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Day of year"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"Rate of White-crowned Sparrow detections per minute"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="classifiers-tutorial_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" alt="" width="700"></p>
+<p><img src="classifiers-tutorial_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" alt="" width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="other-applications">Other applications<a class="anchor" aria-label="anchor" href="#other-applications"></a>
